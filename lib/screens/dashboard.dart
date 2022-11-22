@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,25 +30,38 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void getDebts() async {
-    List<dynamic> debtIds = [];
+    Map<String, dynamic> debtIds = Map();
 
     var value = await db
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
-    debtIds = value.data()!["debts"];
+    print(value.data()!["debts"]);
+    debtIds = (value.data()!["debts"] as Map<String, dynamic>);
 
-    for (var element in debtIds) {
-      Debt debt = await getDebtDetails(element.toString());
-      setState(() {
-        debts.add(debt);
+    print(debtIds);
+
+    debtIds.forEach((key, value) {
+      value.forEach((element) async {
+        Debt debt = await getDebtDetails(element.toString());
+        setState(() {
+          debts.add(debt);
+        });
       });
-    }
+    });
+
+    // for (var element in debtIds.keys) {
+    //   Debt debt = await getDebtDetails(element.toString());
+    //   setState(() {
+    //     debts.add(debt);
+    //   });
+    // }
     print(debts.length);
   }
 
   Future<Debt> getDebtDetails(String id) async {
     var value = await db.collection("debts").doc(id).get();
+    print(value.toString());
     return Debt.fromJson(value.data()!);
   }
 
