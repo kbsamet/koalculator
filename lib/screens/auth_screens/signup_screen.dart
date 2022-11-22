@@ -4,6 +4,7 @@ import 'package:koalculator/screens/auth_screens/login_page.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
+import 'choose_name.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -17,14 +18,14 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordController = TextEditingController();
 
   void Signup() async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+90${emailController.text}',
-      verificationCompleted: (PhoneAuthCredential credential) {},
-      verificationFailed: (FirebaseAuthException e) {},
-      codeSent: (String verificationId, int? resendToken) {},
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
-    /*
+    // await FirebaseAuth.instance.verifyPhoneNumber(
+    //   phoneNumber: '+90${emailController.text}',
+    //   verificationCompleted: (PhoneAuthCredential credential) {},
+    //   verificationFailed: (FirebaseAuthException e) {},
+    //   codeSent: (String verificationId, int? resendToken) {},
+    //   codeAutoRetrievalTimeout: (String verificationId) {},
+    // );
+
     try {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
@@ -41,7 +42,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
       print(e.code);
     }
-    */
   }
 
   @override
