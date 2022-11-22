@@ -1,9 +1,10 @@
 class Group {
-  final int id;
+  final String id;
+  final List<String> users;
 
-  Group(
-      {required this.id});
+  Group(this.users, {required this.id});
 
   Group.fromJson(Map<String, dynamic> json)
-      : ;
+      : id = json["id"],
+        users = json["users"];
 }
