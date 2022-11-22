@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "253443316230",
+    "project_id": "koalculator-5584c",
+    "storage_bucket": "koalculator-5584c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253443316230:android:5cef9c978ed446ee8a0187",
+        "android_client_info": {
+          "package_name": "com.example.koalculator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "253443316230-r2vte6erj5mmgbdh6mvv86fl9ponngv3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFqTheg_J2tptIVdTicdZb2vMkULmEjr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "253443316230-r2vte6erj5mmgbdh6mvv86fl9ponngv3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "253443316230-cugjehi6qfqiuqh07p9hckisclpsmiso.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.koalculator"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
