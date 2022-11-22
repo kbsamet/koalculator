@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 
 class DefaultTextInput extends StatefulWidget {
   final TextEditingController controller;
   final String? hintText;
   final IconData icon;
   final bool isPassword;
+  final bool noMargin;
+  final bool noIcon;
+  final bool onlyNumber;
+  final Function(String)? onChanged;
+
   const DefaultTextInput(
       {Key? key,
       required this.controller,
       this.hintText,
       required this.icon,
-      this.isPassword = false})
+      this.isPassword = false,
+      this.noMargin = false,
+      this.noIcon = false,
+      this.onlyNumber = false,
+      this.onChanged})
       : super(key: key);
 
   @override
@@ -36,7 +46,9 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
     return Container(
         height: 54,
         width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 20),
+        margin: widget.noMargin
+            ? const EdgeInsets.all(0)
+            : const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.symmetric(horizontal: 7),
         decoration: BoxDecoration(
             border: SchedulerBinding
@@ -48,21 +60,32 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              widget.icon,
-              size: 26,
-            ),
+            widget.noIcon
+                ? Container()
+                : Icon(
+                    widget.icon,
+                    size: 26,
+                  ),
             const SizedBox(
               width: 10,
             ),
             Expanded(
               child: TextField(
+                onChanged: widget.onChanged ?? (e) => {},
                 controller: widget.controller,
                 obscureText: isObscured,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: widget.hintText ?? "",
                 ),
+                keyboardType: widget.onlyNumber
+                    ? TextInputType.number
+                    : TextInputType.text,
+                inputFormatters: widget.onlyNumber
+                    ? <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ]
+                    : [], // Only numbers can be entered
               ),
             ),
             widget.isPassword
