@@ -1,11 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
+import 'package:koalculator/models/user.dart';
 
-class DebtListView extends StatelessWidget {
-  final String name;
-  final num value;
-  const DebtListView({Key? key, required this.name, required this.value})
-      : super(key: key);
+import '../../models/debt.dart';
+
+final db = FirebaseFirestore.instance;
+
+class DebtListView extends StatefulWidget {
+  final Debt debt;
+  const DebtListView({Key? key, required this.debt}) : super(key: key);
+
+  @override
+  State<DebtListView> createState() => _DebtListViewState();
+}
+
+class _DebtListViewState extends State<DebtListView> {
+  bool isSender = false;
+  KoalUser? user;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      isSender = widget.debt.senderId == FirebaseAuth.instance.currentUser!.uid;
+    });
+    getUser();
+  }
+
+  void getUser() async {
+    var res = await db
+        .collection("users")
+        .doc(isSender ? widget.debt.recieverId : widget.debt.senderId)
+        .get();
+    setState(() {
+      user = KoalUser.fromJson(res.data()!);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +50,21 @@ class DebtListView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              name,
+              user == null
+                  ? isSender
+                      ? widget.debt.recieverId
+                      : widget.debt.senderId
+                  : user!.name,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
                 Text(
-                  value > 0 ? "+ $value ₺" : "- ${-value} ₺",
+                  !isSender
+                      ? "+ ${widget.debt.amount} ₺"
+                      : "- ${widget.debt.amount} ₺",
                   style: TextStyle(
-                      color: value > 0
+                      color: !isSender
                           ? const Color(0xff34A853)
                           : const Color(0xffF71B4E),
                       fontWeight: FontWeight.bold,
@@ -34,7 +73,7 @@ class DebtListView extends StatelessWidget {
                 const SizedBox(
                   width: 20,
                 ),
-                DebtButton(onPressed: () {}, isPositive: value > 0),
+                DebtButton(onPressed: () {}, isPositive: !isSender),
                 const SizedBox(
                   width: 20,
                 ),

@@ -3,18 +3,73 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/components/dashboard/group_list_view.dart';
+import 'package:koalculator/models/debt.dart';
+import 'package:koalculator/models/group.dart';
 
 final db = FirebaseFirestore.instance;
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
-  void getGroups() async {
-    db
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  List<Group> groups = [];
+  List<Debt> debts = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getGroups();
+    getDebts();
+  }
+
+  void getDebts() async {
+    List<dynamic> debtIds = [];
+
+    var value = await db
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get()
-        .then((value) => print(value.data()!["groups"]));
+        .get();
+    debtIds = value.data()!["debts"];
+
+    for (var element in debtIds) {
+      Debt debt = await getDebtDetails(element.toString());
+      setState(() {
+        debts.add(debt);
+      });
+    }
+    print(debts.length);
+  }
+
+  Future<Debt> getDebtDetails(String id) async {
+    var value = await db.collection("debts").doc(id).get();
+    return Debt.fromJson(value.data()!);
+  }
+
+  void getGroups() async {
+    List<dynamic> groupIds = [];
+
+    var value = await db
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    groupIds = value.data()!["groups"];
+
+    for (var element in groupIds) {
+      Group group = await getGroupDetails(element.toString());
+      setState(() {
+        groups.add(group);
+      });
+    }
+  }
+
+  Future<Group> getGroupDetails(String id) async {
+    var value = await db.collection("groups").doc(id).get();
+    return Group.fromJson(value.data()!);
   }
 
   final tabBar = const TabBar(
@@ -82,45 +137,28 @@ class Dashboard extends StatelessWidget {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: const [
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GroupListView(
-                      groupName: "Zombiler",
-                      memberNames: ["Emre", "Samet", "Sego"],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GroupListView(
-                      groupName: "Seba",
-                      memberNames: ["Sinan", "Sego"],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GroupListView(
-                      groupName: "Sert",
-                      memberNames: ["Kerre", "Ege hoca"],
-                    ),
-                  ],
+                  children: groups
+                      .map((e) => Column(
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              GroupListView(group: e),
+                            ],
+                          ))
+                      .toList(),
                 ),
                 Column(
-                  children: const [
-                    SizedBox(
-                      height: 20,
-                    ),
-                    DebtListView(name: "Emre", value: 100),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    DebtListView(name: "Sego", value: -50),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    DebtListView(name: "Sinan", value: -2000)
-                  ],
+                  children: debts
+                      .map((e) => Column(
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              DebtListView(debt: e),
+                            ],
+                          ))
+                      .toList(),
                 ),
               ])),
         ));
