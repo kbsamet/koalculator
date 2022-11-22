@@ -5,6 +5,8 @@ import 'package:koalculator/components/dashboard/group_list_view.dart';
 class Dashboard extends StatelessWidget {
   const Dashboard({Key? key}) : super(key: key);
 
+  void getGroups() async {}
+
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
       labelColor: Color(0xffFF6D8F),
@@ -19,6 +21,7 @@ class Dashboard extends StatelessWidget {
           text: "Kişiler",
         )
       ]);
+
   @override
   Widget build(BuildContext context) {
     return Container(
