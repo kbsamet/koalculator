@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/login_page.dart';
 import 'package:koalculator/screens/group_screens/add_debt.dart';
+import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -60,6 +61,6 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return FirebaseAuth.instance.currentUser == null
         ? const LoginScreen()
-        : const AddDebtScreen();
+        : const ProfileScreen();
   }
 }
