@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/login_page.dart';
 import 'package:koalculator/screens/dashboard.dart';
+import 'package:koalculator/screens/group_screens/add_debt.dart';
 
 final db = FirebaseFirestore.instance;
 
