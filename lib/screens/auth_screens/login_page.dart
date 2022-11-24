@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/screens/auth_screens/signup_screen.dart';
+import 'package:koalculator/screens/main_page.dart';
 
 import '../../components/default_text_input.dart';
 
@@ -31,6 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       print(e.code);
     }
+
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainPage()));
   }
 
   @override
