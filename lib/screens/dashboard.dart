@@ -6,6 +6,8 @@ import 'package:koalculator/components/dashboard/group_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 
+import '../services/debts.dart';
+
 final db = FirebaseFirestore.instance;
 
 class Dashboard extends StatefulWidget {
@@ -24,26 +26,30 @@ class _DashboardState extends State<Dashboard> {
     // TODO: implement initState
     super.initState();
     getGroups();
-    getDebts();
+    init();
   }
 
-  void getDebts() async {
-    List<dynamic> debtIds = [];
-
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    debtIds = value.data()!["debts"];
-
-    for (var element in debtIds) {
-      Debt debt = await getDebtDetails(element.toString());
-      setState(() {
-        debts.add(debt);
-      });
-    }
-    print(debts.length);
+  void init() async {
+    print((await getDebts()));
   }
+
+  // void getDebts() async {
+  //   List<dynamic> debtIds = [];
+
+  //   var value = await db
+  //       .collection("users")
+  //       .doc(FirebaseAuth.instance.currentUser!.uid)
+  //       .get();
+  //   debtIds = value.data()!["debts"];
+
+  //   for (var element in debtIds) {
+  //     Debt debt = await getDebtDetails(element.toString());
+  //     setState(() {
+  //       debts.add(debt);
+  //     });
+  //   }
+  //   print(debts.length);
+  // }
 
   Future<Debt> getDebtDetails(String id) async {
     var value = await db.collection("debts").doc(id).get();
@@ -137,7 +143,7 @@ class _DashboardState extends State<Dashboard> {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: groups
+                  children: [] /*groups
                       .map((e) => Column(
                             children: [
                               const SizedBox(
@@ -145,8 +151,8 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               GroupListView(group: e),
                             ],
-                          ))
-                      .toList(),
+                          ))*/
+                  ,
                 ),
                 Column(
                   children: debts
