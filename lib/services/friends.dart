@@ -1,15 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:koalculator/components/dashboard/debt_list_view.dart';
-import 'package:koalculator/components/dashboard/group_list_view.dart';
-import 'package:koalculator/models/debt.dart';
-import 'package:koalculator/models/group.dart';
-import 'package:koalculator/models/user.dart';
 
 final db = FirebaseFirestore.instance;
 
-void deleteFriend(String id) {
+void deleteFriend(String friendId) {
   db
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -31,10 +25,34 @@ void addFriend(Map<String, bool> friend) {
       );
 }
 
-void getAcceptedFriends() {
+List<String> getAcceptedFriends() {
   Map<dynamic, dynamic> friends = {};
+  List<String> acceptedFriends = [];
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then(
         (doc) => friends = doc.data()!["friends"],
         onError: (e) => print("Error updating document $e"),
       );
+
+  friends.forEach((key, value) {
+    if (!value) {
+      acceptedFriends.add(key);
+    }
+  });
+  return acceptedFriends;
+}
+
+List<String> getFriendRequests() {
+  Map<dynamic, dynamic> friends = {};
+  List<String> friendRequests = [];
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then(
+        (doc) => friends = doc.data()!["friends"],
+        onError: (e) => print("Error updating document $e"),
+      );
+
+  friends.forEach((key, value) {
+    if (value) {
+      friendRequests.add(key);
+    }
+  });
+  return friendRequests;
 }

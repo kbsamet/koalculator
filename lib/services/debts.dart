@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:koalculator/components/dashboard/debt_list_view.dart';
-import 'package:koalculator/components/dashboard/group_list_view.dart';
+
 import 'package:koalculator/models/debt.dart';
-import 'package:koalculator/models/group.dart';
 
 final db = FirebaseFirestore.instance;
 

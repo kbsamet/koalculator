@@ -115,7 +115,17 @@ class _DashboardState extends State<Dashboard> {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: [] /*groups
+                  children: [
+                    DefaultButton(
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const MainPage()));
+                        },
+                        text: "Çık")
+                  ] /*groups
                       .map((e) => Column(
                             children: [
                               const SizedBox(
