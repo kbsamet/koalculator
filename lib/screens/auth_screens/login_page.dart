@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/default_button.dart';
-import 'package:koalculator/screens/auth_screens/signup_screen.dart';
+import 'package:koalculator/screens/auth_screens/otp_page.dart';
 
 import '../../components/default_text_input.dart';
 
@@ -13,24 +12,23 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
 
-  void Login() async {
-    try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-
-      print(credential);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
-
-      print(e.code);
+  submitPhone() {
+    String pattern = r'(^(?:[+0]9)?[0-9]{10}$)';
+    RegExp regExp = RegExp(pattern);
+    if (phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Lütfen bir telefon numarası giriniz")));
+      return;
+    } else if (!regExp.hasMatch(phoneController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Girdiğiniz telefon numarası doğru değil")));
+      return;
     }
+
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => OtpPage(phoneNumber: phoneController.text)));
   }
 
   @override
@@ -59,49 +57,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     thickness: 2,
                   ),
                   const SizedBox(
-                    height: 46,
+                    height: 20,
                   ),
                   DefaultTextInput(
-                    controller: emailController,
-                    icon: Icons.mail_outline,
-                    hintText: "E-mail",
+                    onlyNumber: true,
+                    controller: phoneController,
+                    icon: Icons.phone,
+                    hintText: "Telefon Numaran",
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
-                  DefaultTextInput(
-                    controller: passwordController,
-                    icon: Icons.key_outlined,
-                    hintText: "Password",
-                    isPassword: true,
-                  ),
-                  const SizedBox(
-                    height: 46,
-                  ),
-                  DefaultButton(onPressed: Login, text: "Giriş Yap"),
+                  Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: DefaultButton(
+                          onPressed: submitPhone, text: "Devam Et")),
                   const SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Hesabın mı yok?",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => const SignupScreen())),
-                        child: const Text(
-                          "  Üye ol",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xffFF3737)),
-                        ),
-                      )
-                    ],
-                  )
                 ]),
           ),
         ),
