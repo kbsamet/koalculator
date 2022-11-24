@@ -6,6 +6,10 @@ import 'package:koalculator/components/dashboard/group_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 
+import '../services/debts.dart';
+import '../components/default_button.dart';
+import 'main_page.dart';
+
 final db = FirebaseFirestore.instance;
 
 class Dashboard extends StatefulWidget {
@@ -24,26 +28,30 @@ class _DashboardState extends State<Dashboard> {
     // TODO: implement initState
     super.initState();
     getGroups();
-    getDebts();
+    init();
   }
 
-  void getDebts() async {
-    List<dynamic> debtIds = [];
-
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    debtIds = value.data()!["debts"];
-
-    for (var element in debtIds) {
-      Debt debt = await getDebtDetails(element.toString());
-      setState(() {
-        debts.add(debt);
-      });
-    }
-    print(debts.length);
+  void init() async {
+    print((await getDebts()));
   }
+
+  // void getDebts() async {
+  //   List<dynamic> debtIds = [];
+
+  //   var value = await db
+  //       .collection("users")
+  //       .doc(FirebaseAuth.instance.currentUser!.uid)
+  //       .get();
+  //   debtIds = value.data()!["debts"];
+
+  //   for (var element in debtIds) {
+  //     Debt debt = await getDebtDetails(element.toString());
+  //     setState(() {
+  //       debts.add(debt);
+  //     });
+  //   }
+  //   print(debts.length);
+  // }
 
   Future<Debt> getDebtDetails(String id) async {
     var value = await db.collection("debts").doc(id).get();
@@ -98,36 +106,6 @@ class _DashboardState extends State<Dashboard> {
                   titleSpacing: 0,
                   toolbarHeight: 0,
                   backgroundColor: const Color(0xff303139),
-                  /*title: SafeArea(
-                    child: Container(
-                      color: const Color(0xff1B1C26),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              "Koalculator",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 36),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Divider(
-                              color: Color(0xffF71B4E),
-                              indent: 30,
-                              endIndent: 30,
-                              thickness: 2,
-                            ),
-                            SizedBox(
-                              height: 20,
-                            )
-                          ]),
-                    ),
-                  ),
-                  */
                   bottom: PreferredSize(
                     preferredSize: tabBar.preferredSize,
                     child: Material(
@@ -137,16 +115,26 @@ class _DashboardState extends State<Dashboard> {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: groups
+                  children: [] /*groups
                       .map((e) => Column(
                             children: [
                               const SizedBox(
                                 height: 20,
                               ),
                               GroupListView(group: e),
+                              DefaultButton(
+                                  onPressed: () {
+                                    FirebaseAuth.instance.signOut();
+
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MainPage()));
+                                  },
+                                  text: "Çık")
                             ],
-                          ))
-                      .toList(),
+                          ))*/
+                  ,
                 ),
                 Column(
                   children: debts
