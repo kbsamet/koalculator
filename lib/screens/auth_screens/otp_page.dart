@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:koalculator/screens/main_page.dart';
 
 import '../../components/default_button.dart';
+import '../main_page.dart';
+
+final db = FirebaseFirestore.instance;
 
 class OtpPage extends StatefulWidget {
   final String phoneNumber;
@@ -30,7 +33,16 @@ class _OtpPageState extends State<OtpPage> {
   void Login() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+90${widget.phoneNumber}',
-      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationCompleted: (PhoneAuthCredential credential) {
+        db.doc("users").update({
+          FirebaseAuth.instance.currentUser!.uid: {
+            "phoneNumber": widget.phoneNumber
+          }
+        });
+
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: ((context) => const MainPage())));
+      },
       verificationFailed: (FirebaseAuthException e) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Girdiğiniz şifre yanlış")));
@@ -54,8 +66,6 @@ class _OtpPageState extends State<OtpPage> {
 
     // Sign the user in (or link) with the credential
     await FirebaseAuth.instance.signInWithCredential(credential);
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: ((context) => const MainPage())));
   }
 
   @override
