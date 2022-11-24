@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 class DefaultTextInput extends StatefulWidget {
@@ -10,6 +9,7 @@ class DefaultTextInput extends StatefulWidget {
   final bool noMargin;
   final bool noIcon;
   final bool onlyNumber;
+  final bool isDisabled;
   final Function(String)? onChanged;
 
   const DefaultTextInput(
@@ -21,6 +21,7 @@ class DefaultTextInput extends StatefulWidget {
       this.noMargin = false,
       this.noIcon = false,
       this.onlyNumber = false,
+      this.isDisabled = false,
       this.onChanged})
       : super(key: key);
 
@@ -51,11 +52,10 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
             : const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.symmetric(horizontal: 7),
         decoration: BoxDecoration(
-            border: SchedulerBinding
-                        .instance.platformDispatcher.platformBrightness ==
-                    Brightness.light
-                ? Border.all(color: const Color(0xff949292))
-                : Border.all(color: Colors.white),
+            border: Border.all(
+                color: widget.isDisabled
+                    ? const Color.fromARGB(255, 92, 92, 92)
+                    : const Color(0xff949292)),
             borderRadius: const BorderRadius.all(Radius.circular(5))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -71,10 +71,19 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
             ),
             Expanded(
               child: TextField(
+                style: TextStyle(
+                    color: widget.isDisabled
+                        ? const Color.fromARGB(255, 92, 92, 92)
+                        : Colors.white),
+                enabled: !widget.isDisabled,
                 onChanged: widget.onChanged ?? (e) => {},
                 controller: widget.controller,
                 obscureText: isObscured,
                 decoration: InputDecoration(
+                  hintStyle: TextStyle(
+                      color: widget.isDisabled
+                          ? const Color.fromARGB(255, 92, 92, 92)
+                          : Colors.white),
                   border: InputBorder.none,
                   hintText: widget.hintText ?? "",
                 ),

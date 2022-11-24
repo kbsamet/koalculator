@@ -18,8 +18,12 @@ class AddDebtScreen extends StatefulWidget {
 class _AddDebtScreenState extends State<AddDebtScreen> {
   List<Group> groups = [];
   List<KoalUser> groupUsers = [];
+  List<bool> checkedUsers = [];
+
   List<TextEditingController> paidControllers = [];
   List<TextEditingController> toBePaidControllers = [];
+  List<bool> changedInputs = [];
+
   String selectedValue = "";
   TextEditingController amountController = TextEditingController();
 
@@ -56,26 +60,37 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     num amount = num.parse(s);
 
     for (var element in toBePaidControllers) {
-      element.text = (amount / toBePaidControllers.length).toString();
+      element.text = (amount / toBePaidControllers.length).floor().toString();
     }
+    setState(() {
+      changedInputs = List.filled(toBePaidControllers.length, false);
+    });
   }
 
   getGroupUsers(Group g) async {
     List<KoalUser> newUsers = [];
     List<TextEditingController> newPaidControllers = [];
     List<TextEditingController> newToBePaidControllers = [];
+    List<bool> newChangedInputs = [];
 
-    for (var element in g.users) {
-      var res = await db.collection("users").doc(element).get();
+    List<bool> newCheckedUsers = [];
+    for (var i = 0; i < g.users.length; i++) {
+      print(checkedUsers.length);
+      if (checkedUsers.length > i && !checkedUsers[i]) continue;
+      var res = await db.collection("users").doc(g.users[i]).get();
       newUsers.add(KoalUser.fromJson(res.data()!));
       newPaidControllers.add(TextEditingController());
       newToBePaidControllers.add(TextEditingController());
+      newChangedInputs.add(false);
+      newCheckedUsers.add(true);
     }
 
     setState(() {
       groupUsers = newUsers;
       paidControllers = newPaidControllers;
       toBePaidControllers = newToBePaidControllers;
+      changedInputs = newChangedInputs;
+      checkedUsers = newCheckedUsers;
     });
   }
 
@@ -84,14 +99,26 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     return selectedValue == ""
         ? Container()
         : Container(
-            color: const Color(0xff303139),
+            color: const Color(0xff1B1C26),
             child: Scaffold(
               appBar: AppBar(
-                title: const Text("Borç Ekle"),
+                backgroundColor: const Color(0xff1B1C26),
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios,
+                      size: 30, color: Color(0xffF71B4E)),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                title: const Text(
+                  "Borç Ekle",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                      color: Color(0xffF71B4E)),
+                ),
               ),
               body: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: ListView(
                   children: [
                     const SizedBox(
                       height: 10,
@@ -173,101 +200,216 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Column(
-                      children: groupUsers
-                          .map((e) => Container(
-                                padding: const EdgeInsets.all(20),
-                                color: const Color(0xff292A33),
-                                child: Row(
+                    //burası
+                    SizedBox(
+                      height: 300,
+                      child: ListView(
+                        children: groupUsers
+                            .map((e) => Column(
                                   children: [
-                                    Text(
-                                      e.name,
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Checkbox(
-                                        activeColor: const Color(0xffDA2851),
-                                        value: true,
-                                        onChanged: (e) {}),
-                                    Flexible(
-                                      child: DefaultTextInput(
-                                        controller: paidControllers[
-                                            groupUsers.indexOf(e)],
-                                        icon: Icons.abc,
-                                        noIcon: true,
-                                        noMargin: true,
-                                        hintText: "Ödenen",
-                                        onlyNumber: true,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Flexible(
-                                      child: DefaultTextInput(
-                                        onChanged: (s) {
-                                          if (num.parse(s) >
-                                              num.parse(
-                                                  amountController.text)) {
-                                            TextEditingController
-                                                thisController =
-                                                toBePaidControllers[
-                                                    groupUsers.indexOf(e)];
-                                            thisController.text =
-                                                amountController.text;
-                                          }
-                                          TextEditingController thisController =
-                                              toBePaidControllers[
-                                                  groupUsers.indexOf(e)];
-                                          for (var element
-                                              in toBePaidControllers) {
-                                            if (element != thisController) {
-                                              print((num.parse(
-                                                      amountController.text) -
-                                                  num.parse(
-                                                      thisController.text)));
-                                              print(toBePaidControllers.length -
-                                                  1);
-                                              print(((num.parse(amountController
-                                                                  .text) -
-                                                              num.parse(
-                                                                  thisController
-                                                                      .text)) /
-                                                          toBePaidControllers
-                                                              .length -
-                                                      1)
-                                                  .toString());
-                                              element.text = ((num.parse(
-                                                              amountController
-                                                                  .text) -
+                                    Container(
+                                      padding: const EdgeInsets.all(15),
+                                      color: const Color(0xff292A33),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Checkbox(
+                                                  activeColor:
+                                                      const Color(0xffDA2851),
+                                                  value: checkedUsers[
+                                                      groupUsers.indexOf(e)],
+                                                  onChanged: (v) {
+                                                    setState(() {
+                                                      checkedUsers[groupUsers
+                                                          .indexOf(e)] = v!;
+                                                      paidControllers[groupUsers
+                                                              .indexOf(e)]
+                                                          .text = "";
+                                                      toBePaidControllers[
+                                                              groupUsers
+                                                                  .indexOf(e)]
+                                                          .text = "";
+                                                      changedInputs =
+                                                          List.filled(
+                                                              toBePaidControllers
+                                                                  .length,
+                                                              false);
+                                                    });
+                                                  }),
+                                              Text(
+                                                e.name,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: !checkedUsers[
+                                                            groupUsers
+                                                                .indexOf(e)]
+                                                        ? const Color.fromARGB(
+                                                            255, 92, 92, 92)
+                                                        : Colors.white),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 100,
+                                                child: DefaultTextInput(
+                                                  isDisabled: !checkedUsers[
+                                                      groupUsers.indexOf(e)],
+                                                  controller: paidControllers[
+                                                      groupUsers.indexOf(e)],
+                                                  icon: Icons.abc,
+                                                  noIcon: true,
+                                                  noMargin: true,
+                                                  hintText: "Ödenen",
+                                                  onlyNumber: true,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              SizedBox(
+                                                width: 100,
+                                                child: DefaultTextInput(
+                                                  isDisabled: !checkedUsers[
+                                                      groupUsers.indexOf(e)],
+                                                  onChanged: (s) {
+                                                    print(checkedUsers);
+                                                    setState(() {
+                                                      changedInputs[groupUsers
+                                                          .indexOf(e)] = true;
+                                                      if (s == "") {
+                                                        changedInputs[groupUsers
+                                                                .indexOf(e)] =
+                                                            false;
+                                                      }
+                                                    });
+                                                    num changedSum = 0;
+                                                    for (var i = 0;
+                                                        i <
+                                                            changedInputs
+                                                                .length;
+                                                        i++) {
+                                                      changedSum += changedInputs[
+                                                                  i] &&
+                                                              checkedUsers[i]
+                                                          ? num.parse(
+                                                              toBePaidControllers[
+                                                                      i]
+                                                                  .text)
+                                                          : 0;
+                                                    }
+                                                    print(changedSum);
+                                                    if (changedSum >
+                                                        num.parse(
+                                                            amountController
+                                                                .text)) {
+                                                      TextEditingController
+                                                          thisController =
+                                                          toBePaidControllers[
+                                                              groupUsers
+                                                                  .indexOf(e)];
+                                                      var diff = changedSum -
                                                           num.parse(
                                                               thisController
-                                                                  .text)) /
-                                                      (toBePaidControllers
-                                                              .length -
-                                                          1))
-                                                  .toString();
-                                            }
-                                          }
-                                        },
-                                        controller: toBePaidControllers[
-                                            groupUsers.indexOf(e)],
-                                        icon: Icons.abc,
-                                        noIcon: true,
-                                        noMargin: true,
-                                        hintText: "Ödenecek",
-                                        onlyNumber: true,
+                                                                  .text);
+                                                      thisController
+                                                          .text = (num.parse(
+                                                                  amountController
+                                                                      .text) -
+                                                              diff)
+                                                          .floor()
+                                                          .toString();
+                                                    }
+                                                    TextEditingController
+                                                        thisController =
+                                                        toBePaidControllers[
+                                                            groupUsers
+                                                                .indexOf(e)];
+                                                    for (var i = 0;
+                                                        i <
+                                                            toBePaidControllers
+                                                                .length;
+                                                        i++) {
+                                                      if (toBePaidControllers[
+                                                                  i] !=
+                                                              thisController &&
+                                                          !changedInputs[i] &&
+                                                          checkedUsers[i]) {
+                                                        var numToDivide = 0;
+                                                        for (var i = 0;
+                                                            i <
+                                                                changedInputs
+                                                                    .length;
+                                                            i++) {
+                                                          if (!changedInputs[
+                                                                  i] &&
+                                                              checkedUsers[i]) {
+                                                            numToDivide++;
+                                                          }
+                                                        }
+                                                        toBePaidControllers[i]
+                                                            .text = ((num.parse(
+                                                                        amountController
+                                                                            .text) -
+                                                                    changedSum) /
+                                                                numToDivide)
+                                                            .clamp(
+                                                                0,
+                                                                num.parse(
+                                                                    amountController
+                                                                        .text))
+                                                            .floor()
+                                                            .toString();
+                                                      }
+                                                    }
+                                                  },
+                                                  controller:
+                                                      toBePaidControllers[
+                                                          groupUsers
+                                                              .indexOf(e)],
+                                                  icon: Icons.abc,
+                                                  noIcon: true,
+                                                  noMargin: true,
+                                                  hintText: "Ödenecek",
+                                                  onlyNumber: true,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
+                                    const SizedBox(
+                                      height: 10,
+                                    )
                                   ],
-                                ),
-                              ))
-                          .toList(),
-                    )
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      color: const Color(0xff292A33),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Borcu herkese eşit böl",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              )),
+                          Checkbox(
+                              activeColor: const Color(0xffDA2851),
+                              value: true,
+                              onChanged: (v) {}),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
