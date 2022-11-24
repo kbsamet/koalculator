@@ -49,7 +49,7 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
         width: double.infinity,
         margin: widget.noMargin
             ? const EdgeInsets.all(0)
-            : const EdgeInsets.symmetric(horizontal: 20),
+            : const EdgeInsets.symmetric(horizontal: 10),
         padding: const EdgeInsets.symmetric(horizontal: 7),
         decoration: BoxDecoration(
             border: Border.all(
