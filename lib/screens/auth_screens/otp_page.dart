@@ -64,7 +64,7 @@ class _OtpPageState extends State<OtpPage> {
         db
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({"phoneNumber": widget.phoneNumber});
+            .set({"phoneNumber": widget.phoneNumber}, SetOptions(merge: true));
         Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: ((context) => const ChooseNameScreen())));
       }

@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+import 'package:koalculator/models/user.dart';
+import 'package:koalculator/services/friends.dart';
+
+class FriendInviteRecieved extends StatefulWidget {
+  final KoalUser user;
+  const FriendInviteRecieved({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<FriendInviteRecieved> createState() => _FriendInviteRecievedState();
+}
+
+class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
+  bool responded = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return responded
+        ? Container()
+        : Container(
+            width: double.infinity,
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            color: const Color(0xff292A33),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(50)),
+                        border: Border.all(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      widget.user.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 3, horizontal: 5),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (responded) return;
+                          denyFriendRequest(widget.user.id!);
+                          setState(() {
+                            responded = true;
+                          });
+                        },
+                        child: Container(
+                          height: 50,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [Color(0xff0F1120), Color(0xff0F1120)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            "Reddet",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: "QuickSand"),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 5),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (responded) false;
+                          acceptFriendRequest(widget.user.id!);
+                          setState(() {
+                            responded = true;
+                          });
+                        },
+                        child: Container(
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [Color(0xffFD4365), Color(0xffFD2064)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            "Kabul Et",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: "QuickSand"),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          );
+  }
+}
