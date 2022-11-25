@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:koalculator/screens/group_screens/create_group.dart';
+import 'package:koalculator/screens/main_page.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -31,9 +31,9 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
     db
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .set({"name": nicknameController.text});
+        .update({"name": nicknameController.text});
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const CreateGroup()));
+        MaterialPageRoute(builder: (context) => const MainPage()));
   }
 
   @override

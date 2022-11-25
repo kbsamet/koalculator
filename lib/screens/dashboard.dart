@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_list_view.dart';
-import 'package:koalculator/components/dashboard/group_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
+import 'package:koalculator/screens/friend_screens/friends_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../services/debts.dart';
 import '../components/default_button.dart';
@@ -32,6 +33,10 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void init() async {
+    var status = await Permission.contacts.status;
+    if (status.isDenied) {
+      Permission.contacts.request();
+    }
     print((await getDebts()));
   }
 
@@ -104,7 +109,33 @@ class _DashboardState extends State<Dashboard> {
           child: Scaffold(
               appBar: AppBar(
                   titleSpacing: 0,
-                  toolbarHeight: 0,
+                  leading: IconButton(
+                    icon: const Icon(
+                      Icons.group,
+                      size: 25,
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const FriendsScreen())),
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(),
+                      const Text(
+                        "Koalculator",
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.person,
+                          size: 25,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    ],
+                  ),
                   backgroundColor: const Color(0xff303139),
                   bottom: PreferredSize(
                     preferredSize: tabBar.preferredSize,
@@ -115,7 +146,17 @@ class _DashboardState extends State<Dashboard> {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: [] /*groups
+                  children: [
+                    DefaultButton(
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const MainPage()));
+                        },
+                        text: "Çık")
+                  ] /*groups
                       .map((e) => Column(
                             children: [
                               const SizedBox(

@@ -4,6 +4,8 @@ PODS:
     - firebase_core
     - Flutter
     - nanopb (< 2.30910.0, >= 2.30908.0)
+  - contacts_service (0.2.2):
+    - Flutter
   - Firebase/Auth (10.2.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 10.2.0)
@@ -129,10 +131,13 @@ PODS:
     - nanopb/encode (= 2.30909.0)
   - nanopb/decode (2.30909.0)
   - nanopb/encode (2.30909.0)
+  - permission_handler_apple (9.0.4):
+    - Flutter
   - PromisesObjC (2.1.1)
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - contacts_service (from `.symlinks/plugins/contacts_service/ios`)
   - Firebase/Core
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -140,6 +145,7 @@ DEPENDENCIES:
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `10.2.0`)
   - Flutter (from `Flutter`)
   - flutter_chat_bubble (from `.symlinks/plugins/flutter_chat_bubble/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
 
 SPEC REPOS:
   trunk:
@@ -162,6 +168,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  contacts_service:
+    :path: ".symlinks/plugins/contacts_service/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -175,6 +183,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_chat_bubble:
     :path: ".symlinks/plugins/flutter_chat_bubble/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
 
 CHECKOUT OPTIONS:
   FirebaseFirestore:
@@ -183,6 +193,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   cloud_firestore: 14451f06cca99dbd56b069624621063150fef3e5
+  contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   Firebase: a3ea7eba4382afd83808376edb99acdaff078dcf
   firebase_auth: dc7124acfe6adb5823dcc4f3063c6b5ab6f92428
   firebase_core: db1432de826785171029b7c1a26e5b22ce1dd477
@@ -197,14 +208,15 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 410df999af5c53d4d289ed16a863940a116e1d35
   FirebaseInstallations: 004915af170935e3a583faefd5f8bc851afc220f
   FirebaseStorage: e7b3fdc90b579cda35e5a0e4c6b206325766e75a
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_chat_bubble: cad6265ec611ba0f7bede70eabc26fdfce9bf2b0
   GoogleAppMeasurement: 3bc3a6484b7bb20dd8489242c4dd3c92a3e5107b
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   GTMSessionFetcher: c1edebe64e9fb4e8f6415d018edf1fd3eac074a1
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
+  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
 
-PODFILE CHECKSUM: 3f3b5c10b6d857bdb1d78eb8124847740bb531eb
+PODFILE CHECKSUM: ccae0042009bf71b09d99b59e491a9820443a709
 
 COCOAPODS: 1.11.3

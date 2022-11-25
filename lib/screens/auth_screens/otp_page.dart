@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:koalculator/screens/auth_screens/choose_name.dart';
 
 import '../../components/default_button.dart';
-import '../main_page.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -33,16 +33,7 @@ class _OtpPageState extends State<OtpPage> {
   void Login() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+90${widget.phoneNumber}',
-      verificationCompleted: (PhoneAuthCredential credential) {
-        db.doc("users").update({
-          FirebaseAuth.instance.currentUser!.uid: {
-            "phoneNumber": widget.phoneNumber
-          }
-        });
-
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: ((context) => const MainPage())));
-      },
+      verificationCompleted: (PhoneAuthCredential credential) {},
       verificationFailed: (FirebaseAuthException e) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Girdiğiniz şifre yanlış")));
@@ -61,11 +52,27 @@ class _OtpPageState extends State<OtpPage> {
     for (var controller in codeControllers) {
       code += controller.text;
     }
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId!, smsCode: code);
+    try {
+      print(code);
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verificationId!, smsCode: code);
 
-    // Sign the user in (or link) with the credential
-    await FirebaseAuth.instance.signInWithCredential(credential);
+      // Sign the user in (or link) with the credential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (FirebaseAuth.instance.currentUser != null) {
+        db
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({"phoneNumber": widget.phoneNumber});
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: ((context) => const ChooseNameScreen())));
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Girdiğiniz şifre yanlış")));
+    }
   }
 
   @override
@@ -76,7 +83,7 @@ class _OtpPageState extends State<OtpPage> {
         child: Scaffold(
           body: Container(
             width: double.infinity,
-            margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 30),
+            margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -96,52 +103,55 @@ class _OtpPageState extends State<OtpPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      _textFieldOTP(
-                          first: true,
-                          last: false,
-                          controller: codeControllers[0]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _textFieldOTP(
-                          first: false,
-                          last: false,
-                          controller: codeControllers[1]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _textFieldOTP(
-                          first: false,
-                          last: false,
-                          controller: codeControllers[2]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _textFieldOTP(
-                          first: false,
-                          last: false,
-                          controller: codeControllers[3]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _textFieldOTP(
-                          first: false,
-                          last: false,
-                          controller: codeControllers[4]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _textFieldOTP(
-                          first: false,
-                          last: true,
-                          controller: codeControllers[5]),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                    ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _textFieldOTP(
+                            first: true,
+                            last: false,
+                            controller: codeControllers[0]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: codeControllers[1]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: codeControllers[2]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: codeControllers[3]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: codeControllers[4]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _textFieldOTP(
+                            first: false,
+                            last: true,
+                            controller: codeControllers[5]),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
@@ -153,6 +163,13 @@ class _OtpPageState extends State<OtpPage> {
                   const SizedBox(
                     height: 30,
                   ),
+                  InkWell(
+                    onTap: Login,
+                    child: const Text(
+                      "Tekrar şifre gönder",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  )
                 ]),
           ),
         ),
@@ -163,7 +180,7 @@ class _OtpPageState extends State<OtpPage> {
   Widget _textFieldOTP(
       {required bool first, last, required TextEditingController controller}) {
     return SizedBox(
-      height: 60,
+      height: 55,
       child: AspectRatio(
         aspectRatio: 1.0,
         child: Container(
