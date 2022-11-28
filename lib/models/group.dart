@@ -1,5 +1,5 @@
 class Group {
-  final String pic;
+  final String? pic;
   final List<dynamic> users;
   final String name;
 
@@ -8,5 +8,5 @@ class Group {
   Group.fromJson(Map<String, dynamic> json)
       : users = json["users"],
         name = json["name"],
-        pic = json["pic"];
+        pic = json["pic"] ?? null;
 }

@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:koalculator/models/user.dart';
 
-class GroupFriendView extends StatelessWidget {
-  const GroupFriendView({Key? key}) : super(key: key);
+class GroupFriendView extends StatefulWidget {
+  final KoalUser user;
+  final Function(KoalUser, bool) addUser;
+  const GroupFriendView({Key? key, required this.user, required this.addUser})
+      : super(key: key);
+
+  @override
+  State<GroupFriendView> createState() => _GroupFriendViewState();
+}
+
+class _GroupFriendViewState extends State<GroupFriendView> {
+  bool checkboxValue = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,28 +39,24 @@ class GroupFriendView extends StatelessWidget {
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    "Kelto",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    widget.user.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Text(
-                    "Rapist",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        color: Color(0xffB0B0B0)),
-                  )
                 ],
               ),
             ],
           ),
           Checkbox(
-            value: true,
-            onChanged: (e) {},
+            value: checkboxValue,
+            onChanged: (e) {
+              setState(() {
+                checkboxValue = e!;
+              });
+              widget.addUser(widget.user, e!);
+            },
             activeColor: const Color(0xffDA2851),
           )
         ],

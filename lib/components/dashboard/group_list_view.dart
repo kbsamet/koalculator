@@ -21,7 +21,7 @@ class GroupListView extends StatefulWidget {
 
 class _GroupListViewState extends State<GroupListView> {
   List<KoalUser> users = [];
-  String imageUrl = "";
+  String? imageUrl;
   @override
   void initState() {
     // TODO: implement initState
@@ -33,7 +33,7 @@ class _GroupListViewState extends State<GroupListView> {
   void getUserNames() async {
     for (var element in widget.group.users) {
       var res = await db.collection("users").doc(element).get();
-      print(res);
+
       setState(() {
         users.add(KoalUser.fromJson(res.data()!));
       });
@@ -41,19 +41,24 @@ class _GroupListViewState extends State<GroupListView> {
   }
 
   void getImage() async {
-    String url = await FirebaseStorage.instance
-        .refFromURL(widget.group.pic)
-        .getDownloadURL();
-    setState(() {
-      imageUrl = url;
-    });
+    if (widget.group.pic != null) {
+      String url = await FirebaseStorage.instance
+          .refFromURL(widget.group.pic!)
+          .getDownloadURL();
+
+      setState(() {
+        imageUrl = url;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const GroupDetailScreen())),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => GroupDetailScreen(
+                group: widget.group,
+              ))),
       child: Container(
           color: const Color(0xff292A33),
           padding: const EdgeInsets.all(10),
@@ -62,12 +67,19 @@ class _GroupListViewState extends State<GroupListView> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                  width: 65,
-                  height: 65,
-                ),
+                child: imageUrl == null
+                    ? Image.asset(
+                        "assets/images/group.png",
+                        fit: BoxFit.fill,
+                        width: 65,
+                        height: 65,
+                      )
+                    : Image.network(
+                        imageUrl!,
+                        fit: BoxFit.fill,
+                        width: 65,
+                        height: 65,
+                      ),
               ),
               const SizedBox(
                 width: 10,

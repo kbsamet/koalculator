@@ -4,7 +4,10 @@ import 'package:koalculator/services/friends.dart';
 
 class FriendInviteRecieved extends StatefulWidget {
   final KoalUser user;
-  const FriendInviteRecieved({Key? key, required this.user}) : super(key: key);
+  final VoidCallback reset;
+  const FriendInviteRecieved(
+      {Key? key, required this.user, required this.reset})
+      : super(key: key);
 
   @override
   State<FriendInviteRecieved> createState() => _FriendInviteRecievedState();
@@ -57,9 +60,10 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                       margin: const EdgeInsets.symmetric(
                           vertical: 3, horizontal: 5),
                       child: GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if (responded) return;
-                          denyFriendRequest(widget.user.id!);
+                          await denyFriendRequest(widget.user.id!);
+                          widget.reset();
                           setState(() {
                             responded = true;
                           });
@@ -92,9 +96,10 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                       margin: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 5),
                       child: GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if (responded) false;
-                          acceptFriendRequest(widget.user.id!);
+                          await acceptFriendRequest(widget.user.id!);
+                          widget.reset();
                           setState(() {
                             responded = true;
                           });

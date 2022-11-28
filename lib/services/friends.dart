@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/users.dart';
 
@@ -16,13 +17,14 @@ void deleteFriend(String friendId) {
       );
 }
 
-void sendFriendRequest(String friendId) async {
+Future sendFriendRequest(String friendId, dynamic context) async {
   var friendDoc = await db.collection("users").doc(friendId).get();
   if (friendDoc.data()!["friends"] != null &&
       (friendDoc.data()!["friends"] as Map)
           .keys
           .contains(FirebaseAuth.instance.currentUser!.uid)) {
-    print("Already Friends");
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Bu kullanıcıyla zaten arkadaşsınız")));
     return;
   }
   db.collection("users").doc(friendId).update({
@@ -31,9 +33,22 @@ void sendFriendRequest(String friendId) async {
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
     "sentFriendInvites": FieldValue.arrayUnion([friendId])
   }).then(
-    (doc) => print("Document added"),
+    (doc) => ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("İstek Gönderildi"))),
     onError: (e) => print("Error updating document $e"),
   );
+}
+
+Future sendFriendRequestByName(String friendName, dynamic context) async {
+  var friendDoc = await db.collection("users").get();
+  for (var element in friendDoc.docs) {
+    if (element.data()["name"] == friendName) {
+      sendFriendRequest(element.id, context);
+      return;
+    }
+  }
+  ScaffoldMessenger.of(context)
+      .showSnackBar(const SnackBar(content: Text("Bu isimde biri bulunamadı")));
 }
 
 List<String> getAcceptedFriends() {
@@ -84,16 +99,18 @@ Future<List> getRecievedFriendRequests() async {
   return requests;
 }
 
-void acceptFriendRequest(String id) async {
+Future acceptFriendRequest(String id) async {
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
     "friends": {id: true}
   }, SetOptions(merge: true));
   db.collection("users").doc(id).set({
-    "friends": {FirebaseAuth.instance.currentUser!.uid: true}
+    "friends": {FirebaseAuth.instance.currentUser!.uid: true},
+    "sentFriendInvites":
+        FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
   }, SetOptions(merge: true));
 }
 
-void denyFriendRequest(String id) async {
+Future denyFriendRequest(String id) async {
   var res = await db
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -119,7 +136,9 @@ Future<List<KoalUser>> getFriends() async {
   for (var e in (res.data()!["friends"] as Map).entries) {
     if (e.value) {
       KoalUser? user = await getUser(e.key);
+
       if (user != null) {
+        user.id = e.key;
         friends.add(user);
       }
     }

@@ -7,8 +7,13 @@ class FriendInContact extends StatefulWidget {
   final KoalUser user;
   final Contact? contact;
   final bool isSent;
+  final VoidCallback reset;
   const FriendInContact(
-      {Key? key, required this.user, this.contact, this.isSent = false})
+      {Key? key,
+      required this.user,
+      this.contact,
+      this.isSent = false,
+      required this.reset})
       : super(key: key);
 
   @override
@@ -80,9 +85,10 @@ class _FriendInContactState extends State<FriendInContact> {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 if (isSent) return;
-                sendFriendRequest(widget.user.id!);
+                await sendFriendRequest(widget.user.id!, context);
+                widget.reset();
                 setState(() {
                   isSent = true;
                 });

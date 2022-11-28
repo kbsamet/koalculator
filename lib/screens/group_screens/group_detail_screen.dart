@@ -1,8 +1,19 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/group_chat_bubble.dart';
 
-class GroupDetailScreen extends StatelessWidget {
-  const GroupDetailScreen({Key? key}) : super(key: key);
+import '../../models/group.dart';
+
+class GroupDetailScreen extends StatefulWidget {
+  final Group group;
+  const GroupDetailScreen({Key? key, required this.group}) : super(key: key);
+
+  @override
+  State<GroupDetailScreen> createState() => _GroupDetailScreenState();
+}
+
+class _GroupDetailScreenState extends State<GroupDetailScreen> {
+  String? imageUrl;
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
       labelColor: Color(0xffFF6D8F),
@@ -17,6 +28,18 @@ class GroupDetailScreen extends StatelessWidget {
           text: "Mevcut Borçlar",
         )
       ]);
+
+  void getImage() async {
+    if (widget.group.pic != null) {
+      String url = await FirebaseStorage.instance
+          .refFromURL(widget.group.pic!)
+          .getDownloadURL();
+
+      setState(() {
+        imageUrl = url;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +58,26 @@ class GroupDetailScreen extends StatelessWidget {
                   toolbarHeight: 60,
                   backgroundColor: const Color(0xff303139),
                   title: GestureDetector(
-                    onTap: () => Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => const GroupDetailScreen())),
+                    onTap: () {},
                     child: SizedBox(
                         width: double.infinity,
                         child: Row(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(50),
-                              child: Image.asset(
-                                "assets/images/Zombiler.jpg",
-                                fit: BoxFit.fill,
-                                width: 60,
-                                height: 60,
-                              ),
+                              child: imageUrl == null
+                                  ? Image.asset(
+                                      "assets/images/group.png",
+                                      fit: BoxFit.fill,
+                                      width: 60,
+                                      height: 60,
+                                    )
+                                  : Image.network(
+                                      imageUrl!,
+                                      fit: BoxFit.fill,
+                                      width: 60,
+                                      height: 60,
+                                    ),
                             ),
                             const SizedBox(
                               width: 20,

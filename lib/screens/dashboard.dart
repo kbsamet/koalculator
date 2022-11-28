@@ -5,9 +5,11 @@ import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
+import 'package:koalculator/screens/group_screens/create_group.dart';
+import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../services/debts.dart';
+import '../components/dashboard/group_list_view.dart';
 import '../components/default_button.dart';
 import 'main_page.dart';
 
@@ -28,7 +30,7 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getGroups();
+    getGroupDetails();
     init();
   }
 
@@ -37,7 +39,6 @@ class _DashboardState extends State<Dashboard> {
     if (status.isDenied) {
       Permission.contacts.request();
     }
-    print((await getDebts()));
   }
 
   // void getDebts() async {
@@ -63,26 +64,12 @@ class _DashboardState extends State<Dashboard> {
     return Debt.fromJson(value.data()!);
   }
 
-  void getGroups() async {
-    List<dynamic> groupIds = [];
-
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    groupIds = value.data()!["groups"];
-
-    for (var element in groupIds) {
-      Group group = await getGroupDetails(element.toString());
-      setState(() {
-        groups.add(group);
-      });
-    }
-  }
-
-  Future<Group> getGroupDetails(String id) async {
-    var value = await db.collection("groups").doc(id).get();
-    return Group.fromJson(value.data()!);
+  void getGroupDetails() async {
+    List<Group> newGroups = await getGroups();
+    print(newGroups);
+    setState(() {
+      groups = newGroups;
+    });
   }
 
   final tabBar = const TabBar(
@@ -146,36 +133,35 @@ class _DashboardState extends State<Dashboard> {
                   )),
               body: TabBarView(children: [
                 Column(
-                  children: [
-                    DefaultButton(
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut();
+                  children: groups
+                          .map(
+                            (e) => GroupListView(group: e),
+                          )
+                          .toList()
+                          .cast<Widget>() +
+                      <Widget>[
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const CreateGroup()));
+                            },
+                            text: "Grup Oluştur"),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
 
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const MainPage()));
-                        },
-                        text: "Çık")
-                  ] /*groups
-                      .map((e) => Column(
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              GroupListView(group: e),
-                              DefaultButton(
-                                  onPressed: () {
-                                    FirebaseAuth.instance.signOut();
-
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const MainPage()));
-                                  },
-                                  text: "Çık")
-                            ],
-                          ))*/
-                  ,
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) => const MainPage()));
+                            },
+                            text: "Çık")
+                      ],
                 ),
                 Column(
                   children: debts
