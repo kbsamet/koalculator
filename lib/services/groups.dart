@@ -45,7 +45,7 @@ Future<List<Group>> getGroups() async {
 
   for (var element in groupIds) {
     Group group = await getGroupDetails(element.toString());
-
+    group.id = element;
     groups.add(group);
   }
   return groups;
@@ -54,4 +54,13 @@ Future<List<Group>> getGroups() async {
 Future<Group> getGroupDetails(String id) async {
   var value = await db.collection("groups").doc(id).get();
   return Group.fromJson(value.data()!);
+}
+
+Future addToGroup(String groupId, KoalUser user) async {
+  db.collection("groups").doc(groupId).update({
+    "users": FieldValue.arrayUnion([user.id!])
+  });
+  db.collection("users").doc(user.id).update({
+    "groups": FieldValue.arrayUnion([groupId])
+  });
 }

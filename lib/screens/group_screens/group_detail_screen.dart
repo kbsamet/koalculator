@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/group_chat_bubble.dart';
+import 'package:koalculator/screens/group_screens/group_profile.dart';
 
 import '../../models/group.dart';
 
@@ -58,7 +59,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                   toolbarHeight: 60,
                   backgroundColor: const Color(0xff303139),
                   title: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => GroupProfileScreen(
+                                group: widget.group,
+                              )));
+                    },
                     child: SizedBox(
                         width: double.infinity,
                         child: Row(

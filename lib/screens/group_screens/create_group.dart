@@ -73,7 +73,7 @@ class _CreateGroupState extends State<CreateGroup> {
   String getAddedNames() {
     String addedNames = "";
     for (var element in addedFriends) {
-      addedNames += "${element.name} ,";
+      addedNames += "${element.name}, ";
     }
 
     return addedNames.substring(0, addedNames.length - 2);
