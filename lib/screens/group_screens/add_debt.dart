@@ -8,6 +8,7 @@ import 'package:koalculator/services/groups.dart';
 import '../../models/debt.dart';
 import '../../models/group.dart';
 import '../../services/debts.dart';
+import '../dashboard.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -118,8 +119,6 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         toPay.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
     toBePaid = Map.fromEntries(
         toBePaid.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
-    print(toPay);
-    print(toBePaid);
 
     int i = 0;
 
@@ -156,7 +155,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       }
     }
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: ((context) => const Dashboard())),
+        (route) => false);
   }
 
   getGroupUsers(Group g) async {
