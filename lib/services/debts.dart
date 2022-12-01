@@ -39,7 +39,6 @@ Future<Map> getDebts() async {
 
   a = await getDebtDetail(debtIds, debtData);
 
-  print(a);
   return debtData;
 }
 
@@ -60,4 +59,19 @@ Future<Map<dynamic, List<Debt>>> getDebtDetail(
 Future<Debt> getDebtDetails(String id) async {
   var value = await db.collection("debts").doc(id).get();
   return Debt.fromJson(value.data()!);
+}
+
+void createDebt(Debt debt) async {
+  var ref = await db.collection("debts").add(debt.toJson());
+
+  db.collection("users").doc(debt.recieverId).set({
+    "debts": {
+      debt.senderId: FieldValue.arrayUnion([ref.id])
+    }
+  }, SetOptions(merge: true));
+  db.collection("users").doc(debt.senderId).set({
+    "debts": {
+      debt.recieverId: FieldValue.arrayUnion([ref.id])
+    }
+  }, SetOptions(merge: true));
 }

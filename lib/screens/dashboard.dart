@@ -5,6 +5,7 @@ import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
+import 'package:koalculator/screens/group_screens/add_debt.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -24,13 +25,14 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<Group> groups = [];
-  List<Debt> debts = [];
+  Map<String, dynamic> debts = {};
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getGroupDetails();
+    getDebts();
     init();
   }
 
@@ -41,23 +43,28 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  // void getDebts() async {
-  //   List<dynamic> debtIds = [];
+  void getDebts() async {
+    Map<String, dynamic> debtIds;
+    Map<String, List<Debt>> newDebts = {};
 
-  //   var value = await db
-  //       .collection("users")
-  //       .doc(FirebaseAuth.instance.currentUser!.uid)
-  //       .get();
-  //   debtIds = value.data()!["debts"];
+    var value = await db
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    debtIds = value.data()!["debts"];
 
-  //   for (var element in debtIds) {
-  //     Debt debt = await getDebtDetails(element.toString());
-  //     setState(() {
-  //       debts.add(debt);
-  //     });
-  //   }
-  //   print(debts.length);
-  // }
+    for (var debts in debtIds.keys) {
+      newDebts.addAll({debts: []});
+      debtIds[debts].forEach((element) async {
+        Debt debt = await getDebtDetails(element.toString());
+
+        newDebts[debts]!.add(debt);
+      });
+    }
+    setState(() {
+      debts = newDebts;
+    });
+  }
 
   Future<Debt> getDebtDetails(String id) async {
     var value = await db.collection("debts").doc(id).get();
@@ -66,7 +73,6 @@ class _DashboardState extends State<Dashboard> {
 
   void getGroupDetails() async {
     List<Group> newGroups = await getGroups();
-    print(newGroups);
     setState(() {
       groups = newGroups;
     });
@@ -154,6 +160,15 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         DefaultButton(
                             onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const AddDebtScreen()));
+                            },
+                            text: "Borç Ekle"),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
                               FirebaseAuth.instance.signOut();
 
                               Navigator.of(context).pushReplacement(
@@ -164,17 +179,13 @@ class _DashboardState extends State<Dashboard> {
                       ],
                 ),
                 Column(
-                  children: debts
-                      .map((e) => Column(
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              DebtListView(debt: e),
-                            ],
-                          ))
-                      .toList(),
-                ),
+                    children: debts.keys.map((key) {
+                  print(debts[key]);
+                  return DebtListView(
+                    debts: debts[key],
+                    friendId: key.toString(),
+                  );
+                }).toList()),
               ])),
         ));
   }

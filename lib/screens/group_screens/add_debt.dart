@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/services/groups.dart';
 
+import '../../models/debt.dart';
 import '../../models/group.dart';
+import '../../services/debts.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -33,38 +36,127 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getGroups();
+    initGroups();
   }
 
-  void getGroups() async {
-    List<dynamic> groupIds = [];
-    var res = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    groupIds = res.data()!["groups"];
-
-    for (var element in groupIds) {
-      var res = await db.collection("groups").doc(element).get();
-      setState(() {
-        groups.add(Group.fromJson(res.data()!));
-      });
-    }
+  void initGroups() async {
+    List<Group> newGroups = await getGroups();
     setState(() {
-      selectedValue = groups[0].name;
-      getGroupUsers(groups[0]);
+      groups = newGroups;
+      selectedValue = newGroups[0].name;
+      getGroupUsers(newGroups[0]);
     });
   }
 
   void onAmountChanged(String s) {
     num amount = num.parse(s);
 
-    for (var element in toBePaidControllers) {
-      element.text = (amount / toBePaidControllers.length).floor().toString();
+    num numOfChecked = 0;
+
+    for (var element in checkedUsers) {
+      numOfChecked += element == true ? 1 : 0;
     }
+
+    for (var i = 0; i < toBePaidControllers.length; i++) {
+      if (checkedUsers[i]) {
+        toBePaidControllers[i].text =
+            (amount / numOfChecked).floor().toString();
+      }
+    }
+
     setState(() {
       changedInputs = List.filled(toBePaidControllers.length, false);
     });
+  }
+
+  void addDebt() {
+    num totalPaid = 0;
+    for (var i = 0; i < paidControllers.length; i++) {
+      if (checkedUsers[i]) {
+        totalPaid += paidControllers[i].text == ""
+            ? 0
+            : num.parse(paidControllers[i].text);
+      }
+    }
+    if (totalPaid != num.parse(amountController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Toplam ödenen ${amountController.text} e eşit değil")));
+      return;
+    }
+
+    totalPaid = 0;
+    for (var i = 0; i < toBePaidControllers.length; i++) {
+      if (checkedUsers[i]) {
+        totalPaid += toBePaidControllers[i].text == ""
+            ? 0
+            : num.parse(toBePaidControllers[i].text);
+      }
+    }
+    if (totalPaid != num.parse(amountController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Toplam ödenecek ${amountController.text} e eşit değil")));
+      return;
+    }
+
+    Map<int, num> toBePaid = {};
+    Map<int, num> toPay = {};
+
+    for (var i = 0; i < toBePaidControllers.length; i++) {
+      if (checkedUsers[i]) {
+        var diff = num.parse(paidControllers[i].text) -
+            num.parse(toBePaidControllers[i].text);
+        if (diff > 0) {
+          toBePaid.addAll({i: diff});
+        } else if (diff < 0) {
+          toPay.addAll({i: diff});
+        }
+      }
+    }
+    toPay = Map.fromEntries(
+        toPay.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+    toBePaid = Map.fromEntries(
+        toBePaid.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
+    print(toPay);
+    print(toBePaid);
+
+    int i = 0;
+
+    while (toPay.isNotEmpty) {
+      i++;
+      if (i > 100) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Bir hata oluştu")));
+        break;
+      }
+      if (toPay.entries.first.value.abs() <= toBePaid.entries.first.value) {
+        Debt debt = Debt(
+            toPay.entries.first.value.abs(),
+            groups.where((element) => element.name == selectedValue).first.id!,
+            groupUsers[toBePaid.entries.first.key].id!,
+            groupUsers[toPay.entries.first.key].id!,
+            descriptionController.text);
+        createDebt(debt);
+        toBePaid[toBePaid.entries.first.key] =
+            toBePaid.entries.first.value - toPay.entries.first.value.abs();
+        toPay.remove(toPay.entries.first.key);
+      } else {
+        Debt debt = Debt(
+            toBePaid.entries.first.value,
+            groups.where((element) => element.name == selectedValue).first.id!,
+            groupUsers[toBePaid.entries.first.key].id!,
+            groupUsers[toPay.entries.first.key].id!,
+            descriptionController.text);
+
+        createDebt(debt);
+        toPay[toPay.entries.first.key] =
+            toPay.entries.first.value + toBePaid.entries.first.value;
+        toBePaid.remove(toBePaid.entries.first.key);
+      }
+    }
+
+    Navigator.of(context).pop();
   }
 
   getGroupUsers(Group g) async {
@@ -75,10 +167,11 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
 
     List<bool> newCheckedUsers = [];
     for (var i = 0; i < g.users.length; i++) {
-      print(checkedUsers.length);
       if (checkedUsers.length > i && !checkedUsers[i]) continue;
       var res = await db.collection("users").doc(g.users[i]).get();
-      newUsers.add(KoalUser.fromJson(res.data()!));
+      KoalUser user = KoalUser.fromJson(res.data()!);
+      user.id = g.users[i];
+      newUsers.add(user);
       newPaidControllers.add(TextEditingController());
       newToBePaidControllers.add(TextEditingController());
       newChangedInputs.add(false);
@@ -392,6 +485,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                             .toList(),
                       ),
                     ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Container(
                       padding: const EdgeInsets.all(15),
                       color: const Color(0xff292A33),
@@ -410,6 +506,8 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 5),
+                    DefaultButton(onPressed: addDebt, text: "Borç Ekle")
                   ],
                 ),
               ),
