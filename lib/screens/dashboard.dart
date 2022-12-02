@@ -5,7 +5,7 @@ import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
-import 'package:koalculator/screens/group_screens/add_debt.dart';
+import 'package:koalculator/screens/debt_screens/add_debt.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -180,7 +180,6 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Column(
                     children: debts.keys.map((key) {
-                  print(debts[key]);
                   return DebtListView(
                     debts: debts[key],
                     friendId: key.toString(),

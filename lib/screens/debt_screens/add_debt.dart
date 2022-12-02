@@ -106,8 +106,13 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
 
     for (var i = 0; i < toBePaidControllers.length; i++) {
       if (checkedUsers[i]) {
-        var diff = num.parse(paidControllers[i].text) -
-            num.parse(toBePaidControllers[i].text);
+        num paidVal = paidControllers[i].text == ""
+            ? 0
+            : num.parse(paidControllers[i].text);
+        num toBePaidVal = toBePaidControllers[i].text == ""
+            ? 0
+            : num.parse(toBePaidControllers[i].text);
+        var diff = paidVal - toBePaidVal;
         if (diff > 0) {
           toBePaid.addAll({i: diff});
         } else if (diff < 0) {

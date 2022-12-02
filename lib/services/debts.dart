@@ -75,3 +75,23 @@ void createDebt(Debt debt) async {
     }
   }, SetOptions(merge: true));
 }
+
+Future<List<Debt>> getDebtsByFriendId(String id) async {
+  List<Debt> debts = [];
+
+  var user = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+
+  Map userDebts = user.data()!["debts"] as Map;
+  if (!userDebts.containsKey(id)) {
+    print("No Debt Found for friend");
+    return [];
+  } else {
+    for (var element in (userDebts[id] as List)) {
+      debts.add(await getDebtDetails(element));
+    }
+    return debts;
+  }
+}
