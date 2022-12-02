@@ -5,6 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:koalculator/models/user.dart';
+
+import '../../services/users.dart';
 
 final storage = FirebaseStorage.instance.ref();
 
@@ -18,11 +21,21 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   CroppedFile? profilePic;
   String? imageUrl;
+  KoalUser? user;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getProfilePic();
+    getCurrentUser();
+  }
+
+  getCurrentUser() async {
+    KoalUser user_ = (await getUser(FirebaseAuth.instance.currentUser!.uid))!;
+    setState(() {
+      user = user_;
+    });
   }
 
   void getProfilePic() async {
@@ -134,15 +147,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Container(
-                        child: const Text(
-                          "Emre Bakır",
-                          style: TextStyle(
+                        child: Text(
+                          user == null ? "" : user!.name,
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 32,
                               color: Color.fromARGB(255, 255, 202, 214)),
                         ),
                       ),
-                      Container(child: const Text("AKA KK Bakir")),
                       Container(
                         width: double.infinity,
                         margin:
