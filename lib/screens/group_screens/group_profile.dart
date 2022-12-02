@@ -28,7 +28,9 @@ class _GroupProfileScreenState extends State<GroupProfileScreen> {
   void getGroupUsers() async {
     List<KoalUser> newUsers = [];
     for (var element in widget.group.users) {
-      newUsers.add((await getUser(element))!);
+      KoalUser user = (await getUser(element))!;
+      user.id = element;
+      newUsers.add(user);
     }
     setState(() {
       users = newUsers;

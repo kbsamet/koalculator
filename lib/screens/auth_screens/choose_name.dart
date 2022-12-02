@@ -19,6 +19,12 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
   TextEditingController nicknameController = TextEditingController();
 
   void SetName() async {
+    if (nicknameController.text.length > 12) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("İsim 12 karakterden kısa olmalı.")));
+      return;
+    }
+
     var data = await db.collection("users").get();
     for (var user in data.docs) {
       if (user.data()["name"] == nicknameController.text) {

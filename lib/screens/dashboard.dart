@@ -7,6 +7,7 @@ import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
 import 'package:koalculator/screens/debt_screens/add_debt.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
+import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -61,6 +62,7 @@ class _DashboardState extends State<Dashboard> {
         newDebts[debts]!.add(debt);
       });
     }
+    print("a");
     setState(() {
       debts = newDebts;
     });
@@ -125,7 +127,9 @@ class _DashboardState extends State<Dashboard> {
                           Icons.person,
                           size: 25,
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => const ProfileScreen())),
                       )
                     ],
                   ),

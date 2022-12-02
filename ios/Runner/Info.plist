@@ -60,6 +60,10 @@
 	<key>NSContactsUsageDescription</key>  
 	<string>This app requires contacts access to function properly.</string>  
 	 <key>NSPhotoLibraryUsageDescription</key>
-    <string>photos</string>
+    <string>profile picture</string>
+	<key>NSCameraUsageDescription</key>
+    <string>profile picture</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>profile picture</string>
 </dict>
 </plist>

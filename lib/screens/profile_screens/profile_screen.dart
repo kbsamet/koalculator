@@ -1,7 +1,68 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class ProfileScreen extends StatelessWidget {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+
+final storage = FirebaseStorage.instance.ref();
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  CroppedFile? profilePic;
+  String? imageUrl;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getProfilePic();
+  }
+
+  void getProfilePic() async {
+    try {
+      String url = await storage
+          .child("profilePics/${FirebaseAuth.instance.currentUser!.uid}")
+          .getDownloadURL();
+      setState(() {
+        imageUrl = url;
+      });
+    } catch (e) {}
+  }
+
+  void setProfilePic() async {
+    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file == null) {
+      return;
+    }
+
+    CroppedFile? cropped = await ImageCropper().cropImage(
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      maxHeight: 150,
+      maxWidth: 150,
+      sourcePath: file.path,
+    );
+    if (cropped == null) {
+      return;
+    }
+    var profilePicRef =
+        storage.child("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
+
+    try {
+      await profilePicRef.putFile(File(cropped.path));
+    } catch (e) {
+      print(e);
+    }
+    setState(() {
+      profilePic = cropped;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +96,41 @@ class ProfileScreen extends StatelessWidget {
                         width: 150,
                         decoration: const BoxDecoration(
                             color: Color(0xff292A33), shape: BoxShape.circle),
-                        child: const Align(
-                          alignment: Alignment.bottomRight,
-                          child: Icon(
-                            Icons.add_a_photo_outlined,
-                            color: Color(0xffF71B4E),
-                            size: 30,
-                          ),
+                        child: Stack(
+                          children: [
+                            profilePic == null
+                                ? (imageUrl == null
+                                    ? Container()
+                                    : ClipRRect(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(100)),
+                                        child: Image.network(
+                                          imageUrl!,
+                                          width: 150,
+                                          height: 150,
+                                          fit: BoxFit.fill,
+                                        )))
+                                : ClipRRect(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(100)),
+                                    child: Image.file(
+                                      File(profilePic!.path),
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.fill,
+                                    )),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: InkWell(
+                                onTap: setProfilePic,
+                                child: const Icon(
+                                  Icons.add_a_photo_outlined,
+                                  color: Color(0xffF71B4E),
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Container(

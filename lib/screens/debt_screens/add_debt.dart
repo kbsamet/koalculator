@@ -79,7 +79,8 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
             : num.parse(paidControllers[i].text);
       }
     }
-    if (totalPaid != num.parse(amountController.text)) {
+    if ((totalPaid - num.parse(amountController.text)).abs() >
+        groupUsers.length) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text("Toplam ödenen ${amountController.text} e eşit değil")));
@@ -94,10 +95,16 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
             : num.parse(toBePaidControllers[i].text);
       }
     }
-    if (totalPaid != num.parse(amountController.text)) {
+    if ((totalPaid - num.parse(amountController.text)).abs() >
+        groupUsers.length) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text("Toplam ödenecek ${amountController.text} e eşit değil")));
+      return;
+    }
+    if (descriptionController.text == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Açıklama boş bıraklımaz")));
       return;
     }
 
