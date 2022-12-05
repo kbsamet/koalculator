@@ -7,6 +7,7 @@ import 'package:koalculator/components/friends/friend_in_contact.dart';
 import 'package:koalculator/components/friends/friend_invite_recieved.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/screens/dashboard.dart';
 import 'package:koalculator/services/friends.dart';
 
 import '../../components/friends/added_friend.dart';
@@ -139,7 +140,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       Icons.arrow_back_ios,
                       size: 25,
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () =>
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const Dashboard(),
+                    )),
                   ),
                   title: const Text(
                     "Koalculator",

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
@@ -58,8 +59,14 @@ class _AddedFriendState extends State<AddedFriend> {
                     : ClipRRect(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(100)),
-                        child: Image.network(
-                          imageUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl!,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(
+                            color: Color(0xffF71B4E),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                           fit: BoxFit.fill,
                         )),
               ),

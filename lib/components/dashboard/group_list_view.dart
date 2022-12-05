@@ -30,7 +30,18 @@ class _GroupListViewState extends State<GroupListView> {
     getUserNames();
   }
 
+  @override
+  void didUpdateWidget(covariant GroupListView oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.group != widget.group) {
+      getImage();
+      getUserNames();
+    }
+  }
+
   void getUserNames() async {
+    users = [];
     for (var element in widget.group.users) {
       var res = await db.collection("users").doc(element).get();
 

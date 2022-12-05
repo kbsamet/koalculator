@@ -8,6 +8,7 @@ import 'package:koalculator/services/groups.dart';
 import '../../components/groups/group_friend_view.dart';
 import '../../models/user.dart';
 import '../../services/friends.dart';
+import '../dashboard.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -90,7 +91,10 @@ class _CreateGroupState extends State<CreateGroup> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios,
                 size: 30, color: Color(0xffF71B4E)),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () =>
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => const Dashboard(),
+            )),
           ),
           title: const Text(
             "Grup Oluştur",

@@ -70,7 +70,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     });
   }
 
-  void addDebt() {
+  void addDebt() async {
     num totalPaid = 0;
     for (var i = 0; i < paidControllers.length; i++) {
       if (checkedUsers[i]) {
@@ -167,9 +167,10 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       }
     }
 
-    Navigator.of(context).pushAndRemoveUntil(
+    await Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: ((context) => const Dashboard())),
         (route) => false);
+    setState(() {});
   }
 
   getGroupUsers(Group g) async {
@@ -213,7 +214,10 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios,
                       size: 30, color: Color(0xffF71B4E)),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  )),
                 ),
                 title: const Text(
                   "Borç Ekle",

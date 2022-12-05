@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/models/user.dart';
 
 import '../../services/users.dart';
+import '../dashboard.dart';
 
 final storage = FirebaseStorage.instance.ref();
 
@@ -88,7 +90,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios,
                     size: 30, color: Color(0xffF71B4E)),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () =>
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => const Dashboard(),
+                )),
               ),
               title: const Text(
                 "Profil",
@@ -117,8 +122,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : ClipRRect(
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(100)),
-                                        child: Image.network(
-                                          imageUrl!,
+                                        child: CachedNetworkImage(
+                                          imageUrl: imageUrl!,
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(
+                                            color: Color(0xffF71B4E),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error),
                                           width: 150,
                                           height: 150,
                                           fit: BoxFit.fill,

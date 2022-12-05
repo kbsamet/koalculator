@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_list_view.dart';
+import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
@@ -10,6 +11,7 @@ import 'package:koalculator/screens/group_screens/create_group.dart';
 import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../components/dashboard/group_list_view.dart';
 import '../components/default_button.dart';
@@ -27,6 +29,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   List<Group> groups = [];
   Map<String, dynamic> debts = {};
+  RefreshController refreshController = RefreshController();
 
   @override
   void initState() {
@@ -44,7 +47,7 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  void getDebts() async {
+  Future getDebts() async {
     Map<String, dynamic> debtIds;
     Map<String, List<Debt>> newDebts = {};
 
@@ -62,10 +65,10 @@ class _DashboardState extends State<Dashboard> {
         newDebts[debts]!.add(debt);
       });
     }
-    print("a");
     setState(() {
       debts = newDebts;
     });
+    print(debts);
   }
 
   Future<Debt> getDebtDetails(String id) async {
@@ -73,7 +76,7 @@ class _DashboardState extends State<Dashboard> {
     return Debt.fromJson(value.data()!);
   }
 
-  void getGroupDetails() async {
+  Future getGroupDetails() async {
     List<Group> newGroups = await getGroups();
     setState(() {
       groups = newGroups;
@@ -109,7 +112,7 @@ class _DashboardState extends State<Dashboard> {
                       Icons.group,
                       size: 25,
                     ),
-                    onPressed: () => Navigator.of(context).push(
+                    onPressed: () => Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                             builder: (context) => const FriendsScreen())),
                   ),
@@ -127,7 +130,7 @@ class _DashboardState extends State<Dashboard> {
                           Icons.person,
                           size: 25,
                         ),
-                        onPressed: () => Navigator.of(context).push(
+                        onPressed: () => Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                                 builder: (context) => const ProfileScreen())),
                       )
@@ -141,55 +144,76 @@ class _DashboardState extends State<Dashboard> {
                       child: tabBar,
                     ),
                   )),
-              body: TabBarView(children: [
-                Column(
-                  children: groups
-                          .map(
-                            (e) => GroupListView(group: e),
-                          )
-                          .toList()
-                          .cast<Widget>() +
-                      <Widget>[
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const CreateGroup()));
-                            },
-                            text: "Grup Oluştur"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const AddDebtScreen()));
-                            },
-                            text: "Borç Ekle"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
+              body: SmartRefresher(
+                controller: refreshController,
+                onLoading: () async {
+                  refreshController.loadComplete();
+                },
+                onRefresh: () async {
+                  await getGroupDetails();
+                  await getDebts();
+                  print(debts);
+                  refreshController.refreshCompleted();
+                },
+                child: TabBarView(children: [
+                  KeepPageAlive(
+                    child: Column(
+                      children: groups
+                              .map(
+                                (e) => GroupListView(group: e),
+                              )
+                              .toList()
+                              .cast<Widget>() +
+                          <Widget>[
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            DefaultButton(
+                                onPressed: () {
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CreateGroup()));
+                                },
+                                text: "Grup Oluştur"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            DefaultButton(
+                                onPressed: () {
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AddDebtScreen()));
+                                },
+                                text: "Borç Ekle"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            DefaultButton(
+                                onPressed: () {
+                                  FirebaseAuth.instance.signOut();
 
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => const MainPage()));
-                            },
-                            text: "Çık")
-                      ],
-                ),
-                Column(
-                    children: debts.keys.map((key) {
-                  return DebtListView(
-                    debts: debts[key],
-                    friendId: key.toString(),
-                  );
-                }).toList()),
-              ])),
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MainPage()));
+                                },
+                                text: "Çık")
+                          ],
+                    ),
+                  ),
+                  KeepPageAlive(
+                    child: Column(
+                        children: debts.keys.map((key) {
+                      return DebtListView(
+                        debts: debts[key],
+                        friendId: key.toString(),
+                      );
+                    }).toList()),
+                  ),
+                ]),
+              )),
         ));
   }
 }

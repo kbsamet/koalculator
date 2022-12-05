@@ -33,6 +33,16 @@ class _DebtListViewState extends State<DebtListView> {
     calculateDebts();
   }
 
+  @override
+  void didUpdateWidget(covariant DebtListView oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.debts != widget.debts && widget.debts.isNotEmpty) {
+      print(widget.debts);
+      calculateDebts();
+    }
+  }
+
   void getFriend() async {
     KoalUser? friend = await getUser(widget.friendId);
     setState(() {
@@ -41,10 +51,9 @@ class _DebtListViewState extends State<DebtListView> {
   }
 
   void calculateDebts() {
-    num total = 0;
     print(widget.debts);
+    num total = 0;
     for (var element in widget.debts) {
-      print(element.amount);
       total += (element.recieverId == FirebaseAuth.instance.currentUser!.uid
               ? 1
               : -1) *
