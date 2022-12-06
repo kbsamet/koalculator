@@ -2,18 +2,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
+import 'package:koalculator/components/default_button.dart';
+import 'package:koalculator/components/default_text_input.dart';
+import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
+
 import 'package:koalculator/services/users.dart';
 
 import '../../models/debt.dart';
+import '../header.dart';
 
 final db = FirebaseFirestore.instance;
 
 class DebtListView extends StatefulWidget {
   final List<dynamic> debts;
   final String friendId;
-  const DebtListView({Key? key, required this.debts, required this.friendId})
+  final VoidCallback resetDebts;
+  const DebtListView(
+      {Key? key,
+      required this.debts,
+      required this.friendId,
+      required this.resetDebts})
       : super(key: key);
 
   @override
@@ -24,7 +34,7 @@ class _DebtListViewState extends State<DebtListView> {
   bool isSender = false;
   Debt? totalDebt;
   KoalUser? user;
-
+  TextEditingController debtAmountController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -38,7 +48,6 @@ class _DebtListViewState extends State<DebtListView> {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
     if (oldWidget.debts != widget.debts && widget.debts.isNotEmpty) {
-      print(widget.debts);
       calculateDebts();
     }
   }
@@ -51,7 +60,6 @@ class _DebtListViewState extends State<DebtListView> {
   }
 
   void calculateDebts() {
-    print(widget.debts);
     num total = 0;
     for (var element in widget.debts) {
       total += (element.recieverId == FirebaseAuth.instance.currentUser!.uid
@@ -123,7 +131,80 @@ class _DebtListViewState extends State<DebtListView> {
                         totalDebt!.amount == 0
                             ? Container()
                             : DebtButton(
-                                onPressed: () {}, isPositive: !isSender),
+                                onPressed: () {
+                                  if (isSender) {
+                                    showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
+                                        actionsAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        contentPadding:
+                                            const EdgeInsets.all(30),
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
+                                        backgroundColor:
+                                            const Color(0xff1B1C26),
+                                        title: const Header(
+                                            text: 'Ödenecek Miktarı Griniz'),
+                                        content: SizedBox(
+                                          width: 400,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              DefaultTextInput(
+                                                  onlyNumber: true,
+                                                  noMargin: true,
+                                                  hintText: "Ödediğin miktar",
+                                                  noIcon: true,
+                                                  controller:
+                                                      debtAmountController,
+                                                  icon: Icons.attach_money),
+                                              const SizedBox(
+                                                height: 20,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  SizedBox(
+                                                    height: 40,
+                                                    width: 120,
+                                                    child: EmptyButton(
+                                                      text: 'İptal',
+                                                      onPressed: () =>
+                                                          Navigator.pop(context,
+                                                              'Cancel'),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  SizedBox(
+                                                    height: 40,
+                                                    width: 100,
+                                                    child: DefaultButton(
+                                                      text: 'Öde',
+                                                      onPressed: () =>
+                                                          Navigator.pop(context,
+                                                              'Cancel'),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    widget.resetDebts();
+                                  }
+                                },
+                                isPositive: !isSender),
                         const SizedBox(
                           width: 20,
                         ),

@@ -4,6 +4,7 @@ class Debt {
   final String recieverId;
   final String senderId;
   final String description;
+  String? id;
 
   Debt(this.amount, this.groupId, this.recieverId, this.senderId,
       this.description);

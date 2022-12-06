@@ -5,6 +5,7 @@ import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
+import 'package:koalculator/screens/debt_screens/debt_history.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
 import 'package:koalculator/screens/debt_screens/add_debt.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
@@ -40,6 +41,11 @@ class _DashboardState extends State<Dashboard> {
     init();
   }
 
+  void resetDebts() async {
+    await getDebts();
+    setState(() {});
+  }
+
   void init() async {
     var status = await Permission.contacts.status;
     if (status.isDenied) {
@@ -59,16 +65,14 @@ class _DashboardState extends State<Dashboard> {
 
     for (var debts in debtIds.keys) {
       newDebts.addAll({debts: []});
-      debtIds[debts].forEach((element) async {
+      for (var element in debtIds[debts]) {
         Debt debt = await getDebtDetails(element.toString());
-
+        debt.id = element;
         newDebts[debts]!.add(debt);
-      });
+      }
     }
-    setState(() {
-      debts = newDebts;
-    });
-    print(debts);
+    debts = newDebts;
+    setState(() {});
   }
 
   Future<Debt> getDebtDetails(String id) async {
@@ -152,7 +156,6 @@ class _DashboardState extends State<Dashboard> {
                 onRefresh: () async {
                   await getGroupDetails();
                   await getDebts();
-                  print(debts);
                   refreshController.refreshCompleted();
                 },
                 child: TabBarView(children: [
@@ -192,6 +195,17 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             DefaultButton(
                                 onPressed: () {
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const DebtHistory()));
+                                },
+                                text: "Geçmiş"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            DefaultButton(
+                                onPressed: () {
                                   FirebaseAuth.instance.signOut();
 
                                   Navigator.of(context).pushReplacement(
@@ -206,9 +220,17 @@ class _DashboardState extends State<Dashboard> {
                   KeepPageAlive(
                     child: Column(
                         children: debts.keys.map((key) {
-                      return DebtListView(
-                        debts: debts[key],
-                        friendId: key.toString(),
+                      return Column(
+                        children: [
+                          DebtListView(
+                            debts: debts[key],
+                            friendId: key.toString(),
+                            resetDebts: resetDebts,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          )
+                        ],
                       );
                     }).toList()),
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/groups.dart';
 
 import '../../models/debt.dart';
@@ -168,7 +169,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
 
     await Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: ((context) => const Dashboard())),
+        MaterialPageRoute(builder: ((context) => const MainPage())),
         (route) => false);
     setState(() {});
   }

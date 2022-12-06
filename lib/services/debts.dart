@@ -61,6 +61,12 @@ Future<Debt> getDebtDetails(String id) async {
   return Debt.fromJson(value.data()!);
 }
 
+Future<Debt> getPastDebtDetails(String id) async {
+  var value = await db.collection("pastDebts").doc(id).get();
+  print(id);
+  return Debt.fromJson(value.data()!);
+}
+
 void createDebt(Debt debt) async {
   var ref = await db.collection("debts").add(debt.toJson());
 
@@ -69,6 +75,7 @@ void createDebt(Debt debt) async {
       debt.senderId: FieldValue.arrayUnion([ref.id])
     }
   }, SetOptions(merge: true));
+
   db.collection("users").doc(debt.senderId).set({
     "debts": {
       debt.recieverId: FieldValue.arrayUnion([ref.id])
@@ -93,5 +100,30 @@ Future<List<Debt>> getDebtsByFriendId(String id) async {
       debts.add(await getDebtDetails(element));
     }
     return debts;
+  }
+}
+
+Future payDebts(List<Debt> debts) async {
+  for (var debt in debts) {
+    db.collection("debts").doc(debt.id).delete();
+    var newDebt = await db.collection("pastDebts").add(debt.toJson());
+
+    await db.collection("users").doc(debt.senderId).set({
+      "debts": {debt.recieverId: []}
+    }, SetOptions(merge: true));
+    db.collection("users").doc(debt.senderId).set({
+      "pastDebts": {
+        debt.recieverId: FieldValue.arrayUnion([newDebt.id])
+      }
+    }, SetOptions(merge: true));
+
+    db.collection("users").doc(debt.recieverId).set({
+      "debts": {debt.senderId: []}
+    }, SetOptions(merge: true));
+    db.collection("users").doc(debt.recieverId).set({
+      "pastDebts": {
+        debt.senderId: FieldValue.arrayUnion([newDebt.id])
+      }
+    }, SetOptions(merge: true));
   }
 }
