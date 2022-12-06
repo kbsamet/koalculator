@@ -65,5 +65,7 @@
     <string>profile picture</string>
 	<key>NSMicrophoneUsageDescription</key>
     <string>profile picture</string>
+	<key>GADApplicationIdentifier</key>
+<string>ca-app-pub-3940256099942544/4411468910</string>
 </dict>
 </plist>
