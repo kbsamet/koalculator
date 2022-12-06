@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
-import 'package:koalculator/config/adConfig.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/groups.dart';
@@ -39,7 +38,6 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    showAd();
     initGroups();
   }
 
