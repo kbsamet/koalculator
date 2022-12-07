@@ -12,7 +12,6 @@ import 'package:koalculator/screens/group_screens/create_group.dart';
 import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../components/dashboard/group_list_view.dart';
 import '../components/default_button.dart';
@@ -30,7 +29,6 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   List<Group> groups = [];
   Map<String, dynamic> debts = {};
-  RefreshController refreshController = RefreshController();
 
   @override
   void initState() {
@@ -105,137 +103,126 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: const Color(0xff303139),
-        child: DefaultTabController(
+      color: const Color(0xff303139),
+      child: DefaultTabController(
           length: 2,
           child: Scaffold(
-              appBar: AppBar(
-                  titleSpacing: 0,
-                  leading: IconButton(
-                    icon: const Icon(
-                      Icons.group,
-                      size: 25,
-                    ),
-                    onPressed: () => Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => const FriendsScreen())),
+            appBar: AppBar(
+                titleSpacing: 0,
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.group,
+                    size: 25,
                   ),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(),
-                      const Text(
-                        "Koalculator",
-                        style: TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold),
+                  onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => const FriendsScreen())),
+                ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(),
+                    const Text(
+                      "Koalculator",
+                      style:
+                          TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.person,
+                        size: 25,
                       ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.person,
-                          size: 25,
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const ProfileScreen())),
+                    )
+                  ],
+                ),
+                backgroundColor: const Color(0xff303139),
+                bottom: PreferredSize(
+                  preferredSize: tabBar.preferredSize,
+                  child: Material(
+                    color: const Color(0xff303139),
+                    child: tabBar,
+                  ),
+                )),
+            body: TabBarView(children: [
+              KeepPageAlive(
+                child: Column(
+                  children: groups
+                          .map(
+                            (e) => GroupListView(group: e),
+                          )
+                          .toList()
+                          .cast<Widget>() +
+                      <Widget>[
+                        const SizedBox(
+                          height: 10,
                         ),
-                        onPressed: () => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => const ProfileScreen())),
+                        DefaultButton(
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CreateGroup()));
+                            },
+                            text: "Grup Oluştur"),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AddDebtScreen()));
+                            },
+                            text: "Borç Ekle"),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const DebtHistory()));
+                            },
+                            text: "Geçmiş"),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        DefaultButton(
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
+
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) => const MainPage()));
+                            },
+                            text: "Çık")
+                      ],
+                ),
+              ),
+              KeepPageAlive(
+                child: Column(
+                    children: debts.keys.map((key) {
+                  return Column(
+                    children: [
+                      DebtListView(
+                        debts: debts[key],
+                        friendId: key.toString(),
+                        resetDebts: resetDebts,
+                      ),
+                      const SizedBox(
+                        height: 5,
                       )
                     ],
-                  ),
-                  backgroundColor: const Color(0xff303139),
-                  bottom: PreferredSize(
-                    preferredSize: tabBar.preferredSize,
-                    child: Material(
-                      color: const Color(0xff303139),
-                      child: tabBar,
-                    ),
-                  )),
-              body: SmartRefresher(
-                controller: refreshController,
-                onLoading: () async {
-                  refreshController.loadComplete();
-                },
-                onRefresh: () async {
-                  await getGroupDetails();
-                  await getDebts();
-                  refreshController.refreshCompleted();
-                },
-                child: TabBarView(children: [
-                  KeepPageAlive(
-                    child: Column(
-                      children: groups
-                              .map(
-                                (e) => GroupListView(group: e),
-                              )
-                              .toList()
-                              .cast<Widget>() +
-                          <Widget>[
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            DefaultButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const CreateGroup()));
-                                },
-                                text: "Grup Oluştur"),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            DefaultButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AddDebtScreen()));
-                                },
-                                text: "Borç Ekle"),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            DefaultButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const DebtHistory()));
-                                },
-                                text: "Geçmiş"),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            DefaultButton(
-                                onPressed: () {
-                                  FirebaseAuth.instance.signOut();
-
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const MainPage()));
-                                },
-                                text: "Çık")
-                          ],
-                    ),
-                  ),
-                  KeepPageAlive(
-                    child: Column(
-                        children: debts.keys.map((key) {
-                      return Column(
-                        children: [
-                          DebtListView(
-                            debts: debts[key],
-                            friendId: key.toString(),
-                            resetDebts: resetDebts,
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          )
-                        ],
-                      );
-                    }).toList()),
-                  ),
-                ]),
-              )),
-        ));
+                  );
+                }).toList()),
+              ),
+            ]),
+          )),
+    );
   }
 }

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/theme/theme_data.dart';
 import 'firebase_options.dart';
+// ignore: unused_import
+import 'package:flutter/foundation.dart' show ReadBuffer, WriteBuffer;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

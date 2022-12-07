@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:koalculator/components/default_button.dart';
-import 'package:koalculator/components/default_text_input.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/groups.dart';
 
+import '../../components/default_button.dart';
+import '../../components/default_text_input.dart';
 import '../../models/debt.dart';
 import '../../models/group.dart';
 import '../../services/debts.dart';
@@ -21,6 +22,9 @@ class AddDebtScreen extends StatefulWidget {
 }
 
 class _AddDebtScreenState extends State<AddDebtScreen> {
+  BannerAd? banner;
+  InterstitialAd? interstitial;
+
   List<Group> groups = [];
   List<KoalUser> groupUsers = [];
   List<bool> checkedUsers = [];
@@ -39,6 +43,30 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     // TODO: implement initState
     super.initState();
     initGroups();
+    showInterstitialAd();
+  }
+
+  void showInterstitialAd() async {
+    await InterstitialAd.load(
+        adUnitId: 'ca-app-pub-3940256099942544/4411468910',
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print(ad);
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (ad) {
+                print('$ad onAdDismissedFullScreenContent.');
+                ad.dispose();
+              },
+            );
+            // Keep a reference to the ad so you can show it later.
+            interstitial = ad;
+            setState(() {});
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error');
+          },
+        ));
   }
 
   void initGroups() async {
@@ -167,6 +195,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         toBePaid.remove(toBePaid.entries.first.key);
       }
     }
+    interstitial!.show();
 
     await Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: ((context) => const MainPage())),
@@ -231,6 +260,14 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
               body: Container(
                 child: ListView(
                   children: [
+                    banner != null
+                        ? Container(
+                            width: banner!.size.width.toDouble(),
+                            height: banner!.size.height.toDouble(),
+                            alignment: Alignment.center,
+                            child: AdWidget(ad: banner!),
+                          )
+                        : Container(),
                     const SizedBox(
                       height: 10,
                     ),

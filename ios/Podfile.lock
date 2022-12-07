@@ -20,7 +20,7 @@ PODS:
   - Firebase/Storage (10.2.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.2.0)
-  - firebase_auth (4.1.3):
+  - firebase_auth (4.1.5):
     - Firebase/Auth (= 10.2.0)
     - firebase_core
     - Flutter
@@ -89,6 +89,12 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - Google-Mobile-Ads-SDK (9.13.0):
+    - GoogleAppMeasurement (< 11.0, >= 7.0)
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - google_mobile_ads (0.0.1):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 9.13)
   - GoogleAppMeasurement (10.2.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.2.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
@@ -109,6 +115,7 @@ PODS:
     - GoogleUtilities/Network (~> 7.8)
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
     - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleUserMessagingPlatform (2.0.1)
   - GoogleUtilities/AppDelegateSwizzler (7.10.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -159,6 +166,7 @@ DEPENDENCIES:
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `10.2.0`)
   - Flutter (from `Flutter`)
   - flutter_chat_bubble (from `.symlinks/plugins/flutter_chat_bubble/ios`)
+  - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
@@ -178,7 +186,9 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseStorage
     - FMDB
+    - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
+    - GoogleUserMessagingPlatform
     - GoogleUtilities
     - GTMSessionFetcher
     - nanopb
@@ -203,6 +213,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_chat_bubble:
     :path: ".symlinks/plugins/flutter_chat_bubble/ios"
+  google_mobile_ads:
+    :path: ".symlinks/plugins/google_mobile_ads/ios"
   image_cropper:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
@@ -223,7 +235,7 @@ SPEC CHECKSUMS:
   cloud_firestore: 14451f06cca99dbd56b069624621063150fef3e5
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   Firebase: a3ea7eba4382afd83808376edb99acdaff078dcf
-  firebase_auth: dc7124acfe6adb5823dcc4f3063c6b5ab6f92428
+  firebase_auth: 3cc6db19e6babdb98e8876a98dee1da670659537
   firebase_core: db1432de826785171029b7c1a26e5b22ce1dd477
   firebase_storage: c08af1e9ef906c05586b91cb52adc759dddee96e
   FirebaseAnalytics: 24a15e58e505abcedc3017b6f7c206fbfa964580
@@ -236,10 +248,13 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 410df999af5c53d4d289ed16a863940a116e1d35
   FirebaseInstallations: 004915af170935e3a583faefd5f8bc851afc220f
   FirebaseStorage: e7b3fdc90b579cda35e5a0e4c6b206325766e75a
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_chat_bubble: cad6265ec611ba0f7bede70eabc26fdfce9bf2b0
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  Google-Mobile-Ads-SDK: 465532d33dfc878f2f9aca281fddbcd4bf9c0197
+  google_mobile_ads: 6bfe04d9c9fd5c2a026e6f09ca2d97ae25b78f7e
   GoogleAppMeasurement: 3bc3a6484b7bb20dd8489242c4dd3c92a3e5107b
+  GoogleUserMessagingPlatform: 5f8b30daf181805317b6b985bb51c1ff3beca054
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   GTMSessionFetcher: c1edebe64e9fb4e8f6415d018edf1fd3eac074a1
   image_cropper: 60c2789d1f1a78c873235d4319ca0c34a69f2d98
@@ -251,6 +266,6 @@ SPEC CHECKSUMS:
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
 
-PODFILE CHECKSUM: ccae0042009bf71b09d99b59e491a9820443a709
+PODFILE CHECKSUM: a7202f5ab6623b13564180244cd76d2dc58e26b5
 
 COCOAPODS: 1.11.3
