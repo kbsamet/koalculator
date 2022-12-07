@@ -7,6 +7,7 @@ import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
+import 'package:koalculator/services/debts.dart';
 
 import 'package:koalculator/services/users.dart';
 
@@ -41,6 +42,74 @@ class _DebtListViewState extends State<DebtListView> {
     super.initState();
     getFriend();
     calculateDebts();
+  }
+
+  void showPayDebtDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        contentPadding: const EdgeInsets.all(30),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        backgroundColor: const Color(0xff1B1C26),
+        title: const Header(text: 'Ödenecek Miktarı Griniz'),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DefaultTextInput(
+                  onlyNumber: true,
+                  noMargin: true,
+                  hintText: "Ödediğin miktar",
+                  noIcon: true,
+                  controller: debtAmountController,
+                  icon: Icons.attach_money),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    width: 120,
+                    child: EmptyButton(
+                      text: 'İptal',
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: DefaultButton(
+                      text: 'Öde',
+                      onPressed: () {
+                        payDebtsByAmount(
+                            widget.debts as List<Debt>,
+                            double.parse(debtAmountController.text).floor(),
+                            context);
+                        Navigator.pop(context, 'OK');
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text("Borçlarınız başarıyla ödendi!")));
+                      },
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -133,74 +202,7 @@ class _DebtListViewState extends State<DebtListView> {
                             : DebtButton(
                                 onPressed: () {
                                   if (isSender) {
-                                    showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          AlertDialog(
-                                        actionsAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        contentPadding:
-                                            const EdgeInsets.all(30),
-                                        shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10))),
-                                        backgroundColor:
-                                            const Color(0xff1B1C26),
-                                        title: const Header(
-                                            text: 'Ödenecek Miktarı Griniz'),
-                                        content: SizedBox(
-                                          width: 400,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              DefaultTextInput(
-                                                  onlyNumber: true,
-                                                  noMargin: true,
-                                                  hintText: "Ödediğin miktar",
-                                                  noIcon: true,
-                                                  controller:
-                                                      debtAmountController,
-                                                  icon: Icons.attach_money),
-                                              const SizedBox(
-                                                height: 20,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 40,
-                                                    width: 120,
-                                                    child: EmptyButton(
-                                                      text: 'İptal',
-                                                      onPressed: () =>
-                                                          Navigator.pop(context,
-                                                              'Cancel'),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  SizedBox(
-                                                    height: 40,
-                                                    width: 100,
-                                                    child: DefaultButton(
-                                                      text: 'Öde',
-                                                      onPressed: () =>
-                                                          Navigator.pop(context,
-                                                              'Cancel'),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
+                                    showPayDebtDialog();
                                     widget.resetDebts();
                                   }
                                 },

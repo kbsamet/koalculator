@@ -1,5 +1,5 @@
 class Debt {
-  final num amount;
+  num amount;
   final String groupId;
   final String recieverId;
   final String senderId;

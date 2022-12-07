@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:koalculator/components/debts/debt_history_list_view.dart';
 
-import '../../components/dashboard/debt_list_view.dart';
 import '../../models/debt.dart';
 import '../../services/debts.dart';
 import '../dashboard.dart';
@@ -24,11 +24,6 @@ class _DebtHistoryState extends State<DebtHistory> {
     // TODO: implement initState
     super.initState();
     getDebts();
-  }
-
-  void resetDebts() async {
-    await getDebts();
-    setState(() {});
   }
 
   Future getDebts() async {
@@ -82,10 +77,9 @@ class _DebtHistoryState extends State<DebtHistory> {
               children: debts.keys.map((key) {
             return Column(
               children: [
-                DebtListView(
+                DebtHistoryListView(
                   debts: debts[key],
                   friendId: key.toString(),
-                  resetDebts: resetDebts,
                 ),
                 const SizedBox(
                   height: 5,
