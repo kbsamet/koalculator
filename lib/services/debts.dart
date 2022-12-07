@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:koalculator/models/debt.dart';
+import 'package:koalculator/models/payment.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -156,20 +157,42 @@ Future payDebt(Debt debt) async {
   }, SetOptions(merge: true));
 }
 
-// a function that pays debts by amount
-Future payDebtsByAmount(List<Debt> debts, num amount, context) async {
+//create payment function that takes a payment
+Future createPayment(Payment payment) async {
+  var ref = await db.collection("payments").add(payment.toJson());
+
+  db.collection("groups").doc(payment.groupId).set({
+    "payments": FieldValue.arrayUnion([ref.id])
+  }, SetOptions(merge: true));
+}
+
+Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
   double totalAmount = 0;
   for (var debt in debts) {
-    totalAmount += debt.amount;
+    totalAmount +=
+        (debt.recieverId == FirebaseAuth.instance.currentUser!.uid ? 1 : -1) *
+            debt.amount;
   }
-  if (totalAmount < amount) {
+  if (-totalAmount < amount) {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content:
             Text("Girdiğiniz tutar borçlarınızın toplamından büyük olamaz!")));
-    return;
+    return false;
+  } else if (amount == -totalAmount) {
+    Payment payment = Payment(amount, debts[0].groupId, debts[0].recieverId,
+        FirebaseAuth.instance.currentUser!.uid);
+
+    await createPayment(payment);
+    payDebts(debts);
   } else {
+    debts.removeWhere((element) =>
+        element.senderId != FirebaseAuth.instance.currentUser!.uid);
     debts.sort((a, b) => a.amount.compareTo(b.amount));
     num remainingAmount = amount;
+    Payment payment = Payment(amount, debts[0].groupId, debts[0].recieverId,
+        FirebaseAuth.instance.currentUser!.uid);
+
+    await createPayment(payment);
     while (remainingAmount > 0) {
       if (remainingAmount >= debts[0].amount) {
         Debt debt = Debt(debts[0].amount, debts[0].groupId, debts[0].recieverId,
@@ -186,5 +209,5 @@ Future payDebtsByAmount(List<Debt> debts, num amount, context) async {
       }
     }
   }
-  return;
+  return true;
 }

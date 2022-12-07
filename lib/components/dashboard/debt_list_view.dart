@@ -44,7 +44,7 @@ class _DebtListViewState extends State<DebtListView> {
     calculateDebts();
   }
 
-  void showPayDebtDialog() {
+  void showPayDebtDialog() async {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -89,17 +89,18 @@ class _DebtListViewState extends State<DebtListView> {
                     width: 100,
                     child: DefaultButton(
                       text: 'Öde',
-                      onPressed: () {
-                        payDebtsByAmount(
+                      onPressed: () async {
+                        bool res = await payDebtsByAmount(
                             widget.debts as List<Debt>,
                             double.parse(debtAmountController.text).floor(),
                             context);
+                        if (res) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Borçlarınız başarıyla ödendi!")));
+                        }
                         Navigator.pop(context, 'OK');
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text("Borçlarınız başarıyla ödendi!")));
                       },
                     ),
                   ),

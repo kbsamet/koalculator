@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/group_chat_bubble.dart';
 import 'package:koalculator/screens/group_screens/group_profile.dart';
+import 'package:koalculator/services/payments.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../models/group.dart';
+import '../../models/payment.dart';
 
 class GroupDetailScreen extends StatefulWidget {
   final Group group;
@@ -14,6 +18,7 @@ class GroupDetailScreen extends StatefulWidget {
 }
 
 class _GroupDetailScreenState extends State<GroupDetailScreen> {
+  List<Payment> payments = [];
   String? imageUrl;
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
@@ -30,6 +35,13 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         )
       ]);
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPayments();
+  }
+
   void getImage() async {
     if (widget.group.pic != null) {
       String url = await FirebaseStorage.instance
@@ -40,6 +52,16 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         imageUrl = url;
       });
     }
+  }
+
+  void getPayments() async {
+    payments = await getPaymentsByGroupId(widget.group.id!);
+    for (var element in payments) {
+      element.reciever = await getUser(element.recieverId);
+      element.sender = await getUser(element.senderId);
+    }
+
+    setState(() {});
   }
 
   @override
@@ -118,14 +140,25 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   child: Column(
-                    children: const [
-                      GroupChatBubble(
-                          sender: "Sego",
-                          isSender: false,
-                          reciever: "Emre",
-                          amount: 100),
-                    ],
-                  ),
+                      children: payments
+                          .map(
+                            (e) => Column(
+                              children: [
+                                GroupChatBubble(
+                                    group: widget.group,
+                                    senderId: e.senderId,
+                                    sender: e.sender!.name,
+                                    isSender: e.senderId ==
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                    reciever: e.reciever!.name,
+                                    amount: e.amount),
+                                const SizedBox(
+                                  height: 20,
+                                )
+                              ],
+                            ),
+                          )
+                          .toList()),
                 ),
                 Container(),
               ])),

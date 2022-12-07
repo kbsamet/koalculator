@@ -207,12 +207,14 @@ class _DashboardState extends State<Dashboard> {
               KeepPageAlive(
                 child: Column(
                     children: debts.keys.map((key) {
-                  return Column(
+                  return ListView(
                     children: [
-                      DebtListView(
-                        debts: debts[key],
-                        friendId: key.toString(),
-                        resetDebts: resetDebts,
+                      Flexible(
+                        child: DebtListView(
+                          debts: debts[key],
+                          friendId: key.toString(),
+                          resetDebts: resetDebts,
+                        ),
                       ),
                       const SizedBox(
                         height: 5,
