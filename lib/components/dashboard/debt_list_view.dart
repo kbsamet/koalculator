@@ -40,12 +40,11 @@ class _DebtListViewState extends State<DebtListView> {
     stateInit();
   }
 
-  void stateInit() {
-    setState(() async {
-      totalDebt = calculateDebts(isSender, widget.debts, widget.friendId);
-      isSender = totalDebt!.amount < 0;
-      user = await getFriend(widget.friendId);
-    });
+  void stateInit() async {
+    totalDebt = calculateDebts(isSender, widget.debts, widget.friendId);
+    isSender = totalDebt!.amount < 0;
+    user = await getFriend(widget.friendId);
+    setState(() {});
   }
 
   void showPayDebtDialog() async {
