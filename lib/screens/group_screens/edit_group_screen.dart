@@ -1,17 +1,20 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
-import 'package:koalculator/components/header.dart';
+import 'package:koalculator/components/groups/group_friend_edit_view.dart';
 
-import '../../components/groups/group_profile_friend_view.dart';
 import '../../models/group.dart';
 import '../../models/user.dart';
 import '../../services/users.dart';
+import '../main_page.dart';
+
+final db = FirebaseFirestore.instance;
 
 class EditGroupScreen extends StatefulWidget {
   final Group group;
@@ -25,6 +28,8 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   CroppedFile? profilePic;
   String? imageUrl;
   List<KoalUser> users = [];
+
+  TextEditingController newName = TextEditingController();
 
   @override
   void initState() {
@@ -81,6 +86,31 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
     setState(() {
       users = newUsers;
     });
+  }
+
+  void removeFromGroup(user) {
+    List<String> newUsers = [];
+    for (var element in widget.group.users) {
+      if (element != user.id) {
+        newUsers.add(element);
+      }
+    }
+    db.collection("groups").doc(widget.group.id).update({
+      "users": newUsers,
+    });
+    db.collection("users").doc(user.id).update({
+      "groups": FieldValue.arrayRemove([widget.group.id]),
+    });
+  }
+
+  void changeGroupName() {
+    if (newName.text == null) return;
+    db.collection("groups").doc(widget.group.id).update({
+      "name": newName.text,
+    });
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: ((context) => const MainPage())),
+        (route) => false);
   }
 
   @override
@@ -162,12 +192,20 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
                   ),
                 ],
               ),
-              const Header(text: "Groubun İsmini Değiştir"),
+              Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: const Text(
+                    "Grubun İsmini Değiştir",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  )),
               const SizedBox(
                 height: 10,
               ),
               DefaultTextInput(
-                controller: TextEditingController(),
+                controller: newName,
                 hintText: widget.group.name,
                 icon: Icons.abc,
                 noIcon: true,
@@ -208,8 +246,9 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  GroupProfileFriendView(
+                                  GroupFriendEditView(
                                     user: e,
+                                    removeFromGroup: removeFromGroup,
                                   ),
                                 ],
                               ))
@@ -219,7 +258,8 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
               ),
               Container(
                   margin: const EdgeInsets.all(10),
-                  child: DefaultButton(onPressed: () {}, text: "Onayla"))
+                  child:
+                      DefaultButton(onPressed: changeGroupName, text: "Onayla"))
             ],
           ),
         ),

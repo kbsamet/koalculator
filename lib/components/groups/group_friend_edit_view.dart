@@ -1,23 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:koalculator/models/user.dart';
+import "package:flutter/material.dart";
+import 'package:koalculator/components/empty_button.dart';
+
+import '../../models/user.dart';
+import '../default_button.dart';
 
 final storage = FirebaseStorage.instance.ref();
 
-class GroupFriendView extends StatefulWidget {
+class GroupFriendEditView extends StatefulWidget {
   final KoalUser user;
-  final Function(KoalUser, bool) addUser;
-  const GroupFriendView({Key? key, required this.user, required this.addUser})
-      : super(key: key);
+  final Function(KoalUser) removeFromGroup;
+  const GroupFriendEditView(
+      {super.key, required this.user, required this.removeFromGroup});
 
   @override
-  State<GroupFriendView> createState() => _GroupFriendViewState();
+  State<GroupFriendEditView> createState() => _GroupFriendEditViewState();
 }
 
-class _GroupFriendViewState extends State<GroupFriendView> {
-  bool checkboxValue = false;
+class _GroupFriendEditViewState extends State<GroupFriendEditView> {
   String? imageUrl;
+  bool removed = false;
 
   void getProfilePic() async {
     try {
@@ -43,7 +46,9 @@ class _GroupFriendViewState extends State<GroupFriendView> {
     return Container(
       width: double.infinity,
       height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
       color: const Color(0xff292A33),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,7 +57,8 @@ class _GroupFriendViewState extends State<GroupFriendView> {
           Row(
             children: [
               Container(
-                width: 60,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(50)),
                   border: Border.all(color: Colors.black),
@@ -88,16 +94,17 @@ class _GroupFriendViewState extends State<GroupFriendView> {
               ),
             ],
           ),
-          Checkbox(
-            value: checkboxValue,
-            onChanged: (e) {
-              setState(() {
-                checkboxValue = e!;
-              });
-              widget.addUser(widget.user, e!);
-            },
-            activeColor: const Color(0xffDA2851),
-          )
+          Container(
+              padding: const EdgeInsets.all(10),
+              child: removed
+                  ? EmptyButton(text: "Çıkarıldı", onPressed: () {})
+                  : DefaultButton(
+                      text: "Gruptan Çıkar",
+                      onPressed: () {
+                        removed = true;
+                        widget.removeFromGroup(widget.user);
+                        setState(() {});
+                      }))
         ],
       ),
     );
