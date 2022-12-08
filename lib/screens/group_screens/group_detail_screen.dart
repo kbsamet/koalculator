@@ -21,6 +21,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   List<Payment> payments = [];
   String? imageUrl;
   bool isLoading = false;
+  ScrollController chatController = ScrollController();
 
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
@@ -69,6 +70,13 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     setState(() {
       isLoading = false;
     });
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    chatController.animateTo(
+      chatController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -153,7 +161,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                 color: Color(0xffF71B4E))))
                     : Container(
                         padding: const EdgeInsets.all(10),
-                        child: Column(
+                        child: ListView(
+                            controller: chatController,
                             children: payments
                                 .map(
                                   (e) => Column(

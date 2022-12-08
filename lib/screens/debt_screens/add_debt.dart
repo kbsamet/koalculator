@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:koalculator/models/user.dart';
-import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/groups.dart';
 
 import '../../components/default_button.dart';
@@ -197,8 +196,10 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
     interstitial!.show();
 
+    await Future.delayed(const Duration(seconds: 2));
+
     await Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: ((context) => const MainPage())),
+        MaterialPageRoute(builder: ((context) => const Dashboard())),
         (route) => false);
     setState(() {});
   }
@@ -385,6 +386,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                                                               toBePaidControllers
                                                                   .length,
                                                               false);
+                                                      onAmountChanged(
+                                                          amountController
+                                                              .text);
                                                     });
                                                   }),
                                               Text(
@@ -542,24 +546,6 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                     ),
                     const SizedBox(
                       height: 20,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      color: const Color(0xff292A33),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("Borcu herkese eşit böl",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              )),
-                          Checkbox(
-                              activeColor: const Color(0xffDA2851),
-                              value: true,
-                              onChanged: (v) {}),
-                        ],
-                      ),
                     ),
                     const SizedBox(height: 5),
                     DefaultButton(onPressed: addDebt, text: "Borç Ekle")

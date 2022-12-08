@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
 import 'package:koalculator/components/default_button.dart';
@@ -7,7 +6,6 @@ import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
 import 'package:koalculator/services/debts.dart';
-import 'package:koalculator/services/users.dart';
 
 import '../../models/debt.dart';
 import '../../services/friends.dart';
@@ -104,6 +102,7 @@ class _DebtListViewState extends State<DebtListView> {
                                       Text("Borçlarınız başarıyla ödendi!")));
                         }
                         Navigator.pop(context, 'OK');
+                        widget.resetDebts();
                       },
                     ),
                   ),
@@ -200,7 +199,6 @@ class _DebtListViewState extends State<DebtListView> {
                                 onPressed: () {
                                   if (isSender) {
                                     showPayDebtDialog();
-                                    widget.resetDebts();
                                   }
                                 },
                                 isPositive: !isSender),
