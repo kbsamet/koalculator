@@ -83,7 +83,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
           .collection("users")
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .get();
-      if ((res.data()!["sentFriendInvites"] == null ||
+      if (user.id != FirebaseAuth.instance.currentUser!.uid &&
+          (res.data()!["sentFriendInvites"] == null ||
               !(res.data()!["sentFriendInvites"]! as List).contains(user.id)) &&
           (res.data()!["friends"] == null ||
               !(res.data()!["friends"]! as Map).keys.contains(user.id))) {

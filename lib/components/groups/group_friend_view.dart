@@ -43,7 +43,7 @@ class _GroupFriendViewState extends State<GroupFriendView> {
     return Container(
       width: double.infinity,
       height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       color: const Color(0xff292A33),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,7 +52,7 @@ class _GroupFriendViewState extends State<GroupFriendView> {
           Row(
             children: [
               Container(
-                width: 50,
+                width: 30,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(50)),
                   border: Border.all(color: Colors.black),

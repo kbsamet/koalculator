@@ -29,6 +29,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   List<Group> groups = [];
   Map<String, dynamic> debts = {};
+  bool isGroupsLoading = false;
+  bool isDebtsLoading = false;
 
   @override
   void initState() {
@@ -52,6 +54,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future getDebts() async {
+    setState(() {
+      isDebtsLoading = true;
+    });
     Map<String, dynamic> debtIds;
     Map<String, List<Debt>> newDebts = {};
 
@@ -70,7 +75,10 @@ class _DashboardState extends State<Dashboard> {
       }
     }
     debts = newDebts;
-    setState(() {});
+    print(debts);
+    setState(() {
+      isDebtsLoading = false;
+    });
   }
 
   Future<Debt> getDebtDetails(String id) async {
@@ -79,9 +87,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future getGroupDetails() async {
+    setState(() {
+      isGroupsLoading = true;
+    });
     List<Group> newGroups = await getGroups();
     setState(() {
       groups = newGroups;
+      isGroupsLoading = false;
     });
   }
 
@@ -148,80 +160,95 @@ class _DashboardState extends State<Dashboard> {
                 )),
             body: TabBarView(children: [
               KeepPageAlive(
-                child: Column(
-                  children: groups
-                          .map(
-                            (e) => GroupListView(group: e),
-                          )
-                          .toList()
-                          .cast<Widget>() +
-                      <Widget>[
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CreateGroup()));
-                            },
-                            text: "Grup Oluştur"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const AddDebtScreen()));
-                            },
-                            text: "Borç Ekle"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DebtHistory()));
-                            },
-                            text: "Geçmiş"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        DefaultButton(
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
+                child: isGroupsLoading
+                    ? SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                            alignment: Alignment.center,
+                            child: const CircularProgressIndicator(
+                                color: Color(0xffF71B4E))))
+                    : Column(
+                        children: groups
+                                .map(
+                                  (e) => GroupListView(group: e),
+                                )
+                                .toList()
+                                .cast<Widget>() +
+                            <Widget>[
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              DefaultButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const CreateGroup()));
+                                  },
+                                  text: "Grup Oluştur"),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              DefaultButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddDebtScreen()));
+                                  },
+                                  text: "Borç Ekle"),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              DefaultButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const DebtHistory()));
+                                  },
+                                  text: "Geçmiş"),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              DefaultButton(
+                                  onPressed: () {
+                                    FirebaseAuth.instance.signOut();
 
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => const MainPage()));
-                            },
-                            text: "Çık")
-                      ],
-                ),
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MainPage()));
+                                  },
+                                  text: "Çık")
+                            ],
+                      ),
               ),
               KeepPageAlive(
-                child: Column(
-                    children: debts.keys.map((key) {
-                  return ListView(
-                    children: [
-                      Flexible(
-                        child: DebtListView(
-                          debts: debts[key],
-                          friendId: key.toString(),
-                          resetDebts: resetDebts,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      )
-                    ],
-                  );
-                }).toList()),
+                child: isDebtsLoading
+                    ? SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                            alignment: Alignment.center,
+                            child: const CircularProgressIndicator(
+                                color: Color(0xffF71B4E))))
+                    : ListView(
+                        children: debts.keys.map((key) {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              child: DebtListView(
+                                debts: debts[key],
+                                friendId: key.toString(),
+                                resetDebts: resetDebts,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            )
+                          ],
+                        );
+                      }).toList()),
               ),
             ]),
           )),
