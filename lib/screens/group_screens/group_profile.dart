@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/groups/group_profile_friend_view.dart';
@@ -6,6 +7,7 @@ import 'package:koalculator/screens/group_screens/add_member_screen.dart';
 import 'package:koalculator/services/users.dart';
 
 import '../../models/group.dart';
+import 'edit_group_screen.dart';
 
 class GroupProfileScreen extends StatefulWidget {
   final Group group;
@@ -17,12 +19,25 @@ class GroupProfileScreen extends StatefulWidget {
 
 class _GroupProfileScreenState extends State<GroupProfileScreen> {
   List<KoalUser> users = [];
+  String? imageUrl;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getGroupUsers();
+    getProfilePic();
+  }
+
+  void getProfilePic() async {
+    try {
+      String url = await storage
+          .child("groupProfilePics/${widget.group.id}")
+          .getDownloadURL();
+      setState(() {
+        imageUrl = url;
+      });
+    } catch (e) {}
   }
 
   void getGroupUsers() async {
@@ -63,13 +78,19 @@ class _GroupProfileScreenState extends State<GroupProfileScreen> {
                           color: Color(0xffF71B4E),
                         ),
                       ),
-                      const Text(
-                        "Düzenle",
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xffF71B4E),
-                            fontSize: 16),
+                      InkWell(
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    EditGroupScreen(group: widget.group))),
+                        child: const Text(
+                          "Düzenle",
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xffF71B4E),
+                              fontSize: 16),
+                        ),
                       ),
                     ],
                   ),
@@ -77,21 +98,41 @@ class _GroupProfileScreenState extends State<GroupProfileScreen> {
                 const SizedBox(
                   height: 10,
                 ),
-                Container(
-                  height: 120,
-                  width: 120,
-                  decoration: BoxDecoration(
-                      color: const Color(0xff292A33),
-                      shape: BoxShape.circle,
-                      border:
-                          Border.all(color: const Color(0xffF71B4E), width: 2)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 150,
+                      width: 150,
+                      decoration: const BoxDecoration(
+                          color: Color(0xff292A33), shape: BoxShape.circle),
+                      child: imageUrl == null
+                          ? Container()
+                          : ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(100)),
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl!,
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(
+                                  color: Color(0xffF71B4E),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.fill,
+                              )),
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 15,
                 ),
-                const Text(
-                  "Zombiler",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36),
+                Text(
+                  widget.group.name,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 36),
                 ),
                 const Divider(
                   color: Color(0xffF71B4E),

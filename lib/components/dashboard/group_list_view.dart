@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,7 @@ import 'package:koalculator/models/user.dart';
 
 import '../../screens/group_screens/group_detail_screen.dart';
 
-final storage =
-    FirebaseStorage.instanceFor(bucket: "gs://koalculator-5584c.appspot.com");
+final storage = FirebaseStorage.instance.ref();
 
 final db = FirebaseFirestore.instance;
 
@@ -28,6 +28,18 @@ class _GroupListViewState extends State<GroupListView> {
     super.initState();
     getImage();
     getUserNames();
+    getProfilePic();
+  }
+
+  void getProfilePic() async {
+    try {
+      String url = await storage
+          .child("groupProfilePics/${widget.group.id}")
+          .getDownloadURL();
+      setState(() {
+        imageUrl = url;
+      });
+    } catch (e) {}
   }
 
   @override
@@ -85,8 +97,8 @@ class _GroupListViewState extends State<GroupListView> {
                         width: 65,
                         height: 65,
                       )
-                    : Image.network(
-                        imageUrl!,
+                    : CachedNetworkImage(
+                        imageUrl: imageUrl!,
                         fit: BoxFit.fill,
                         width: 65,
                         height: 65,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:koalculator/services/users.dart';
 
 import '../../models/group.dart';
 import '../../models/payment.dart';
+
+final storage = FirebaseStorage.instance.ref();
 
 class GroupDetailScreen extends StatefulWidget {
   final Group group;
@@ -43,18 +46,18 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     // TODO: implement initState
     super.initState();
     getPayments();
+    getProfilePic();
   }
 
-  void getImage() async {
-    if (widget.group.pic != null) {
-      String url = await FirebaseStorage.instance
-          .refFromURL(widget.group.pic!)
+  void getProfilePic() async {
+    try {
+      String url = await storage
+          .child("groupProfilePics/${widget.group.id}")
           .getDownloadURL();
-
       setState(() {
         imageUrl = url;
       });
-    }
+    } catch (e) {}
   }
 
   void getPayments() async {
@@ -115,8 +118,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                       width: 60,
                                       height: 60,
                                     )
-                                  : Image.network(
-                                      imageUrl!,
+                                  : CachedNetworkImage(
+                                      imageUrl: imageUrl!,
                                       fit: BoxFit.fill,
                                       width: 60,
                                       height: 60,
@@ -130,10 +133,10 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
-                                children: const [
+                                children: [
                                   Text(
-                                    "Zombiler",
-                                    style: TextStyle(
+                                    widget.group.name,
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 20,
                                         color: Color(0xffF71B4E)),
