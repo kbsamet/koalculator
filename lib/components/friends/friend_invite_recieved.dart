@@ -31,7 +31,6 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     stateInit();
   }

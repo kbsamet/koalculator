@@ -3,6 +3,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 
+import '../../services/images.dart';
+
 final storage = FirebaseStorage.instance.ref();
 
 class GroupProfileFriendView extends StatefulWidget {
@@ -17,23 +19,15 @@ class GroupProfileFriendView extends StatefulWidget {
 class _GroupProfileFriendViewState extends State<GroupProfileFriendView> {
   String? imageUrl;
 
-  void getProfilePic() async {
-    try {
-      String url =
-          await storage.child("profilePics/${widget.user.id}").getDownloadURL();
-      setState(() {
-        imageUrl = url;
-      });
-    } catch (e) {
-      print(e);
-    }
+  void stateInit() async {
+    imageUrl = await getProfilePic(widget.user.id);
+    setState(() {});
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getProfilePic();
+    stateInit();
   }
 
   @override
