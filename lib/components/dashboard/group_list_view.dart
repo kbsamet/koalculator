@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/models/user.dart';
@@ -7,11 +5,6 @@ import 'package:koalculator/models/user.dart';
 import '../../screens/group_screens/group_detail_screen.dart';
 import '../../services/images.dart';
 import '../../services/users.dart';
-
-final storage =
-    FirebaseStorage.instanceFor(bucket: "gs://koalculator-5584c.appspot.com");
-
-final db = FirebaseFirestore.instance;
 
 class GroupListView extends StatefulWidget {
   final Group group;
@@ -90,16 +83,6 @@ class _GroupListViewState extends State<GroupListView> {
                           fontSize: 20,
                           color: Color(0xffF71B4E)),
                     ),
-                    /*
-                    const Divider(
-                      color: Color(0xffF71B4E),
-                      thickness: 1.0,
-                      endIndent: 30,
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    */
                     const SizedBox(
                       height: 10,
                     ),
