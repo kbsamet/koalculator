@@ -5,6 +5,8 @@ import 'package:koalculator/models/group.dart';
 import 'package:koalculator/models/user.dart';
 
 import '../../screens/group_screens/group_detail_screen.dart';
+import '../../services/images.dart';
+import '../../services/users.dart';
 
 final storage =
     FirebaseStorage.instanceFor(bucket: "gs://koalculator-5584c.appspot.com");
@@ -24,44 +26,25 @@ class _GroupListViewState extends State<GroupListView> {
   String? imageUrl;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getImage();
-    getUserNames();
+    stateInit();
   }
 
-  @override
-  void didUpdateWidget(covariant GroupListView oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.group != widget.group) {
-      getImage();
-      getUserNames();
-    }
+  void stateInit() async {
+    imageUrl = await getImage(widget.group.pic);
+    users = (await getUsers(widget.group.users))!;
+    setState(() {});
   }
 
-  void getUserNames() async {
-    users = [];
-    for (var element in widget.group.users) {
-      var res = await db.collection("users").doc(element).get();
-
-      setState(() {
-        users.add(KoalUser.fromJson(res.data()!));
-      });
-    }
-  }
-
-  void getImage() async {
-    if (widget.group.pic != null) {
-      String url = await FirebaseStorage.instance
-          .refFromURL(widget.group.pic!)
-          .getDownloadURL();
-
-      setState(() {
-        imageUrl = url;
-      });
-    }
-  }
+  // @override
+  // void didUpdateWidget(covariant GroupListView oldWidget) {
+  //   // TODO: implement didUpdateWidget
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.group != widget.group) {
+  //     getImage();
+  //     getUserNames();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
