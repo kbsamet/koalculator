@@ -28,6 +28,7 @@ class _GroupListViewState extends State<GroupListView> {
   @override
   void initState() {
     super.initState();
+    stateInit();
   }
 
   void stateInit() async {

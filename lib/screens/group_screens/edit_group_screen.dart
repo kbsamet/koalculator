@@ -104,7 +104,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   void changeGroupName() {
-    if (newName.text == null) return;
+    if (newName.text == "") return;
     db.collection("groups").doc(widget.group.id).update({
       "name": newName.text,
     });

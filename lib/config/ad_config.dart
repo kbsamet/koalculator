@@ -1,6 +1,6 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void initMobAds() async {
+Future initMobAds() async {
   await MobileAds.instance.initialize();
 }
 
