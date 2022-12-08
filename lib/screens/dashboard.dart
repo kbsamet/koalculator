@@ -207,9 +207,9 @@ class _DashboardState extends State<Dashboard> {
               KeepPageAlive(
                 child: Column(
                     children: debts.keys.map((key) {
-                  return ListView(
+                  return Column(
                     children: [
-                      Flexible(
+                      Container(
                         child: DebtListView(
                           debts: debts[key],
                           friendId: key.toString(),

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
@@ -8,13 +7,12 @@ import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
 import 'package:koalculator/services/debts.dart';
-
 import 'package:koalculator/services/users.dart';
 
 import '../../models/debt.dart';
 import '../header.dart';
-
-final db = FirebaseFirestore.instance;
+import '../utils/debts.dart';
+import '../utils/friend.dart';
 
 class DebtListView extends StatefulWidget {
   final List<dynamic> debts;
@@ -38,10 +36,16 @@ class _DebtListViewState extends State<DebtListView> {
   TextEditingController debtAmountController = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getFriend();
-    calculateDebts();
+    stateInit();
+  }
+
+  void stateInit() {
+    setState(() async {
+      totalDebt = calculateDebts(isSender, widget.debts, widget.friendId);
+      isSender = totalDebt!.amount < 0;
+      user = await getFriend(widget.friendId);
+    });
   }
 
   void showPayDebtDialog() async {
@@ -115,38 +119,35 @@ class _DebtListViewState extends State<DebtListView> {
 
   @override
   void didUpdateWidget(covariant DebtListView oldWidget) {
-    // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.debts != widget.debts && widget.debts.isNotEmpty) {
-      calculateDebts();
-    }
+    if (oldWidget.debts != widget.debts && widget.debts.isNotEmpty) {}
   }
 
-  void getFriend() async {
-    KoalUser? friend = await getUser(widget.friendId);
-    setState(() {
-      user = friend!;
-    });
-  }
+  // void getFriend() async {
+  //   KoalUser? friend = await getUser(widget.friendId);
+  //   setState(() {
+  //     user = friend!;
+  //   });
+  // }
 
-  void calculateDebts() {
-    num total = 0;
-    for (var element in widget.debts) {
-      total += (element.recieverId == FirebaseAuth.instance.currentUser!.uid
-              ? 1
-              : -1) *
-          element.amount;
-    }
-    setState(() {
-      isSender = total < 0;
-      totalDebt = Debt(
-          total,
-          "31",
-          "sex",
-          isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid,
-          !isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid);
-    });
-  }
+  // // void calculateDebts() {
+  // //   num total = 0;
+  // //   for (var element in widget.debts) {
+  // //     total += (element.recieverId == FirebaseAuth.instance.currentUser!.uid
+  // //             ? 1
+  // //             : -1) *
+  // //         element.amount;
+  // //   }
+  // //   setState(() {
+  // //     isSender = total < 0;
+  // //     totalDebt = Debt(
+  // //         total,
+  // //         "31",
+  // //         "sex",
+  // //         isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid,
+  // //         !isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid);
+  // //   });
+  // // }
 
   @override
   Widget build(BuildContext context) {
