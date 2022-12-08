@@ -34,12 +34,13 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    stateInit();
+  }
 
-    setState(() {
-      isObscured = widget.isPassword;
-    });
+  void stateInit() async {
+    isObscured = widget.isPassword;
+    setState(() {});
   }
 
   @override
