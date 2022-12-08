@@ -100,6 +100,7 @@ class _DebtListViewState extends State<DebtListView> {
                                   content:
                                       Text("Borçlarınız başarıyla ödendi!")));
                         }
+                        widget.resetDebts();
                         Navigator.pop(context, 'OK');
                       },
                     ),

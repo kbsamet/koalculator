@@ -42,8 +42,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void resetDebts() async {
+    await Future.delayed(const Duration(seconds: 2));
     await getDebts();
-    setState(() {});
   }
 
   void init() async {
@@ -191,10 +191,11 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               DefaultButton(
                                   onPressed: () {
-                                    Navigator.of(context).pushReplacement(
+                                    Navigator.of(context).pushAndRemoveUntil(
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const AddDebtScreen()));
+                                                const AddDebtScreen()),
+                                        (route) => false);
                                   },
                                   text: "Borç Ekle"),
                               const SizedBox(
