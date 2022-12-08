@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_history.dart';
 
 import '../../models/user.dart';
+import '../../services/friends.dart';
 import '../../services/users.dart';
 
 class DebtHistoryListView extends StatefulWidget {
@@ -21,14 +22,19 @@ class _DebtHistoryListViewState extends State<DebtHistoryListView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getFriend();
+    stateInit();
   }
 
-  void getFriend() async {
-    KoalUser? friend = await getUser(widget.friendId);
-    setState(() {
-      user = friend!;
-    });
+  // void getFriend() async {
+  //   KoalUser? friend = await getUser(widget.friendId);
+  //   setState(() {
+  //     user = friend!;
+  //   });
+  // }
+
+  void stateInit() async {
+    user = await getFriend(widget.friendId);
+    setState(() {});
   }
 
   @override

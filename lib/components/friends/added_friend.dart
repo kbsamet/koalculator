@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/user.dart';
+import '../../services/images.dart';
 
 final storage = FirebaseStorage.instance.ref();
 
@@ -18,21 +19,12 @@ class _AddedFriendState extends State<AddedFriend> {
   String? imageUrl;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getProfilePic();
   }
 
-  void getProfilePic() async {
-    try {
-      String url =
-          await storage.child("profilePics/${widget.user.id}").getDownloadURL();
-      setState(() {
-        imageUrl = url;
-      });
-    } catch (e) {
-      print(e);
-    }
+  void stateInit() async {
+    imageUrl = await getProfilePic(widget.user.id);
+    setState(() {});
   }
 
   @override

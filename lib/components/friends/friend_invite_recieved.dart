@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/friends.dart';
 
+import '../../services/images.dart';
+
 final storage = FirebaseStorage.instance.ref();
 
 class FriendInviteRecieved extends StatefulWidget {
@@ -22,23 +24,15 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
   bool isSent = false;
   String? imageUrl;
 
-  void getProfilePic() async {
-    try {
-      String url =
-          await storage.child("profilePics/${widget.user.id}").getDownloadURL();
-      setState(() {
-        imageUrl = url;
-      });
-    } catch (e) {
-      print(e);
-    }
+  void stateInit() async {
+    imageUrl = await getProfilePic(widget.user.id);
+    setState(() {});
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getProfilePic();
+    stateInit();
   }
 
   @override

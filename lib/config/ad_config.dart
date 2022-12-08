@@ -1,5 +1,9 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+void initMobAds() async {
+  await MobileAds.instance.initialize();
+}
+
 Future<InterstitialAd?> showAd() async {
   InterstitialAd? ad_;
 

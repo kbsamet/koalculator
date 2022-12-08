@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/services/images.dart';
+import '../../services/users.dart';
 
 import '../../screens/group_screens/group_detail_screen.dart';
 
@@ -24,56 +27,24 @@ class _GroupListViewState extends State<GroupListView> {
   String? imageUrl;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getImage();
-    getUserNames();
-    getProfilePic();
   }
 
-  void getProfilePic() async {
-    try {
-      String url = await storage
-          .child("groupProfilePics/${widget.group.id}")
-          .getDownloadURL();
-      setState(() {
-        imageUrl = url;
-      });
-    } catch (e) {}
+  void stateInit() async {
+    imageUrl = await getGroupPic(widget.group.id);
+    users = (await getUsers(widget.group.users))!;
+    setState(() {});
   }
 
-  @override
-  void didUpdateWidget(covariant GroupListView oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.group != widget.group) {
-      getImage();
-      getUserNames();
-    }
-  }
-
-  void getUserNames() async {
-    users = [];
-    for (var element in widget.group.users) {
-      var res = await db.collection("users").doc(element).get();
-
-      setState(() {
-        users.add(KoalUser.fromJson(res.data()!));
-      });
-    }
-  }
-
-  void getImage() async {
-    if (widget.group.pic != null) {
-      String url = await FirebaseStorage.instance
-          .refFromURL(widget.group.pic!)
-          .getDownloadURL();
-
-      setState(() {
-        imageUrl = url;
-      });
-    }
-  }
+  // @override
+  // void didUpdateWidget(covariant GroupListView oldWidget) {
+  //   // TODO: implement didUpdateWidget
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.group != widget.group) {
+  //     getImage();
+  //     getUserNames();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -119,16 +90,6 @@ class _GroupListViewState extends State<GroupListView> {
                           fontSize: 20,
                           color: Color(0xffF71B4E)),
                     ),
-                    /*
-                    const Divider(
-                      color: Color(0xffF71B4E),
-                      thickness: 1.0,
-                      endIndent: 30,
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    */
                     const SizedBox(
                       height: 10,
                     ),
