@@ -145,3 +145,9 @@ Future<List<KoalUser>> getFriends() async {
   }
   return friends;
 }
+
+Future<KoalUser> getFriend(String friendId) async {
+  KoalUser? friend = await getUser(friendId);
+
+  return friend!;
+}
