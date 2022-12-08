@@ -20,6 +20,8 @@ class GroupDetailScreen extends StatefulWidget {
 class _GroupDetailScreenState extends State<GroupDetailScreen> {
   List<Payment> payments = [];
   String? imageUrl;
+  bool isLoading = false;
+
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
       labelColor: Color(0xffFF6D8F),
@@ -55,13 +57,18 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   }
 
   void getPayments() async {
+    setState(() {
+      isLoading = true;
+    });
     payments = await getPaymentsByGroupId(widget.group.id!);
     for (var element in payments) {
       element.reciever = await getUser(element.recieverId);
       element.sender = await getUser(element.senderId);
     }
 
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -137,29 +144,37 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                     ),
                   )),
               body: TabBarView(children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                      children: payments
-                          .map(
-                            (e) => Column(
-                              children: [
-                                GroupChatBubble(
-                                    group: widget.group,
-                                    senderId: e.senderId,
-                                    sender: e.sender!.name,
-                                    isSender: e.senderId ==
-                                        FirebaseAuth.instance.currentUser!.uid,
-                                    reciever: e.reciever!.name,
-                                    amount: e.amount),
-                                const SizedBox(
-                                  height: 20,
+                isLoading
+                    ? SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                            alignment: Alignment.center,
+                            child: const CircularProgressIndicator(
+                                color: Color(0xffF71B4E))))
+                    : Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                            children: payments
+                                .map(
+                                  (e) => Column(
+                                    children: [
+                                      GroupChatBubble(
+                                          group: widget.group,
+                                          senderId: e.senderId,
+                                          sender: e.sender!.name,
+                                          isSender: e.senderId ==
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                          reciever: e.reciever!.name,
+                                          amount: e.amount),
+                                      const SizedBox(
+                                        height: 20,
+                                      )
+                                    ],
+                                  ),
                                 )
-                              ],
-                            ),
-                          )
-                          .toList()),
-                ),
+                                .toList()),
+                      ),
                 Container(),
               ])),
         ));

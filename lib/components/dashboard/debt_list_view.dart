@@ -169,11 +169,7 @@ class _DebtListViewState extends State<DebtListView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      user == null
-                          ? isSender
-                              ? totalDebt!.recieverId
-                              : totalDebt!.senderId
-                          : user!.name,
+                      user == null ? "Yükleniyor" : user!.name,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),

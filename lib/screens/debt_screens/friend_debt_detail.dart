@@ -19,6 +19,7 @@ class FriendDebtDetail extends StatefulWidget {
 class _FriendDebtDetailState extends State<FriendDebtDetail> {
   List<Debt> debts = [];
   Debt? totalDebt;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -28,6 +29,9 @@ class _FriendDebtDetailState extends State<FriendDebtDetail> {
   }
 
   void initDebts() async {
+    setState(() {
+      isLoading = true;
+    });
     List<Debt> debts_ = await getDebtsByFriendId(widget.id);
     num total = 0;
     for (var element in debts_) {
@@ -44,6 +48,7 @@ class _FriendDebtDetailState extends State<FriendDebtDetail> {
     setState(() {
       debts = debts_;
       totalDebt = totalDebt_;
+      isLoading = false;
     });
   }
 
@@ -68,40 +73,48 @@ class _FriendDebtDetailState extends State<FriendDebtDetail> {
                     color: Color(0xffF71B4E)),
               ),
             ),
-            body: SizedBox(
-              width: double.infinity,
-              child: ListView(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Center(
-                      child: Text(
-                    "Aktif Borçlar",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                  )),
-                  const Divider(
-                    color: Color(0xffF71B4E),
-                    thickness: 2,
-                    endIndent: 50,
-                    indent: 50,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Column(
-                    children: debts
-                        .map((e) => FriendDebtDetailListView(debt: e))
-                        .toList(),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  totalDebt != null
-                      ? FriendDebtDetailListView(debt: totalDebt!)
-                      : Container(),
-                ],
-              ),
-            )));
+            body: isLoading
+                ? SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(
+                            color: Color(0xffF71B4E))))
+                : SizedBox(
+                    width: double.infinity,
+                    child: ListView(
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Center(
+                            child: Text(
+                          "Aktif Borçlar",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25),
+                        )),
+                        const Divider(
+                          color: Color(0xffF71B4E),
+                          thickness: 2,
+                          endIndent: 50,
+                          indent: 50,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                          children: debts
+                              .map((e) => FriendDebtDetailListView(debt: e))
+                              .toList(),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        totalDebt != null
+                            ? FriendDebtDetailListView(debt: totalDebt!)
+                            : Container(),
+                      ],
+                    ),
+                  )));
   }
 }

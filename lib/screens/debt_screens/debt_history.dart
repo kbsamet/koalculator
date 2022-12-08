@@ -18,7 +18,7 @@ class DebtHistory extends StatefulWidget {
 
 class _DebtHistoryState extends State<DebtHistory> {
   Map<String, dynamic> debts = {};
-
+  bool isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -27,6 +27,9 @@ class _DebtHistoryState extends State<DebtHistory> {
   }
 
   Future getDebts() async {
+    setState(() {
+      isLoading = true;
+    });
     Map<String, dynamic> debtIds;
     Map<String, List<Debt>> newDebts = {};
 
@@ -45,7 +48,9 @@ class _DebtHistoryState extends State<DebtHistory> {
       }
     }
     debts = newDebts;
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
     print(debts);
   }
 
@@ -73,20 +78,27 @@ class _DebtHistoryState extends State<DebtHistory> {
                   color: Color(0xffF71B4E)),
             ),
           ),
-          body: ListView(
-              children: debts.keys.map((key) {
-            return Column(
-              children: [
-                DebtHistoryListView(
-                  debts: debts[key],
-                  friendId: key.toString(),
-                ),
-                const SizedBox(
-                  height: 5,
-                )
-              ],
-            );
-          }).toList()),
+          body: isLoading
+              ? SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(
+                          color: Color(0xffF71B4E))))
+              : ListView(
+                  children: debts.keys.map((key) {
+                  return Column(
+                    children: [
+                      DebtHistoryListView(
+                        debts: debts[key],
+                        friendId: key.toString(),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      )
+                    ],
+                  );
+                }).toList()),
         ));
   }
 }

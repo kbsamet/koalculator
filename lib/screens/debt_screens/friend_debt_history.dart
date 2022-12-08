@@ -16,6 +16,7 @@ class FriendDebtHistory extends StatefulWidget {
 
 class _FriendDebtHistoryState extends State<FriendDebtHistory> {
   List<Debt> debts = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -25,9 +26,13 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
   }
 
   void initDebts() async {
+    setState(() {
+      isLoading = true;
+    });
     List<Debt> debts_ = await getPastDebtsByFriendId(widget.id);
     setState(() {
       debts = debts_;
+      isLoading = false;
     });
   }
 
@@ -52,37 +57,45 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
                     color: Color(0xffF71B4E)),
               ),
             ),
-            body: SizedBox(
-              width: double.infinity,
-              child: ListView(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Center(
-                      child: Text(
-                    "Geçmiş Borçlar",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                  )),
-                  const Divider(
-                    color: Color(0xffF71B4E),
-                    thickness: 2,
-                    endIndent: 50,
-                    indent: 50,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Column(
-                    children: debts
-                        .map((e) => FriendDebtDetailListView(debt: e))
-                        .toList(),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ],
-              ),
-            )));
+            body: isLoading
+                ? SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(
+                            color: Color(0xffF71B4E))))
+                : SizedBox(
+                    width: double.infinity,
+                    child: ListView(
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Center(
+                            child: Text(
+                          "Geçmiş Borçlar",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25),
+                        )),
+                        const Divider(
+                          color: Color(0xffF71B4E),
+                          thickness: 2,
+                          endIndent: 50,
+                          indent: 50,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                          children: debts
+                              .map((e) => FriendDebtDetailListView(debt: e))
+                              .toList(),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  )));
   }
 }
