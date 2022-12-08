@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/friends.dart';
 
+import '../../services/images.dart';
+
 final storage = FirebaseStorage.instance.ref();
 
 class FriendInContact extends StatefulWidget {
@@ -28,26 +30,16 @@ class _FriendInContactState extends State<FriendInContact> {
   bool isSent = false;
   String? imageUrl;
 
-  void getProfilePic() async {
-    try {
-      String url =
-          await storage.child("profilePics/${widget.user.id}").getDownloadURL();
-      setState(() {
-        imageUrl = url;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getProfilePic();
-    setState(() {
-      isSent = widget.isSent;
-    });
+    stateInit();
+  }
+
+  void stateInit() async {
+    imageUrl = await getProfilePic(widget.user.id);
+    isSent = widget.isSent;
+    setState(() {});
   }
 
   @override
