@@ -10,9 +10,9 @@ import 'package:koalculator/services/debts.dart';
 import 'package:koalculator/services/users.dart';
 
 import '../../models/debt.dart';
+import '../../services/friends.dart';
 import '../header.dart';
 import '../utils/debts.dart';
-import '../utils/friend.dart';
 
 class DebtListView extends StatefulWidget {
   final List<dynamic> debts;
