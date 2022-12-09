@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/group.dart';
@@ -9,10 +7,6 @@ import 'package:koalculator/services/images.dart';
 import '../../services/users.dart';
 
 import '../../screens/group_screens/group_detail_screen.dart';
-
-final storage = FirebaseStorage.instance.ref();
-
-final db = FirebaseFirestore.instance;
 
 class GroupListView extends StatefulWidget {
   final Group group;
