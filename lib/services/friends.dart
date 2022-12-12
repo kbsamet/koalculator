@@ -6,6 +6,8 @@ import 'package:koalculator/services/users.dart';
 
 final db = FirebaseFirestore.instance;
 
+enum FriendStatus { accepted, pending, notFriends, sent }
+
 void deleteFriend(String friendId) {
   db
       .collection("users")
@@ -27,9 +29,9 @@ Future sendFriendRequest(String friendId, dynamic context) async {
         const SnackBar(content: Text("Bu kullanıcıyla zaten arkadaşsınız")));
     return;
   }
-  db.collection("users").doc(friendId).update({
+  db.collection("users").doc(friendId).set({
     "friends": {FirebaseAuth.instance.currentUser!.uid: false}
-  });
+  }, SetOptions(merge: true));
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
     "sentFriendInvites": FieldValue.arrayUnion([friendId])
   }).then(
@@ -152,14 +154,65 @@ Future<KoalUser> getFriend(String friendId) async {
   return friend!;
 }
 
-Future<bool> isFrends(String id) async {
+Future<FriendStatus> getFriendStatus(String id) async {
   var res = await db
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .get();
-  if (res.data()!["friends"] == null) return false;
+  if (res.data()!["friends"] == null) return FriendStatus.notFriends;
   if ((res.data()!["friends"] as Map).containsKey(id)) {
-    return res.data()!["friends"][id];
+    return res.data()!["friends"][id]
+        ? FriendStatus.accepted
+        : FriendStatus.pending;
   }
-  return false;
+  if ((res.data()!["sentFriendInvites"] as List).contains(id)) {
+    return FriendStatus.sent;
+  }
+  return FriendStatus.notFriends;
+}
+
+Future removeFriend(String id) async {
+  var res = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  Map friends = res.data()!["friends"]!;
+  friends.remove(id);
+  print(friends);
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update(
+    {
+      "friends": friends,
+    },
+  );
+  var friendRes = await db.collection("users").doc(id).get();
+  Map newFriends = res.data()!["friends"]!;
+  newFriends.remove(FirebaseAuth.instance.currentUser!.uid);
+  db.collection("users").doc(id).update(
+    {
+      "friends": friends,
+    },
+  );
+}
+
+Future cancelFriendRequest(String id) async {
+  var res = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  List sentFriendInvites = res.data()!["sentFriendInvites"]!;
+  sentFriendInvites.remove(id);
+  print(sentFriendInvites);
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update(
+    {
+      "sentFriendInvites": sentFriendInvites,
+    },
+  );
+  var friendRes = await db.collection("users").doc(id).get();
+  Map newFriends = friendRes.data()!["friends"]!;
+  newFriends.remove(FirebaseAuth.instance.currentUser!.uid);
+  db.collection("users").doc(id).update(
+    {
+      "friends": newFriends,
+    },
+  );
 }

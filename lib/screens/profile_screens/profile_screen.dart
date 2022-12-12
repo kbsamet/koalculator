@@ -6,10 +6,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/main_page.dart';
+import 'package:koalculator/services/friends.dart';
 
 import '../../services/users.dart';
 
@@ -28,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? imageUrl;
   KoalUser? user;
   bool otherUser = false;
+  FriendStatus? friendStatus;
 
   @override
   void initState() {
@@ -40,8 +43,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         user = widget.user;
         otherUser = true;
       });
+      checkFriends();
     }
     getProfilePic();
+  }
+
+  checkFriends() async {
+    friendStatus = await getFriendStatus(user!.id!);
+    setState(() {});
   }
 
   getCurrentUser() async {
@@ -110,7 +119,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Color(0xffF71B4E)),
               ),
             ),
-            body: SizedBox(
+            body: Container(
+                margin: const EdgeInsets.all(10),
                 width: double.infinity,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -204,7 +214,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 const MainPage()));
                                   }),
                             )
-                          : Container(),
+                          : friendStatus == null
+                              ? Container()
+                              : friendStatus == FriendStatus.accepted
+                                  ? EmptyButton(
+                                      text: "Arkadaşlıktan Çıkar",
+                                      onPressed: () {
+                                        removeFriend(user!.id!);
+                                        friendStatus = FriendStatus.notFriends;
+                                        setState(() {});
+                                      })
+                                  : friendStatus == FriendStatus.pending
+                                      ? DefaultButton(
+                                          text: "Arkadaşlık İsteğini Kabul Et",
+                                          onPressed: () {
+                                            acceptFriendRequest(user!.id!);
+                                            friendStatus =
+                                                FriendStatus.notFriends;
+                                            setState(() {});
+                                          })
+                                      : friendStatus == FriendStatus.sent
+                                          ? EmptyButton(
+                                              text:
+                                                  "Arkadaşlık İsteğini İptal Et",
+                                              onPressed: () {
+                                                cancelFriendRequest(user!.id!);
+                                                friendStatus =
+                                                    FriendStatus.notFriends;
+                                                setState(() {});
+                                              })
+                                          : DefaultButton(
+                                              text: "Arkadaşlık İsteği Gönder",
+                                              onPressed: () {
+                                                sendFriendRequest(
+                                                    user!.id!, context);
+                                                friendStatus =
+                                                    FriendStatus.sent;
+                                                setState(() {});
+                                              })
                     ]))));
   }
 }
