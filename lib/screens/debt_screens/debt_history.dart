@@ -5,7 +5,6 @@ import 'package:koalculator/components/debts/debt_history_list_view.dart';
 
 import '../../models/debt.dart';
 import '../../services/debts.dart';
-import '../dashboard.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -63,13 +62,9 @@ class _DebtHistoryState extends State<DebtHistory> {
             backgroundColor: const Color(0xff1B1C26),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios,
-                  size: 30, color: Color(0xffF71B4E)),
-              onPressed: () =>
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              )),
-            ),
+                icon: const Icon(Icons.arrow_back_ios,
+                    size: 30, color: Color(0xffF71B4E)),
+                onPressed: () => Navigator.of(context).pop()),
             title: const Text(
               "Geçmiş",
               style: TextStyle(

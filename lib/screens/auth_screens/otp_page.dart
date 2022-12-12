@@ -63,7 +63,6 @@ class _OtpPageState extends State<OtpPage> {
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .get();
-        print(user.data()!["name"]);
         if (user.data()!["name"] == null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: ((context) => const ChooseNameScreen())));

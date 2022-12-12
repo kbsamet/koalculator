@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:koalculator/screens/main_page.dart';
+import 'package:koalculator/screens/auth_screens/choose_profile_pic.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -24,6 +24,11 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
           const SnackBar(content: Text("İsim 12 karakterden kısa olmalı.")));
       return;
     }
+    if (nicknameController.text.length < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("İsim 3 karakterden uzun olmalı.")));
+      return;
+    }
 
     var data = await db.collection("users").get();
     for (var user in data.docs) {
@@ -38,8 +43,8 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .update({"name": nicknameController.text});
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainPage()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const ChooseProfilePicScreen()));
   }
 
   @override

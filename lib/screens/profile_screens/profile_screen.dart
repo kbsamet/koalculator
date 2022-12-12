@@ -6,15 +6,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:koalculator/components/default_text_input.dart';
+import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/screens/main_page.dart';
 
 import '../../services/users.dart';
-import '../dashboard.dart';
 
 final storage = FirebaseStorage.instance.ref();
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final KoalUser? user;
+  const ProfileScreen({super.key, this.user});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -24,13 +27,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   CroppedFile? profilePic;
   String? imageUrl;
   KoalUser? user;
+  bool otherUser = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    if (widget.user == null) {
+      getCurrentUser();
+    } else {
+      setState(() {
+        user = widget.user;
+        otherUser = true;
+      });
+    }
     getProfilePic();
-    getCurrentUser();
   }
 
   getCurrentUser() async {
@@ -42,9 +53,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void getProfilePic() async {
     try {
-      String url = await storage
-          .child("profilePics/${FirebaseAuth.instance.currentUser!.uid}")
-          .getDownloadURL();
+      String? id =
+          otherUser ? user!.id : FirebaseAuth.instance.currentUser!.uid;
+      String url = await storage.child("profilePics/$id").getDownloadURL();
       setState(() {
         imageUrl = url;
       });
@@ -88,13 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: const Color(0xff1B1C26),
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios,
-                    size: 30, color: Color(0xffF71B4E)),
-                onPressed: () =>
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => const Dashboard(),
-                )),
-              ),
+                  icon: const Icon(Icons.arrow_back_ios,
+                      size: 30, color: Color(0xffF71B4E)),
+                  onPressed: () => Navigator.of(context).pop()),
               title: const Text(
                 "Profil",
                 style: TextStyle(
@@ -143,17 +150,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       height: 150,
                                       fit: BoxFit.fill,
                                     )),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: InkWell(
-                                onTap: setProfilePic,
-                                child: const Icon(
-                                  Icons.add_a_photo_outlined,
-                                  color: Color(0xffF71B4E),
-                                  size: 30,
-                                ),
-                              ),
-                            ),
+                            otherUser
+                                ? Container()
+                                : Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: InkWell(
+                                      onTap: setProfilePic,
+                                      child: const Icon(
+                                        Icons.add_a_photo_outlined,
+                                        color: Color(0xffF71B4E),
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
                           ],
                         ),
                       ),
@@ -166,39 +175,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Color.fromARGB(255, 255, 202, 214)),
                         ),
                       ),
-                      Container(
-                        width: double.infinity,
-                        margin:
-                            const EdgeInsets.only(right: 50, left: 50, top: 40),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // aşağıdaki 3 containeri tek hale nasıl getirebilirim ?? deliricem...
-                              Container(
-                                child: const Text(
-                                  "Gruplar",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 26,
-                                      color:
-                                          Color.fromARGB(255, 255, 245, 247)),
-                                ),
-                              ),
-                              const SizedBox(
-                                  height: 160,
-                                  child: VerticalDivider(color: Colors.red)),
-                              Container(
-                                child: const Text(
-                                  "Arkadaşlar",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 26,
-                                      color:
-                                          Color.fromARGB(255, 255, 239, 242)),
-                                ),
-                              ),
-                            ]),
-                      )
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      DefaultTextInput(
+                        controller: TextEditingController(
+                            text: user == null ? "" : user!.bio),
+                        readOnly: true,
+                        icon: Icons.abc,
+                        noIcon: true,
+                        maxLines: 5,
+                        height: 100,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      !otherUser
+                          ? Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: EmptyButton(
+                                  text: "Çık",
+                                  onPressed: () {
+                                    FirebaseAuth.instance.signOut();
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MainPage()));
+                                  }),
+                            )
+                          : Container(),
                     ]))));
   }
 }

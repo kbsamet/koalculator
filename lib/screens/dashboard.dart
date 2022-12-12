@@ -5,17 +5,13 @@ import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
-import 'package:koalculator/screens/debt_screens/debt_history.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
-import 'package:koalculator/screens/debt_screens/add_debt.dart';
-import 'package:koalculator/screens/group_screens/create_group.dart';
 import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../components/dashboard/group_list_view.dart';
-import '../components/default_button.dart';
-import 'main_page.dart';
+import '../components/dashboard/navbar.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -119,6 +115,18 @@ class _DashboardState extends State<Dashboard> {
       child: DefaultTabController(
           length: 2,
           child: Scaffold(
+            floatingActionButton: FloatingActionButton(
+              //Floating action button on Scaffold
+              onPressed: () {
+                getGroupDetails();
+                getDebts();
+              },
+              backgroundColor: const Color(0xffF71B4E),
+              child: const Icon(Icons.home),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            bottomNavigationBar: const BottomNavbar(),
             appBar: AppBar(
                 titleSpacing: 0,
                 leading: IconButton(
@@ -144,7 +152,7 @@ class _DashboardState extends State<Dashboard> {
                         Icons.person,
                         size: 25,
                       ),
-                      onPressed: () => Navigator.of(context).pushReplacement(
+                      onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (context) => const ProfileScreen())),
                     )
@@ -160,71 +168,19 @@ class _DashboardState extends State<Dashboard> {
                 )),
             body: TabBarView(children: [
               KeepPageAlive(
-                child: isGroupsLoading
-                    ? SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                            alignment: Alignment.center,
-                            child: const CircularProgressIndicator(
-                                color: Color(0xffF71B4E))))
-                    : Column(
-                        children: groups
-                                .map(
-                                  (e) => GroupListView(group: e),
-                                )
-                                .toList()
-                                .cast<Widget>() +
-                            <Widget>[
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              DefaultButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const CreateGroup()));
-                                  },
-                                  text: "Grup Oluştur"),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              DefaultButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const AddDebtScreen()),
-                                        (route) => false);
-                                  },
-                                  text: "Borç Ekle"),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              DefaultButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const DebtHistory()));
-                                  },
-                                  text: "Geçmiş"),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              DefaultButton(
-                                  onPressed: () {
-                                    FirebaseAuth.instance.signOut();
-
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const MainPage()));
-                                  },
-                                  text: "Çık")
-                            ],
-                      ),
-              ),
+                  child: isGroupsLoading
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(
+                                  color: Color(0xffF71B4E))))
+                      : Column(
+                          children: groups
+                              .map(
+                                (e) => GroupListView(group: e),
+                              )
+                              .toList())),
               KeepPageAlive(
                 child: isDebtsLoading
                     ? SizedBox(

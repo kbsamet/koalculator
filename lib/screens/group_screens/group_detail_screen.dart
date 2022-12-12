@@ -1,16 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/group_chat_bubble.dart';
+import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/screens/group_screens/group_profile.dart';
 import 'package:koalculator/services/payments.dart';
 import 'package:koalculator/services/users.dart';
 
+import '../../components/dashboard/debt_list_view.dart';
+import '../../models/debt.dart';
 import '../../models/group.dart';
 import '../../models/payment.dart';
 
 final storage = FirebaseStorage.instance.ref();
+final db = FirebaseFirestore.instance;
 
 class GroupDetailScreen extends StatefulWidget {
   final Group group;
@@ -24,7 +29,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   List<Payment> payments = [];
   String? imageUrl;
   bool isLoading = false;
-  ScrollController chatController = ScrollController();
+  Map<String, dynamic> debts = {};
+  bool isDebtsLoading = false;
 
   final tabBar = const TabBar(
       indicatorColor: Color(0xffF71B4E),
@@ -37,7 +43,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
           text: "Ödeme Geçmişi",
         ),
         Tab(
-          text: "Mevcut Borçlar",
+          text: "Kişiler",
         )
       ]);
 
@@ -46,7 +52,44 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     // TODO: implement initState
     super.initState();
     getPayments();
+    getDebts();
     getProfilePic();
+  }
+
+  Future getDebts() async {
+    setState(() {
+      isDebtsLoading = true;
+    });
+    Map<String, dynamic> debtIds;
+    Map<String, List<Debt>> newDebts = {};
+
+    var value = await db
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    debtIds = value.data()!["debts"];
+
+    for (var debts in debtIds.keys) {
+      if (!widget.group.users.contains(debts)) {
+        continue;
+      }
+      newDebts.addAll({debts: []});
+      for (var element in debtIds[debts]) {
+        Debt debt = await getDebtDetails(element.toString());
+        debt.id = element;
+        newDebts[debts]!.add(debt);
+      }
+    }
+    debts = newDebts;
+    print(debts);
+    setState(() {
+      isDebtsLoading = false;
+    });
+  }
+
+  Future<Debt> getDebtDetails(String id) async {
+    var value = await db.collection("debts").doc(id).get();
+    return Debt.fromJson(value.data()!);
   }
 
   void getProfilePic() async {
@@ -58,6 +101,11 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         imageUrl = url;
       });
     } catch (e) {}
+  }
+
+  void resetDebts() async {
+    await Future.delayed(const Duration(seconds: 2));
+    await getDebts();
   }
 
   void getPayments() async {
@@ -73,13 +121,6 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     setState(() {
       isLoading = false;
     });
-
-    await Future.delayed(const Duration(milliseconds: 300));
-    chatController.animateTo(
-      chatController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-    );
   }
 
   @override
@@ -162,32 +203,61 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                             alignment: Alignment.center,
                             child: const CircularProgressIndicator(
                                 color: Color(0xffF71B4E))))
-                    : Container(
-                        padding: const EdgeInsets.all(10),
-                        child: ListView(
-                            controller: chatController,
-                            children: payments
-                                .map(
-                                  (e) => Column(
-                                    children: [
-                                      GroupChatBubble(
-                                          group: widget.group,
-                                          senderId: e.senderId,
-                                          sender: e.sender!.name,
-                                          isSender: e.senderId ==
-                                              FirebaseAuth
-                                                  .instance.currentUser!.uid,
-                                          reciever: e.reciever!.name,
-                                          amount: e.amount),
-                                      const SizedBox(
-                                        height: 20,
-                                      )
-                                    ],
-                                  ),
-                                )
-                                .toList()),
+                    : KeepPageAlive(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          alignment: Alignment.topCenter,
+                          child: ListView(
+                              clipBehavior: Clip.none,
+                              shrinkWrap: true,
+                              reverse: true,
+                              children: payments.reversed
+                                  .map(
+                                    (e) => Column(
+                                      children: [
+                                        GroupChatBubble(
+                                            group: widget.group,
+                                            senderId: e.senderId,
+                                            sender: e.sender!.name,
+                                            isSender: e.senderId ==
+                                                FirebaseAuth
+                                                    .instance.currentUser!.uid,
+                                            reciever: e.reciever!.name,
+                                            amount: e.amount),
+                                        const SizedBox(
+                                          height: 20,
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                  .toList()),
+                        ),
                       ),
-                Container(),
+                KeepPageAlive(
+                  child: isDebtsLoading
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(
+                                  color: Color(0xffF71B4E))))
+                      : ListView(
+                          children: debts.keys.map((key) {
+                          return Column(
+                            children: [
+                              SizedBox(
+                                child: DebtListView(
+                                    debts: debts[key],
+                                    friendId: key.toString(),
+                                    resetDebts: resetDebts),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              )
+                            ],
+                          );
+                        }).toList()),
+                ),
               ])),
         ));
   }

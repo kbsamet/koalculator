@@ -10,6 +10,9 @@ class DefaultTextInput extends StatefulWidget {
   final bool noIcon;
   final bool onlyNumber;
   final bool isDisabled;
+  final int maxLines;
+  final double height;
+  final bool readOnly;
   final Function(String)? onChanged;
 
   const DefaultTextInput(
@@ -22,6 +25,9 @@ class DefaultTextInput extends StatefulWidget {
       this.noIcon = false,
       this.onlyNumber = false,
       this.isDisabled = false,
+      this.height = 54,
+      this.maxLines = 1,
+      this.readOnly = false,
       this.onChanged})
       : super(key: key);
 
@@ -46,7 +52,7 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 54,
+        height: widget.height,
         width: double.infinity,
         margin: widget.noMargin
             ? const EdgeInsets.all(0)
@@ -72,6 +78,8 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
             ),
             Expanded(
               child: TextField(
+                readOnly: widget.readOnly,
+                maxLines: widget.maxLines,
                 style: TextStyle(
                     color: widget.isDisabled
                         ? const Color.fromARGB(255, 92, 92, 92)

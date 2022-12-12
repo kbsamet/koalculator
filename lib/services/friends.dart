@@ -151,3 +151,15 @@ Future<KoalUser> getFriend(String friendId) async {
 
   return friend!;
 }
+
+Future<bool> isFrends(String id) async {
+  var res = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  if (res.data()!["friends"] == null) return false;
+  if ((res.data()!["friends"] as Map).containsKey(id)) {
+    return res.data()!["friends"][id];
+  }
+  return false;
+}

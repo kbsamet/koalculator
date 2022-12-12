@@ -66,7 +66,7 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
                             color: Color(0xffF71B4E))))
                 : SizedBox(
                     width: double.infinity,
-                    child: ListView(
+                    child: Column(
                       children: [
                         const SizedBox(
                           height: 10,
@@ -86,13 +86,12 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Column(
-                          children: debts
-                              .map((e) => FriendDebtDetailListView(debt: e))
-                              .toList(),
-                        ),
-                        const SizedBox(
-                          height: 10,
+                        Expanded(
+                          child: ListView(
+                            children: debts.reversed
+                                .map((e) => FriendDebtDetailListView(debt: e))
+                                .toList(),
+                          ),
                         ),
                       ],
                     ),
