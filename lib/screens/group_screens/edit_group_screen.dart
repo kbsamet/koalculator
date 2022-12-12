@@ -104,10 +104,11 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   void changeGroupName() {
-    if (newName.text == "") return;
-    db.collection("groups").doc(widget.group.id).update({
-      "name": newName.text,
-    });
+    if (newName.text != "") {
+      db.collection("groups").doc(widget.group.id).update({
+        "name": newName.text,
+      });
+    }
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: ((context) => const MainPage())),
         (route) => false);

@@ -32,6 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool otherUser = false;
   FriendStatus? friendStatus;
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -57,6 +60,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     KoalUser user_ = (await getUser(FirebaseAuth.instance.currentUser!.uid))!;
     setState(() {
       user = user_;
+      nameController.text = user!.name;
+      bioController.text = user!.bio;
     });
   }
 
@@ -176,22 +181,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ),
-                      Container(
-                        child: Text(
-                          user == null ? "" : user!.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
-                              color: Color.fromARGB(255, 255, 202, 214)),
-                        ),
-                      ),
+                      otherUser
+                          ? Text(
+                              user == null ? "" : user!.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 32,
+                                  color: Color.fromARGB(255, 255, 202, 214)),
+                            )
+                          : DefaultTextInput(
+                              controller: nameController,
+                              icon: Icons.person,
+                              noIcon: true,
+                              hintText: user == null ? "" : user!.name,
+                            ),
                       const SizedBox(
                         height: 20,
                       ),
                       DefaultTextInput(
-                        controller: TextEditingController(
-                            text: user == null ? "" : user!.bio),
-                        readOnly: true,
+                        controller: otherUser
+                            ? TextEditingController(
+                                text: user == null ? "" : user!.bio)
+                            : bioController,
+                        readOnly: otherUser,
+                        hintText: user == null ? "" : user!.bio,
                         icon: Icons.abc,
                         noIcon: true,
                         maxLines: 5,
@@ -201,18 +214,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 20,
                       ),
                       !otherUser
-                          ? Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: EmptyButton(
-                                  text: "Çık",
-                                  onPressed: () {
-                                    FirebaseAuth.instance.signOut();
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const MainPage()));
-                                  }),
+                          ? Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: DefaultButton(
+                                      text: "Değişiklikleri Kaydet",
+                                      onPressed: () async {
+                                        bool res = await updateUser(
+                                            FirebaseAuth
+                                                .instance.currentUser!.uid,
+                                            nameController.text,
+                                            bioController.text,
+                                            nameController.text == user!.name,
+                                            context);
+                                        if (res) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      }),
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: EmptyButton(
+                                      text: "Çık",
+                                      onPressed: () {
+                                        FirebaseAuth.instance.signOut();
+                                        Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MainPage()));
+                                      }),
+                                ),
+                              ],
                             )
                           : friendStatus == null
                               ? Container()

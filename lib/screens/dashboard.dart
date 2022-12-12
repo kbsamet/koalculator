@@ -134,9 +134,8 @@ class _DashboardState extends State<Dashboard> {
                     Icons.group,
                     size: 25,
                   ),
-                  onPressed: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                          builder: (context) => const FriendsScreen())),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const FriendsScreen())),
                 ),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -146,9 +146,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                 group: widget.group,
                               )));
                     },
-                    child: SizedBox(
+                    // ignore: sized_box_for_whitespace
+                    child: Container(
+                        color: const Color(0xff303139),
                         width: double.infinity,
                         child: Row(
+                          mainAxisSize: MainAxisSize.max,
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(50),

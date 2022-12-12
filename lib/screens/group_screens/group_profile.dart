@@ -7,6 +7,8 @@ import 'package:koalculator/screens/group_screens/add_member_screen.dart';
 import 'package:koalculator/services/users.dart';
 
 import '../../models/group.dart';
+import '../../services/groups.dart';
+import '../dashboard.dart';
 import 'edit_group_screen.dart';
 
 class GroupProfileScreen extends StatefulWidget {
@@ -190,8 +192,15 @@ class _GroupProfileScreenState extends State<GroupProfileScreen> {
                 ),
                 Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child:
-                        DefaultButton(onPressed: () {}, text: "Gruptan Çık")),
+                    child: DefaultButton(
+                        onPressed: () {
+                          leaveGroup(widget.group.id!);
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => const Dashboard()),
+                              (route) => false);
+                        },
+                        text: "Gruptan Çık")),
               ],
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 
 final db = FirebaseFirestore.instance;
@@ -16,4 +17,20 @@ Future<List<KoalUser>?> getUsers(List<dynamic> users) async {
     newUsers.add(KoalUser.fromJson(res.data()!));
   }
   return newUsers;
+}
+
+Future<bool> updateUser(
+    String id, String name, String bio, bool sameName, context) async {
+  if (!sameName) {
+    var data = await db.collection("users").get();
+    for (var user in data.docs) {
+      if (user.data()["name"] == name) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("İsim Daha önce alınmış.")));
+        return false;
+      }
+    }
+  }
+  db.collection("users").doc(id).update({"name": name, "bio": bio});
+  return true;
 }

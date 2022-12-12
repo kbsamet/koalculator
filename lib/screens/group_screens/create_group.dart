@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
-import 'package:koalculator/components/groups/add_image.dart';
 import 'package:koalculator/services/groups.dart';
 
 import '../../components/groups/group_friend_view.dart';
@@ -20,6 +23,7 @@ class CreateGroup extends StatefulWidget {
 }
 
 class _CreateGroupState extends State<CreateGroup> {
+  CroppedFile? profilePic;
   TextEditingController groupName = TextEditingController();
   User? loggedUser = FirebaseAuth.instance.currentUser;
   List<KoalUser> friends = [];
@@ -60,8 +64,21 @@ class _CreateGroupState extends State<CreateGroup> {
           .showSnackBar(const SnackBar(content: Text("Grup İsmi boş olamaz")));
       return;
     }
+    if (profilePic == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Grup fotoğrafı boş olamaz")));
+      return;
+    }
+    var id = (await createNewGroup(groupName.text, addedFriends));
 
-    if (await createNewGroup(groupName.text, addedFriends)) {
+    if (id.isNotEmpty) {
+      var profilePicRef = storage.child("groupProfilePics/$id");
+
+      try {
+        await profilePicRef.putFile(File(profilePic!.path));
+      } catch (e) {
+        print(e);
+      }
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Grup başarıyla oluşturuldu")));
       Navigator.of(context).pop();
@@ -69,6 +86,26 @@ class _CreateGroupState extends State<CreateGroup> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Bir hata oluştu")));
     }
+  }
+
+  void setProfilePic() async {
+    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file == null) {
+      return;
+    }
+    CroppedFile? cropped = await ImageCropper().cropImage(
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      maxHeight: 150,
+      maxWidth: 150,
+      sourcePath: file.path,
+    );
+    if (cropped == null) {
+      return;
+    }
+
+    setState(() {
+      profilePic = cropped;
+    });
   }
 
   String getAddedNames() {
@@ -106,12 +143,38 @@ class _CreateGroupState extends State<CreateGroup> {
         ),
         body: Column(
           children: [
-            const SizedBox(
-              height: 20,
-            ),
-            const AddImage(),
-            const SizedBox(
-              height: 20,
+            Container(
+              margin: const EdgeInsets.all(30),
+              height: 150,
+              width: 150,
+              decoration: const BoxDecoration(
+                  color: Color(0xff292A33), shape: BoxShape.circle),
+              child: Stack(
+                children: [
+                  profilePic == null
+                      ? Container()
+                      : ClipRRect(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(100)),
+                          child: Image.file(
+                            File(profilePic!.path),
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.fill,
+                          )),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: InkWell(
+                      onTap: () => setProfilePic(),
+                      child: const Icon(
+                        Icons.add_a_photo_outlined,
+                        color: Color(0xffF71B4E),
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Container(
                 padding: const EdgeInsets.all(10),
@@ -170,8 +233,7 @@ class _CreateGroupState extends State<CreateGroup> {
             const SizedBox(
               height: 30,
             ),
-            SizedBox(
-                height: 200,
+            Flexible(
                 child: ListView(
                     children: friends
                         .map((e) => GroupFriendView(
@@ -182,7 +244,13 @@ class _CreateGroupState extends State<CreateGroup> {
             const SizedBox(
               height: 20,
             ),
-            DefaultButton(onPressed: createGroup, text: "Grup Oluştur")
+            Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: DefaultButton(
+                    onPressed: createGroup, text: "Grup Oluştur")),
+            const SizedBox(
+              height: 50,
+            ),
           ],
         ),
       ),

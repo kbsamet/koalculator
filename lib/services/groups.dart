@@ -6,7 +6,7 @@ import '../models/user.dart';
 
 final db = FirebaseFirestore.instance;
 
-Future<bool> createNewGroup(
+Future<String> createNewGroup(
   String name,
   List<KoalUser> users,
 ) async {
@@ -26,10 +26,10 @@ Future<bool> createNewGroup(
         "groups": FieldValue.arrayUnion([res.id])
       });
     }
-    return true;
+    return res.id;
   } catch (e) {
     print(e);
-    return false;
+    return "";
   }
 }
 
@@ -62,5 +62,14 @@ Future addToGroup(String groupId, KoalUser user) async {
   });
   db.collection("users").doc(user.id).update({
     "groups": FieldValue.arrayUnion([groupId])
+  });
+}
+
+Future leaveGroup(String groupId) async {
+  db.collection("groups").doc(groupId).update({
+    "users": FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+  });
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+    "groups": FieldValue.arrayRemove([groupId])
   });
 }
