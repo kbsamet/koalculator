@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/screens/dashboard.dart';
+import 'package:koalculator/services/users.dart';
 
 final storage = FirebaseStorage.instance.ref();
 final db = FirebaseFirestore.instance;
@@ -24,25 +25,19 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
   CroppedFile? profilePic;
   TextEditingController bioController = TextEditingController();
 
-  void setBio() {
-    if (profilePic == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Lütfen bir profil fotoğrafı seçin")));
-      return;
-    }
-    if (bioController.text.isEmpty) {
+  void enterBio() {
+    String? result = setBio(profilePic, bioController.text);
+
+    if (result != null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Lütfen bir bio yazın")));
-      return;
+          .showSnackBar(SnackBar(content: Text(result)));
     }
-    db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
-      "bio": bioController.text,
-    }, SetOptions(merge: true));
+
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => const Dashboard()));
   }
 
-  void setProfilePic() async {
+  void enterPic() async {
     XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file == null) {
       return;
@@ -124,7 +119,7 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
                         Align(
                           alignment: Alignment.bottomRight,
                           child: InkWell(
-                            onTap: setProfilePic,
+                            onTap: enterPic,
                             child: const Icon(
                               Icons.add_a_photo_outlined,
                               color: Color(0xffF71B4E),
@@ -155,7 +150,8 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
                   ),
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: DefaultButton(onPressed: setBio, text: "Devam et"))
+                      child:
+                          DefaultButton(onPressed: enterBio, text: "Devam et"))
                 ]),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:koalculator/models/user.dart';
 
 final db = FirebaseFirestore.instance;
@@ -50,4 +51,17 @@ Future<bool> setName(String nickname) async {
       .update({"name": nickname});
 
   return true;
+}
+
+String? setBio(CroppedFile? profilePic, String bio) {
+  if (profilePic == null) {
+    return "Lütfen bir profil fotoğrafı seçin";
+  }
+  if (bio.isEmpty) {
+    return "Lütfen bir bio yazın";
+  }
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
+    "bio": bio,
+  }, SetOptions(merge: true));
+  return null;
 }
