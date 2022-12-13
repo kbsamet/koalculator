@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
 
@@ -32,5 +33,21 @@ Future<bool> updateUser(
     }
   }
   db.collection("users").doc(id).update({"name": name, "bio": bio});
+  return true;
+}
+
+Future<bool> setName(String nickname) async {
+  var data = await db.collection("users").get();
+  for (var user in data.docs) {
+    if (user.data()["name"] == nickname) {
+      return false;
+    }
+  }
+
+  db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .update({"name": nickname});
+
   return true;
 }

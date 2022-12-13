@@ -20,17 +20,9 @@ class _DebtHistoryListViewState extends State<DebtHistoryListView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     stateInit();
   }
-
-  // void getFriend() async {
-  //   KoalUser? friend = await getUser(widget.friendId);
-  //   setState(() {
-  //     user = friend!;
-  //   });
-  // }
 
   void stateInit() async {
     user = await getFriend(widget.friendId);
