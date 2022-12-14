@@ -7,7 +7,7 @@ import 'package:koalculator/models/payment.dart';
 
 final db = FirebaseFirestore.instance;
 
-Future<Map> getDebts() async {
+Future<Map> getDebtsData() async {
   Map<dynamic, dynamic> debtIds = {};
   Map<dynamic, List<Debt>> debtData = {};
 
@@ -28,20 +28,24 @@ Future<Map> getDebts() async {
     debtData[value] = debtDetails;
   });
 
-  // for (var value in debtData.values) {
-  //   List<Debt> debtDetails = [];
-  //   for (var debtId in value) {
-  //     Debt debt = await getDebtDetails(debtId.toString());
-  //     debtDetails.add(debt);
-  //   }
-  //   debtData[value] = debtDetails;
-  // }
-
   Map<dynamic, List<Debt>> a = {};
 
   a = await getDebtDetail(debtIds, debtData);
 
   return debtData;
+}
+
+Future<Map> getDebtsIds() async {
+  Map<dynamic, dynamic> debtIds = {};
+
+  var value = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+
+  debtIds = value.data()!["debts"];
+
+  return debtIds;
 }
 
 Future<Map<dynamic, List<Debt>>> getDebtDetail(
