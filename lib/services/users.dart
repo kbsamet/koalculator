@@ -5,6 +5,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:koalculator/models/user.dart';
 
 final db = FirebaseFirestore.instance;
+
 Future<KoalUser?> getUser(id) async {
   var res = await db.collection("users").doc(id).get();
   if (res.data() == null) return null;

@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
+import 'package:koalculator/helpers/imageHelper.dart';
 import 'package:koalculator/screens/dashboard.dart';
 import 'package:koalculator/services/users.dart';
 
@@ -38,22 +39,16 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
   }
 
   void enterPic() async {
-    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? file = await pickImageHelper();
     if (file == null) {
       return;
     }
 
-    CroppedFile? cropped = await ImageCropper().cropImage(
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxHeight: 150,
-      maxWidth: 150,
-      sourcePath: file.path,
-    );
+    CroppedFile? cropped = await cropImageHelper(file);
     if (cropped == null) {
       return;
     }
-    var profilePicRef =
-        storage.child("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
+    var profilePicRef = refImageHelper();
 
     try {
       await profilePicRef.putFile(File(cropped.path));
