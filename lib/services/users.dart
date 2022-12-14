@@ -88,9 +88,23 @@ PhoneAuthCredential verifyAccount(String verificationId, String smsCode) {
       verificationId: verificationId, smsCode: smsCode);
 }
 
-Future<DocumentSnapshot<Map<String, dynamic>>> getAllUsers() async {
+Future<DocumentSnapshot<Map<String, dynamic>>> getAllUsersById() async {
   return db
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .get();
+}
+
+Future<DocumentSnapshot<Map<String, dynamic>>> getUsersWithElement(
+    dynamic element) async {
+  return db.collection("users").doc(element).get();
+}
+
+Future<QuerySnapshot<Map<String, dynamic>>> getAllUsers() async {
+  return db.collection("users").get();
+}
+
+Future<DocumentSnapshot<Map<String, dynamic>>> getUserByFriendId(
+    String? Id) async {
+  return db.collection("users").doc(Id).get();
 }

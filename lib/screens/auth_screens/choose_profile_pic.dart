@@ -45,7 +45,8 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
     if (cropped == null) {
       return;
     }
-    var profilePicRef = refImageHelper();
+    var profilePicRef =
+        refImageHelper("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
 
     try {
       await profilePicRef.putFile(File(cropped.path));

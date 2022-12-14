@@ -19,6 +19,6 @@ Future<XFile?> pickImageHelper() async {
   return ImagePicker().pickImage(source: ImageSource.gallery);
 }
 
-Reference refImageHelper() {
-  return storage.child("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
+Reference refImageHelper(String link) {
+  return storage.child(link);
 }

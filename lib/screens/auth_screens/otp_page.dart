@@ -56,7 +56,7 @@ class _OtpPageState extends State<OtpPage> {
       if (FirebaseAuth.instance.currentUser != null) {
         setPhoneNumber(widget.phoneNumber);
 
-        var user = await getAllUsers();
+        var user = await getAllUsersById();
         if (user.data()!["name"] == null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: ((context) => const ChooseNameScreen())));

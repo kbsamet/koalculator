@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/groups/group_friend_view.dart';
 import '../../models/group.dart';
@@ -7,8 +8,6 @@ import '../../models/user.dart';
 import '../../services/friends.dart';
 import '../../services/groups.dart';
 import '../dashboard.dart';
-
-final db = FirebaseFirestore.instance;
 
 class AddMemberScreen extends StatefulWidget {
   final Group group;
@@ -24,7 +23,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getUserFriends();
   }
@@ -33,7 +31,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
     List<KoalUser> newFriends = await getFriends();
     List<KoalUser> removed = [];
     for (var friend in newFriends) {
-      var res = await db.collection("users").doc(friend.id!).get();
+      var res = await getUserByFriendId(friend.id);
       if (res.data()!["groups"] != null &&
           (res.data()!["groups"] as List).contains(widget.group.id)) {
         removed.add(friend);

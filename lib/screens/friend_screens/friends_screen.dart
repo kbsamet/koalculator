@@ -8,10 +8,9 @@ import 'package:koalculator/components/friends/friend_invite_recieved.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/friends.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/friends/added_friend.dart';
-
-final db = FirebaseFirestore.instance;
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({Key? key}) : super(key: key);
@@ -30,7 +29,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getContacts();
     getSentFriends();
@@ -48,7 +46,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   void getRecievedRequests() async {
     List<dynamic> requestIds = await getRecievedFriendRequests();
     for (var element in requestIds) {
-      var res = await db.collection("users").doc(element).get();
+      var res = await getUsersWithElement(element);
       setState(() {
         KoalUser user = KoalUser.fromJson(res.data()!);
         user.id = element;
@@ -61,7 +59,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     List<dynamic> requestIds = await getSentFriendRequests();
 
     for (var element in requestIds) {
-      var res = await db.collection("users").doc(element).get();
+      var res = await getUsersWithElement(element);
       setState(() {
         KoalUser user = KoalUser.fromJson(res.data()!);
         user.id = element;
@@ -72,16 +70,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   void getContacts() async {
     Map<String?, KoalUser> userPhones = {};
-    var users = await db.collection("users").get();
+    var users = await getAllUsers();
     for (var element in users.docs) {
       String? phone = element.data()["phoneNumber"];
       KoalUser user = KoalUser.fromJson(element.data());
       user.id = element.id;
 
-      var res = await db
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
+      var res = await getAllUsersById();
       if (user.id != FirebaseAuth.instance.currentUser!.uid &&
           (res.data()!["sentFriendInvites"] == null ||
               !(res.data()!["sentFriendInvites"]! as List).contains(user.id)) &&
@@ -90,7 +85,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
         userPhones.addAll({phone: user});
       }
     }
-
     List<Contact> contacts = await ContactsService.getContacts();
     for (var element in contacts) {
       String phone =
