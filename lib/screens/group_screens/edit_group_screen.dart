@@ -9,6 +9,7 @@ import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/groups/group_friend_edit_view.dart';
 
+import '../../helpers/imageHelper.dart';
 import '../../models/group.dart';
 import '../../models/user.dart';
 import '../../services/users.dart';
@@ -33,7 +34,6 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getGroupUsers();
     getProfilePic();
@@ -41,8 +41,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
 
   void getProfilePic() async {
     try {
-      String url = await storage
-          .child("groupProfilePics/${widget.group.id}")
+      String url = await refImageHelper("groupProfilePics/${widget.group.id}")
           .getDownloadURL();
       setState(() {
         imageUrl = url;
@@ -51,26 +50,16 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   void setProfilePic() async {
-    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? file = await pickImageHelper();
     if (file == null) {
       return;
     }
-    CroppedFile? cropped = await ImageCropper().cropImage(
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxHeight: 150,
-      maxWidth: 150,
-      sourcePath: file.path,
-    );
+    CroppedFile? cropped = await cropImageHelper(file);
+
     if (cropped == null) {
       return;
     }
-    var profilePicRef = storage.child("groupProfilePics/${widget.group.id}");
 
-    try {
-      await profilePicRef.putFile(File(cropped.path));
-    } catch (e) {
-      print(e);
-    }
     setState(() {
       profilePic = cropped;
     });

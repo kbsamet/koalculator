@@ -14,8 +14,6 @@ import '../../models/user.dart';
 import '../../services/friends.dart';
 import '../dashboard.dart';
 
-final db = FirebaseFirestore.instance;
-
 class CreateGroup extends StatefulWidget {
   const CreateGroup({Key? key}) : super(key: key);
 
