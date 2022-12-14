@@ -12,9 +12,6 @@ import 'package:koalculator/helpers/imageHelper.dart';
 import 'package:koalculator/screens/dashboard.dart';
 import 'package:koalculator/services/users.dart';
 
-final storage = FirebaseStorage.instance.ref();
-final db = FirebaseFirestore.instance;
-
 class ChooseProfilePicScreen extends StatefulWidget {
   const ChooseProfilePicScreen({super.key});
 
