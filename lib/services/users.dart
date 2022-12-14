@@ -6,6 +6,11 @@ import 'package:koalculator/models/user.dart';
 
 final db = FirebaseFirestore.instance;
 
+Future<UserCredential> createUser(String email, String password) async {
+  return FirebaseAuth.instance
+      .createUserWithEmailAndPassword(email: email, password: password);
+}
+
 Future<KoalUser?> getUser(id) async {
   var res = await db.collection("users").doc(id).get();
   if (res.data() == null) return null;

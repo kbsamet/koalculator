@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/login_page.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -18,18 +19,9 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordController = TextEditingController();
 
   void Signup() async {
-    // await FirebaseAuth.instance.verifyPhoneNumber(
-    //   phoneNumber: '+90${emailController.text}',
-    //   verificationCompleted: (PhoneAuthCredential credential) {},
-    //   verificationFailed: (FirebaseAuthException e) {},
-    //   codeSent: (String verificationId, int? resendToken) {},
-    //   codeAutoRetrievalTimeout: (String verificationId) {},
-    // );
-
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: emailController.text, password: passwordController.text);
+      final credential =
+          await createUser(emailController.text, passwordController.text);
 
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const ChooseNameScreen()));
