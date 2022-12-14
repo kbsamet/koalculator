@@ -3,7 +3,6 @@ import 'package:koalculator/screens/debt_screens/friend_debt_history.dart';
 
 import '../../models/user.dart';
 import '../../services/friends.dart';
-import '../../services/users.dart';
 
 class DebtHistoryListView extends StatefulWidget {
   final List<dynamic> debts;

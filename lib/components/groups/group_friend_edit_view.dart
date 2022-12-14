@@ -37,7 +37,6 @@ class _GroupFriendEditViewState extends State<GroupFriendEditView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getProfilePic();
   }
