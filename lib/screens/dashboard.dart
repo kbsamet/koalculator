@@ -12,6 +12,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../components/dashboard/group_list_view.dart';
 import '../components/dashboard/navbar.dart';
+import '../services/debts.dart';
+import '../services/users.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -30,7 +32,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getGroupDetails();
     getDebts();
@@ -56,10 +57,7 @@ class _DashboardState extends State<Dashboard> {
     Map<String, dynamic> debtIds;
     Map<String, List<Debt>> newDebts = {};
 
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
+    var value = await getAllUsersById();
     debtIds = value.data()!["debts"];
 
     for (var debts in debtIds.keys) {
@@ -71,15 +69,9 @@ class _DashboardState extends State<Dashboard> {
       }
     }
     debts = newDebts;
-    print(debts);
     setState(() {
       isDebtsLoading = false;
     });
-  }
-
-  Future<Debt> getDebtDetails(String id) async {
-    var value = await db.collection("debts").doc(id).get();
-    return Debt.fromJson(value.data()!);
   }
 
   Future getGroupDetails() async {
