@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/choose_name.dart';
 import 'package:koalculator/screens/dashboard.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -23,7 +24,6 @@ class _OtpPageState extends State<OtpPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Login();
   }
@@ -47,22 +47,16 @@ class _OtpPageState extends State<OtpPage> {
 
   void Verify() async {
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: verificationId!, smsCode: codeController.text);
+      PhoneAuthCredential credential =
+          verifyAccount(verificationId!, codeController.text);
 
       // Sign the user in (or link) with the credential
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      signInWithCred(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
-        db
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({"phoneNumber": widget.phoneNumber}, SetOptions(merge: true));
+        setPhoneNumber(widget.phoneNumber);
 
-        var user = await db
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get();
+        var user = await getAllUsers();
         if (user.data()!["name"] == null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: ((context) => const ChooseNameScreen())));

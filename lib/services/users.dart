@@ -66,3 +66,26 @@ String? setBio(CroppedFile? profilePic, String bio) {
   }, SetOptions(merge: true));
   return null;
 }
+
+void setPhoneNumber(String phoneNumber) {
+  db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .set({"phoneNumber": phoneNumber}, SetOptions(merge: true));
+}
+
+void signInWithCred(PhoneAuthCredential credential) async {
+  await FirebaseAuth.instance.signInWithCredential(credential);
+}
+
+PhoneAuthCredential verifyAccount(String verificationId, String smsCode) {
+  return PhoneAuthProvider.credential(
+      verificationId: verificationId, smsCode: smsCode);
+}
+
+Future<DocumentSnapshot<Map<String, dynamic>>> getAllUsers() async {
+  return db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+}
