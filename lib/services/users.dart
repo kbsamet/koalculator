@@ -74,8 +74,8 @@ void setPhoneNumber(String phoneNumber) {
       .set({"phoneNumber": phoneNumber}, SetOptions(merge: true));
 }
 
-void signInWithCred(PhoneAuthCredential credential) async {
-  await FirebaseAuth.instance.signInWithCredential(credential);
+Future signInWithCred(PhoneAuthCredential credential) async {
+  FirebaseAuth.instance.signInWithCredential(credential);
 }
 
 PhoneAuthCredential verifyAccount(String verificationId, String smsCode) {

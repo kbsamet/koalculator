@@ -51,7 +51,7 @@ class _OtpPageState extends State<OtpPage> {
           verifyAccount(verificationId!, codeController.text);
 
       // Sign the user in (or link) with the credential
-      signInWithCred(credential);
+      await signInWithCred(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
         setPhoneNumber(widget.phoneNumber);
