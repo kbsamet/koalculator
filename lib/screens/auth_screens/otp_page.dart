@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/choose_name.dart';
 import 'package:koalculator/screens/dashboard.dart';
@@ -33,8 +34,9 @@ class _OtpPageState extends State<OtpPage> {
       phoneNumber: '+90${widget.phoneNumber}',
       verificationCompleted: (PhoneAuthCredential credential) {},
       verificationFailed: (FirebaseAuthException e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Girdiğiniz şifre yanlış")));
+        print(e);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
       },
       codeSent: (String verificationId, int? resendToken) {
         setState(() {
@@ -54,15 +56,16 @@ class _OtpPageState extends State<OtpPage> {
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
-        db
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({"phoneNumber": widget.phoneNumber}, SetOptions(merge: true));
+        var token = await FirebaseMessaging.instance.getToken();
+        db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set(
+            {"phoneNumber": widget.phoneNumber, "token": token},
+            SetOptions(merge: true));
 
         var user = await db
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .get();
+
         if (user.data()!["name"] == null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: ((context) => const ChooseNameScreen())));

@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/payment.dart';
+import 'package:koalculator/services/notifications.dart';
+import 'package:koalculator/services/users.dart';
+
+import '../models/user.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -82,6 +86,16 @@ void createDebt(Debt debt) async {
       debt.recieverId: FieldValue.arrayUnion([ref.id])
     }
   }, SetOptions(merge: true));
+
+  KoalUser? otherUser = await getUser(
+      debt.recieverId != FirebaseAuth.instance.currentUser!.uid
+          ? debt.recieverId
+          : debt.senderId);
+  if (otherUser!.token != "") {
+    KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
+    sendPushMessage("Yeni bir borç", "${thisUser!.name} size bir borç ekledi.",
+        otherUser.token!);
+  }
 }
 
 Future<List<Debt>> getDebtsByFriendId(String id) async {
@@ -100,6 +114,7 @@ Future<List<Debt>> getDebtsByFriendId(String id) async {
     for (var element in (userDebts[id] as List)) {
       debts.add(await getDebtDetails(element));
     }
+
     return debts;
   }
 }
@@ -208,6 +223,15 @@ Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
         remainingAmount = 0;
       }
     }
+  }
+  KoalUser? otherUser = await getUser(debts[0].recieverId);
+
+  if (otherUser!.token != "") {
+    KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
+    sendPushMessage(
+        "Borç Ödendi",
+        "${thisUser!.name} size ait borcunun $amount₺ miktarını ödedi.",
+        otherUser.token!);
   }
   return true;
 }

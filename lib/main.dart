@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart' show ReadBuffer, WriteBuffer;
 
 void main() async {
   initFlutter();
-
   await initMobAds();
   await initFirebase();
   runApp(const MyApp());

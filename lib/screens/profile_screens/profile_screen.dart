@@ -242,8 +242,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       horizontal: 10),
                                   child: EmptyButton(
                                       text: "Çık",
-                                      onPressed: () {
-                                        FirebaseAuth.instance.signOut();
+                                      onPressed: () async {
+                                        await FirebaseAuth.instance.signOut();
                                         Navigator.of(context).pushReplacement(
                                             MaterialPageRoute(
                                                 builder: (context) =>

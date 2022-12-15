@@ -69,12 +69,14 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   }
 
   void initGroups() async {
-    List<Group> newGroups = await getGroups();
-    setState(() {
-      groups = newGroups;
-      selectedValue = newGroups[0].name;
-      getGroupUsers(newGroups[0]);
-    });
+    try {
+      List<Group> newGroups = await getGroups();
+      setState(() {
+        groups = newGroups;
+        selectedValue = newGroups[0].name;
+        getGroupUsers(newGroups[0]);
+      });
+    } catch (e) {}
   }
 
   void onAmountChanged(String s) {

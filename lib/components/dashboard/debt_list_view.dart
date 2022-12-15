@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
 import 'package:koalculator/components/default_button.dart';
@@ -6,9 +7,11 @@ import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
 import 'package:koalculator/services/debts.dart';
+import 'package:koalculator/services/notifications.dart';
 
 import '../../models/debt.dart';
 import '../../services/friends.dart';
+import '../../services/users.dart';
 import '../header.dart';
 import '../utils/debts.dart';
 
@@ -196,9 +199,21 @@ class _DebtListViewState extends State<DebtListView> {
                         totalDebt!.amount == 0
                             ? Container()
                             : DebtButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (isSender) {
                                     showPayDebtDialog();
+                                  } else {
+                                    KoalUser? otherUser =
+                                        await getUser(widget.friendId);
+                                    if (otherUser!.token != "") {
+                                      KoalUser? thisUser = await getUser(
+                                          FirebaseAuth
+                                              .instance.currentUser!.uid);
+                                      sendPushMessage(
+                                          "Dürtü",
+                                          "${thisUser!.name} sizi borcunuzu ödemeniz için dürttü.",
+                                          otherUser.token!);
+                                    }
                                   }
                                 },
                                 isPositive: !isSender),

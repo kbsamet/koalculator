@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/debts/debt_history_list_view.dart';
+import 'package:koalculator/components/header.dart';
 
 import '../../models/debt.dart';
 import '../../services/debts.dart';
@@ -29,28 +30,35 @@ class _DebtHistoryState extends State<DebtHistory> {
     setState(() {
       isLoading = true;
     });
-    Map<String, dynamic> debtIds;
-    Map<String, List<Debt>> newDebts = {};
 
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    debtIds = value.data()!["pastDebts"];
+    try {
+      Map<String, dynamic> debtIds;
+      Map<String, List<Debt>> newDebts = {};
 
-    for (var debts in debtIds.keys) {
-      newDebts.addAll({debts: []});
-      for (var element in debtIds[debts]) {
-        Debt debt = await getPastDebtDetails(element.toString());
-        debt.id = element;
-        newDebts[debts]!.add(debt);
+      var value = await db
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      debtIds = value.data()!["pastDebts"];
+
+      for (var debts in debtIds.keys) {
+        newDebts.addAll({debts: []});
+        for (var element in debtIds[debts]) {
+          Debt debt = await getPastDebtDetails(element.toString());
+          debt.id = element;
+          newDebts[debts]!.add(debt);
+        }
       }
+      debts = newDebts;
+      setState(() {
+        isLoading = false;
+      });
+      print(debts);
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
     }
-    debts = newDebts;
-    setState(() {
-      isLoading = false;
-    });
-    print(debts);
   }
 
   @override
@@ -80,20 +88,24 @@ class _DebtHistoryState extends State<DebtHistory> {
                       alignment: Alignment.center,
                       child: const CircularProgressIndicator(
                           color: Color(0xffF71B4E))))
-              : ListView(
-                  children: debts.keys.map((key) {
-                  return Column(
-                    children: [
-                      DebtHistoryListView(
-                        debts: debts[key],
-                        friendId: key.toString(),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      )
-                    ],
-                  );
-                }).toList()),
+              : debts.isEmpty
+                  ? Container(
+                      padding: const EdgeInsets.all(20),
+                      child: const Header(text: "Borç Geçmişiniz yok"))
+                  : ListView(
+                      children: debts.keys.map((key) {
+                      return Column(
+                        children: [
+                          DebtHistoryListView(
+                            debts: debts[key],
+                            friendId: key.toString(),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          )
+                        ],
+                      );
+                    }).toList()),
         ));
   }
 }

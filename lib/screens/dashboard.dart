@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_list_view.dart';
+import 'package:koalculator/components/header.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
@@ -43,6 +45,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void init() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
     var status = await Permission.contacts.status;
     if (status.isDenied) {
       Permission.contacts.request();
@@ -53,28 +57,34 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       isDebtsLoading = true;
     });
-    Map<String, dynamic> debtIds;
-    Map<String, List<Debt>> newDebts = {};
+    try {
+      Map<String, dynamic> debtIds;
+      Map<String, List<Debt>> newDebts = {};
 
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    debtIds = value.data()!["debts"];
+      var value = await db
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      debtIds = value.data()!["debts"];
 
-    for (var debts in debtIds.keys) {
-      newDebts.addAll({debts: []});
-      for (var element in debtIds[debts]) {
-        Debt debt = await getDebtDetails(element.toString());
-        debt.id = element;
-        newDebts[debts]!.add(debt);
+      for (var debts in debtIds.keys) {
+        newDebts.addAll({debts: []});
+        for (var element in debtIds[debts]) {
+          Debt debt = await getDebtDetails(element.toString());
+          debt.id = element;
+          newDebts[debts]!.add(debt);
+        }
       }
+      debts = newDebts;
+      print(debts);
+      setState(() {
+        isDebtsLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isDebtsLoading = false;
+      });
     }
-    debts = newDebts;
-    print(debts);
-    setState(() {
-      isDebtsLoading = false;
-    });
   }
 
   Future<Debt> getDebtDetails(String id) async {
@@ -117,7 +127,7 @@ class _DashboardState extends State<Dashboard> {
           child: Scaffold(
             floatingActionButton: FloatingActionButton(
               //Floating action button on Scaffold
-              onPressed: () {
+              onPressed: () async {
                 getGroupDetails();
                 getDebts();
               },
@@ -126,7 +136,9 @@ class _DashboardState extends State<Dashboard> {
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
-            bottomNavigationBar: const BottomNavbar(),
+            bottomNavigationBar: BottomNavbar(
+              areGroupsEmpty: groups.isEmpty,
+            ),
             appBar: AppBar(
                 titleSpacing: 0,
                 leading: IconButton(
@@ -174,12 +186,16 @@ class _DashboardState extends State<Dashboard> {
                               alignment: Alignment.center,
                               child: const CircularProgressIndicator(
                                   color: Color(0xffF71B4E))))
-                      : Column(
-                          children: groups
-                              .map(
-                                (e) => GroupListView(group: e),
-                              )
-                              .toList())),
+                      : groups.isEmpty
+                          ? Container(
+                              padding: const EdgeInsets.all(20),
+                              child: const Header(text: "Hiç Grubun Yok"))
+                          : ListView(
+                              children: groups
+                                  .map(
+                                    (e) => GroupListView(group: e),
+                                  )
+                                  .toList())),
               KeepPageAlive(
                 child: isDebtsLoading
                     ? SizedBox(
@@ -188,23 +204,27 @@ class _DashboardState extends State<Dashboard> {
                             alignment: Alignment.center,
                             child: const CircularProgressIndicator(
                                 color: Color(0xffF71B4E))))
-                    : ListView(
-                        children: debts.keys.map((key) {
-                        return Column(
-                          children: [
-                            SizedBox(
-                              child: DebtListView(
-                                debts: debts[key],
-                                friendId: key.toString(),
-                                resetDebts: resetDebts,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            )
-                          ],
-                        );
-                      }).toList()),
+                    : debts.isEmpty
+                        ? Container(
+                            padding: const EdgeInsets.all(20),
+                            child: const Header(text: "Hiç Borcun Yok"))
+                        : ListView(
+                            children: debts.keys.map((key) {
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  child: DebtListView(
+                                    debts: debts[key],
+                                    friendId: key.toString(),
+                                    resetDebts: resetDebts,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                )
+                              ],
+                            );
+                          }).toList()),
               ),
             ]),
           )),

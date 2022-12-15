@@ -4,7 +4,8 @@ class KoalUser {
   final Map<String, dynamic>? debts;
   final Map<String, dynamic>? friends;
   String? id = "";
-  KoalUser(this.name, this.debts, this.friends, this.bio);
+  String? token = "";
+  KoalUser(this.name, this.debts, this.friends, this.bio, this.token);
 
   KoalUser.fromJson(Map<String, dynamic> json)
       : name = json["name"],
@@ -14,5 +15,6 @@ class KoalUser {
         friends = json["friends"] == null
             ? null
             : json["friends"] as Map<String, dynamic>,
-        bio = json["bio"] ?? "";
+        bio = json["bio"] ?? "",
+        token = json["token"] ?? "";
 }

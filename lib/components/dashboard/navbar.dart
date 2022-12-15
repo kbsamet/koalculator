@@ -4,7 +4,8 @@ import 'package:koalculator/screens/debt_screens/debt_history.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
 
 class BottomNavbar extends StatelessWidget {
-  const BottomNavbar({super.key});
+  final bool areGroupsEmpty;
+  const BottomNavbar({super.key, required this.areGroupsEmpty});
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +46,18 @@ class BottomNavbar extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const AddDebtScreen())),
+              onTap: () {
+                if (areGroupsEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text("Grup oluşturmadan önce borç ekleyemezsiniz."),
+                    ),
+                  );
+                }
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const AddDebtScreen()));
+              },
               child: Container(
                 padding: const EdgeInsets.all(5),
                 child: Column(
