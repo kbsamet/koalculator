@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Debt {
   num amount;
   final String groupId;
   final String recieverId;
   final String senderId;
   final String description;
+  // final String? createdAt;
   String? id;
 
   Debt(this.amount, this.groupId, this.recieverId, this.senderId,

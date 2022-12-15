@@ -1,17 +1,15 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
+import 'package:koalculator/helpers/imageHelper.dart';
 import 'package:koalculator/screens/dashboard.dart';
-
-final storage = FirebaseStorage.instance.ref();
-final db = FirebaseFirestore.instance;
+import 'package:koalculator/services/users.dart';
 
 class ChooseProfilePicScreen extends StatefulWidget {
   const ChooseProfilePicScreen({super.key});
@@ -24,41 +22,30 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
   CroppedFile? profilePic;
   TextEditingController bioController = TextEditingController();
 
-  void setBio() {
-    if (profilePic == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Lütfen bir profil fotoğrafı seçin")));
-      return;
-    }
-    if (bioController.text.isEmpty) {
+  void enterBio() {
+    String? result = setBio(profilePic, bioController.text);
+
+    if (result != null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Lütfen bir bio yazın")));
-      return;
+          .showSnackBar(SnackBar(content: Text(result)));
     }
-    db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
-      "bio": bioController.text,
-    }, SetOptions(merge: true));
+
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => const Dashboard()));
   }
 
-  void setProfilePic() async {
-    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+  void enterPic() async {
+    XFile? file = await pickImageHelper();
     if (file == null) {
       return;
     }
 
-    CroppedFile? cropped = await ImageCropper().cropImage(
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxHeight: 150,
-      maxWidth: 150,
-      sourcePath: file.path,
-    );
+    CroppedFile? cropped = await cropImageHelper(file);
     if (cropped == null) {
       return;
     }
     var profilePicRef =
-        storage.child("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
+        refImageHelper("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
 
     try {
       await profilePicRef.putFile(File(cropped.path));
@@ -124,7 +111,7 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
                         Align(
                           alignment: Alignment.bottomRight,
                           child: InkWell(
-                            onTap: setProfilePic,
+                            onTap: enterPic,
                             child: const Icon(
                               Icons.add_a_photo_outlined,
                               color: Color(0xffF71B4E),
@@ -155,7 +142,8 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
                   ),
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: DefaultButton(onPressed: setBio, text: "Devam et"))
+                      child:
+                          DefaultButton(onPressed: enterBio, text: "Devam et"))
                 ]),
           ),
         ),

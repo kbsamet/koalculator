@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/choose_name.dart';
 import 'package:koalculator/screens/dashboard.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -24,7 +25,6 @@ class _OtpPageState extends State<OtpPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Login();
   }
@@ -49,11 +49,11 @@ class _OtpPageState extends State<OtpPage> {
 
   void Verify() async {
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: verificationId!, smsCode: codeController.text);
+      PhoneAuthCredential credential =
+          verifyAccount(verificationId!, codeController.text);
 
       // Sign the user in (or link) with the credential
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      await signInWithCred(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
         var token = await FirebaseMessaging.instance.getToken();
@@ -61,11 +61,7 @@ class _OtpPageState extends State<OtpPage> {
             {"phoneNumber": widget.phoneNumber, "token": token},
             SetOptions(merge: true));
 
-        var user = await db
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get();
-
+        var user = await getAllUsersById();
         if (user.data()!["name"] == null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: ((context) => const ChooseNameScreen())));

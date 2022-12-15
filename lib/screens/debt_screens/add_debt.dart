@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/groups.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -10,8 +10,6 @@ import '../../models/debt.dart';
 import '../../models/group.dart';
 import '../../services/debts.dart';
 import '../dashboard.dart';
-
-final db = FirebaseFirestore.instance;
 
 class AddDebtScreen extends StatefulWidget {
   const AddDebtScreen({Key? key}) : super(key: key);
@@ -39,7 +37,6 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initGroups();
     showInterstitialAd();
@@ -215,7 +212,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     List<bool> newCheckedUsers = [];
     for (var i = 0; i < g.users.length; i++) {
       if (checkedUsers.length > i && !checkedUsers[i]) continue;
-      var res = await db.collection("users").doc(g.users[i]).get();
+      var res = await getUsersWithElement(g.users[i]);
       KoalUser user = KoalUser.fromJson(res.data()!);
       user.id = g.users[i];
       newUsers.add(user);

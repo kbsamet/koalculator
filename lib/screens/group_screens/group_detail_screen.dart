@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +10,13 @@ import 'package:koalculator/services/payments.dart';
 import 'package:koalculator/services/users.dart';
 
 import '../../components/dashboard/debt_list_view.dart';
+import '../../helpers/imageHelper.dart';
 import '../../models/debt.dart';
 import '../../models/group.dart';
 import '../../models/payment.dart';
+import '../../services/debts.dart';
 
 final storage = FirebaseStorage.instance.ref();
-final db = FirebaseFirestore.instance;
 
 class GroupDetailScreen extends StatefulWidget {
   final Group group;
@@ -49,7 +50,6 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getPayments();
     getDebts();
@@ -60,14 +60,10 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     setState(() {
       isDebtsLoading = true;
     });
-    Map<String, dynamic> debtIds;
+    Map<dynamic, dynamic> debtIds;
     Map<String, List<Debt>> newDebts = {};
 
-    var value = await db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    debtIds = value.data()!["debts"];
+    debtIds = await getDebtsIds();
 
     for (var debts in debtIds.keys) {
       if (!widget.group.users.contains(debts)) {
@@ -81,21 +77,14 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
       }
     }
     debts = newDebts;
-    print(debts);
     setState(() {
       isDebtsLoading = false;
     });
   }
 
-  Future<Debt> getDebtDetails(String id) async {
-    var value = await db.collection("debts").doc(id).get();
-    return Debt.fromJson(value.data()!);
-  }
-
   void getProfilePic() async {
     try {
-      String url = await storage
-          .child("groupProfilePics/${widget.group.id}")
+      String url = await refImageHelper("groupProfilePics/${widget.group.id}")
           .getDownloadURL();
       setState(() {
         imageUrl = url;

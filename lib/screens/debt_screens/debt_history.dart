@@ -1,13 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/debts/debt_history_list_view.dart';
 import 'package:koalculator/components/header.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../models/debt.dart';
 import '../../services/debts.dart';
-
-final db = FirebaseFirestore.instance;
 
 class DebtHistory extends StatefulWidget {
   const DebtHistory({Key? key}) : super(key: key);
@@ -21,7 +18,6 @@ class _DebtHistoryState extends State<DebtHistory> {
   bool isLoading = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getDebts();
   }
@@ -30,15 +26,10 @@ class _DebtHistoryState extends State<DebtHistory> {
     setState(() {
       isLoading = true;
     });
-
     try {
       Map<String, dynamic> debtIds;
       Map<String, List<Debt>> newDebts = {};
-
-      var value = await db
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
+      var value = await getAllUsersById();
       debtIds = value.data()!["pastDebts"];
 
       for (var debts in debtIds.keys) {

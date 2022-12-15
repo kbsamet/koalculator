@@ -20,7 +20,6 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initDebts();
   }

@@ -1,12 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/choose_profile_pic.dart';
+import 'package:koalculator/services/users.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
-
-final db = FirebaseFirestore.instance;
 
 class ChooseNameScreen extends StatefulWidget {
   const ChooseNameScreen({Key? key}) : super(key: key);
@@ -18,7 +15,7 @@ class ChooseNameScreen extends StatefulWidget {
 class _ChooseNameScreenState extends State<ChooseNameScreen> {
   TextEditingController nicknameController = TextEditingController();
 
-  void SetName() async {
+  void enterNickname() async {
     if (nicknameController.text.length > 12) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("İsim 12 karakterden kısa olmalı.")));
@@ -29,20 +26,13 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
           const SnackBar(content: Text("İsim 3 karakterden uzun olmalı.")));
       return;
     }
+    bool isSetted = await setName(nicknameController.text);
 
-    var data = await db.collection("users").get();
-    for (var user in data.docs) {
-      if (user.data()["name"] == nicknameController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("İsim Daha önce alınmış.")));
-        return;
-      }
+    if (!isSetted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("İsim Daha önce alınmış.")));
     }
 
-    db
-        .collection("users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({"name": nicknameController.text});
     Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => const ChooseProfilePicScreen()));
   }
@@ -83,7 +73,7 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  DefaultButton(onPressed: SetName, text: "Devam et"),
+                  DefaultButton(onPressed: enterNickname, text: "Devam et"),
                   const SizedBox(
                     height: 30,
                   ),

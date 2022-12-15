@@ -2,20 +2,19 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/empty_button.dart';
+import 'package:koalculator/helpers/imageHelper.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/friends.dart';
 
 import '../../services/users.dart';
-
-final storage = FirebaseStorage.instance.ref();
 
 class ProfileScreen extends StatefulWidget {
   final KoalUser? user;
@@ -37,7 +36,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (widget.user == null) {
       getCurrentUser();
@@ -69,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       String? id =
           otherUser ? user!.id : FirebaseAuth.instance.currentUser!.uid;
-      String url = await storage.child("profilePics/$id").getDownloadURL();
+      String url = await refImageHelper("profilePics/$id").getDownloadURL();
       setState(() {
         imageUrl = url;
       });
@@ -77,22 +75,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void setProfilePic() async {
-    XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? file = await pickImageHelper();
     if (file == null) {
       return;
     }
 
-    CroppedFile? cropped = await ImageCropper().cropImage(
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxHeight: 150,
-      maxWidth: 150,
-      sourcePath: file.path,
-    );
+    CroppedFile? cropped = await cropImageHelper(file);
     if (cropped == null) {
       return;
     }
     var profilePicRef =
-        storage.child("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
+        refImageHelper("profilePics/${FirebaseAuth.instance.currentUser!.uid}");
 
     try {
       await profilePicRef.putFile(File(cropped.path));
