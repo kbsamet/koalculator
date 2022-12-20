@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
@@ -89,19 +91,26 @@ class _GroupListViewState extends State<GroupListView> {
                       height: 10,
                     ),
                     Row(
-                      children: users.map((e) {
-                        int i = users.indexOf(e);
-                        return i != widget.group.users.length - 1
-                            ? Text(
-                                "${e.name}, ",
+                        children: users
+                                .getRange(0, min(5, widget.group.users.length))
+                                .map((e) {
+                              int i = users.indexOf(e);
+                              return i != min(4, widget.group.users.length - 1)
+                                  ? Text(
+                                      "${e.name},",
+                                      style: const TextStyle(fontSize: 15),
+                                    )
+                                  : Text(
+                                      e.name,
+                                      style: const TextStyle(fontSize: 15),
+                                    );
+                            }).toList() +
+                            [
+                              Text(
+                                widget.group.users.length > 5 ? "..." : "",
                                 style: const TextStyle(fontSize: 15),
                               )
-                            : Text(
-                                e.name,
-                                style: const TextStyle(fontSize: 15),
-                              );
-                      }).toList(),
-                    ),
+                            ]),
                     const SizedBox(
                       height: 6,
                     )

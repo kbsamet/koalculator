@@ -8,6 +8,7 @@ import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
 import 'package:koalculator/services/debts.dart';
 import 'package:koalculator/services/notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/debt.dart';
 import '../../services/friends.dart';
@@ -209,10 +210,38 @@ class _DebtListViewState extends State<DebtListView> {
                                       KoalUser? thisUser = await getUser(
                                           FirebaseAuth
                                               .instance.currentUser!.uid);
+
+                                      var prefs =
+                                          await SharedPreferences.getInstance();
+                                      String? lastRemindDate = prefs.getString(
+                                          "lastRemindDate${thisUser!.id}");
+
+                                      // check if last reminded date isn't null and if it is less than 1 day ago
+                                      if (lastRemindDate != null &&
+                                          DateTime.parse(lastRemindDate)
+                                                  .difference(DateTime.now())
+                                                  .inDays <
+                                              1) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                    "Dürtü gönderme limitine ulaştınız. Lütfen 1 gün sonra tekrar deneyin.")));
+                                        return;
+                                      }
+
                                       sendPushMessage(
                                           "Dürtü",
-                                          "${thisUser!.name} sizi borcunuzu ödemeniz için dürttü.",
+                                          "${thisUser.name} sizi borcunuzu ödemeniz için dürttü.",
                                           otherUser.token!);
+
+                                      prefs.setString(
+                                          "lastRemindDate${thisUser.id}",
+                                          DateTime.now().toString());
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content:
+                                                  Text("Dürtü gönderildi.")));
                                     }
                                   }
                                 },

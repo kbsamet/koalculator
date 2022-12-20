@@ -51,6 +51,10 @@ class _DashboardState extends State<Dashboard> {
     if (status.isDenied) {
       Permission.contacts.request();
     }
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
+      getDebts();
+      getGroupDetails();
+    });
   }
 
   Future getDebts() async {

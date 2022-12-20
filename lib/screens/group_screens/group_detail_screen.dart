@@ -215,6 +215,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                                 FirebaseAuth
                                                     .instance.currentUser!.uid,
                                             reciever: e.reciever!.name,
+                                            recieverId: e.recieverId,
                                             amount: e.amount),
                                         const SizedBox(
                                           height: 20,

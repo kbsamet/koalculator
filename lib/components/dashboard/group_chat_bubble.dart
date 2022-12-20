@@ -6,15 +6,13 @@ import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_6.dart';
 import '../../models/group.dart';
 
 final List<Color> GroupNameColors = [
-  Colors.white,
-  Colors.amber,
-  Colors.red,
-  Colors.purple,
+  const Color.fromARGB(255, 247, 85, 73),
   Colors.green,
   Colors.orange,
-  Colors.blue,
+  const Color.fromARGB(255, 221, 177, 45),
+  const Color.fromARGB(255, 50, 199, 184),
+  const Color.fromARGB(255, 225, 58, 255),
   Colors.pink,
-  Colors.teal
 ];
 
 class GroupChatBubble extends StatelessWidget {
@@ -24,6 +22,8 @@ class GroupChatBubble extends StatelessWidget {
   final num amount;
   final Group group;
   final String senderId;
+  final String recieverId;
+
   const GroupChatBubble(
       {Key? key,
       required this.sender,
@@ -31,16 +31,19 @@ class GroupChatBubble extends StatelessWidget {
       required this.reciever,
       required this.amount,
       required this.group,
-      required this.senderId})
+      required this.senderId,
+      required this.recieverId})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ChatBubble(
       elevation: 0,
+      // set the background color according to if the message is sent or received
       backGroundColor: isSender
-          ? const Color(0xffCE3C5E)
+          ? const Color.fromARGB(255, 96, 21, 46)
           : const Color.fromARGB(255, 50, 52, 61),
+
       alignment: isSender ? Alignment.topRight : Alignment.topLeft,
       clipper: ChatBubbleClipper6(
           type: isSender ? BubbleType.sendBubble : BubbleType.receiverBubble),
@@ -58,12 +61,23 @@ class GroupChatBubble extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          Text(
-            "$reciever Kişisine $amount₺ Gönderdi",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(reciever,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: GroupNameColors[group.users.indexOf(recieverId) %
+                          GroupNameColors.length])),
+              Text(
+                " Kişisine $amount₺ Gönderdi",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
         ],
       ),

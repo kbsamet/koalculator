@@ -77,6 +77,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   }
 
   void onAmountChanged(String s) {
+    if (s == "") return;
     num amount = num.parse(s);
 
     num numOfChecked = 0;
