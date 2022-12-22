@@ -193,8 +193,6 @@ class _DashboardState extends State<Dashboard> {
             floatingActionButton: FloatingActionButton(
               //Floating action button on Scaffold
               onPressed: () async {
-                var prefs = await SharedPreferences.getInstance();
-                prefs.setInt("friendNotifications", 5);
                 getNotifications();
                 getGroupDetails();
                 getDebts();
