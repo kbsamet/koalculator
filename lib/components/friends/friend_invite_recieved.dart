@@ -62,7 +62,18 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                           border: Border.all(color: Colors.black),
                         ),
                         child: imageUrl == null
-                            ? Container()
+                            ? SizedBox(
+                                height: 40,
+                                child: ClipRRect(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(100)),
+                                    child: Container(
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 32,
+                                      ),
+                                    )),
+                              )
                             : ClipRRect(
                                 borderRadius: const BorderRadius.all(
                                     Radius.circular(100)),

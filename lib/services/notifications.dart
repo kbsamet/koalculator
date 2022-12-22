@@ -16,6 +16,7 @@ void sendPushMessage(String title, String body, String token) async {
           'notification': <String, dynamic>{
             'body': body,
             'title': title,
+            'sound': 'default'
           },
           'priority': 'high',
           'data': <String, dynamic>{

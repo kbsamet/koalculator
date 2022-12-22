@@ -16,19 +16,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   submitPhone() {
     String pattern = r'(^(?:[+0]9)?[0-9]{10}$)';
+    String phoneNumber = phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
     RegExp regExp = RegExp(pattern);
-    if (phoneController.text.isEmpty) {
+    if (phoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Lütfen bir telefon numarası giriniz")));
       return;
-    } else if (!regExp.hasMatch(phoneController.text)) {
+    } else if (!regExp.hasMatch(phoneNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Girdiğiniz telefon numarası doğru değil")));
       return;
     }
 
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => OtpPage(phoneNumber: phoneController.text)));
+        builder: (context) => OtpPage(phoneNumber: phoneNumber)));
   }
 
   @override
@@ -61,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   DefaultTextInput(
                     onlyNumber: true,
+                    phoneNumber: true,
                     controller: phoneController,
                     icon: Icons.phone,
                     hintText: "Telefon Numaran",

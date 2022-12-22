@@ -31,6 +31,7 @@ class _ChooseNameScreenState extends State<ChooseNameScreen> {
     if (!isSetted) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("İsim Daha önce alınmış.")));
+      return;
     }
 
     Navigator.of(context).pushReplacement(MaterialPageRoute(

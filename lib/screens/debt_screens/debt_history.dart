@@ -3,9 +3,6 @@ import 'package:koalculator/components/debts/debt_history_list_view.dart';
 import 'package:koalculator/components/header.dart';
 import 'package:koalculator/services/users.dart';
 
-import '../../models/debt.dart';
-import '../../services/debts.dart';
-
 class DebtHistory extends StatefulWidget {
   const DebtHistory({Key? key}) : super(key: key);
 
@@ -28,23 +25,20 @@ class _DebtHistoryState extends State<DebtHistory> {
     });
     try {
       Map<String, dynamic> debtIds;
-      Map<String, List<Debt>> newDebts = {};
+      Map<String, List<String>> newDebts = {};
       var value = await getAllUsersById();
       debtIds = value.data()!["pastDebts"];
 
       for (var debts in debtIds.keys) {
         newDebts.addAll({debts: []});
         for (var element in debtIds[debts]) {
-          Debt debt = await getPastDebtDetails(element.toString());
-          debt.id = element;
-          newDebts[debts]!.add(debt);
+          newDebts[debts]!.add(element);
         }
       }
       debts = newDebts;
       setState(() {
         isLoading = false;
       });
-      print(debts);
     } catch (e) {
       setState(() {
         isLoading = false;

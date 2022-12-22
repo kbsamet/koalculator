@@ -97,7 +97,9 @@ void createDebt(Debt debt) async {
           : debt.senderId);
   if (otherUser!.token != "") {
     KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
-    sendPushMessage("Yeni bir borç", "${thisUser!.name} size bir borç ekledi.",
+    sendPushMessage(
+        "Yeni bir borç",
+        "${thisUser!.name} size bir borç ekledi. ${debt.description}",
         otherUser.token!);
   }
 }
@@ -120,6 +122,39 @@ Future<List<Debt>> getDebtsByFriendId(String id) async {
     }
 
     return debts;
+  }
+}
+
+Future<List<Debt>> getPaginatedPastDebtsByFriendId(
+    String id, int start, int end) async {
+  List<Debt> debts = [];
+
+  var user = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+
+  Map userDebts = user.data()!["pastDebts"] as Map;
+  if (!userDebts.containsKey(id)) {
+    print("No Debt Found for friend");
+    return [];
+  } else {
+    if (end > (userDebts[id] as List).length) {
+      end = (userDebts[id] as List).length;
+    }
+
+    if (start > end || start < 0 || end < 0 || start == end || end == 0) {
+      return [];
+    }
+
+    for (var element
+        in (userDebts[id] as List).reversed.toList().getRange(start, end)) {
+      debts.add(await getPastDebtDetails(element));
+    }
+
+    {
+      return debts;
+    }
   }
 }
 

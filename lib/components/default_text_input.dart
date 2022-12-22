@@ -12,7 +12,9 @@ class DefaultTextInput extends StatefulWidget {
   final bool isDisabled;
   final int maxLines;
   final double height;
+  final bool phoneNumber;
   final bool readOnly;
+
   final Function(String)? onChanged;
 
   const DefaultTextInput(
@@ -28,6 +30,7 @@ class DefaultTextInput extends StatefulWidget {
       this.height = 54,
       this.maxLines = 1,
       this.readOnly = false,
+      this.phoneNumber = false,
       this.onChanged})
       : super(key: key);
 
@@ -100,9 +103,15 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
                     ? TextInputType.number
                     : TextInputType.text,
                 inputFormatters: widget.onlyNumber
-                    ? <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ]
+                    ? widget.phoneNumber
+                        ? <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                            _PhoneNumberFormatter(),
+                            LengthLimitingTextInputFormatter(14)
+                          ]
+                        : <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ]
                     : [], // Only numbers can be entered
               ),
             ),
@@ -118,5 +127,29 @@ class _DefaultTextInputState extends State<DefaultTextInput> {
                 : Container(),
           ],
         ));
+  }
+}
+
+class _PhoneNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final int selectionStart = newValue.selection.start;
+    final int selectionEnd = newValue.selection.end;
+    final String formattedPhoneNumber = formatPhoneNumber(newValue.text);
+    return TextEditingValue(
+      text: formattedPhoneNumber,
+      selection: TextSelection.collapsed(offset: formattedPhoneNumber.length),
+    );
+  }
+}
+
+String formatPhoneNumber(String input) {
+  if (input.length <= 3) {
+    return input;
+  } else if (input.length <= 6) {
+    return '(${input.substring(0, 3)}) ${input.substring(3)}';
+  } else {
+    return '(${input.substring(0, 3)}) ${input.substring(3, 6)}-${input.substring(6)}';
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_button.dart';
@@ -6,12 +7,14 @@ import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/empty_button.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
+import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/debts.dart';
 import 'package:koalculator/services/notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/debt.dart';
 import '../../services/friends.dart';
+import '../../services/images.dart';
 import '../../services/users.dart';
 import '../header.dart';
 import '../utils/debts.dart';
@@ -32,6 +35,7 @@ class DebtListView extends StatefulWidget {
 }
 
 class _DebtListViewState extends State<DebtListView> {
+  String? imageUrl;
   bool isSender = false;
   Debt? totalDebt;
   KoalUser? user;
@@ -39,6 +43,7 @@ class _DebtListViewState extends State<DebtListView> {
   @override
   void initState() {
     super.initState();
+
     stateInit();
   }
 
@@ -46,6 +51,7 @@ class _DebtListViewState extends State<DebtListView> {
     totalDebt = calculateDebts(isSender, widget.debts, widget.friendId);
     isSender = totalDebt!.amount < 0;
     user = await getFriend(widget.friendId);
+    imageUrl = await getProfilePic(widget.friendId);
     setState(() {});
   }
 
@@ -125,32 +131,6 @@ class _DebtListViewState extends State<DebtListView> {
     if (oldWidget.debts != widget.debts && widget.debts.isNotEmpty) {}
   }
 
-  // void getFriend() async {
-  //   KoalUser? friend = await getUser(widget.friendId);
-  //   setState(() {
-  //     user = friend!;
-  //   });
-  // }
-
-  // // void calculateDebts() {
-  // //   num total = 0;
-  // //   for (var element in widget.debts) {
-  // //     total += (element.recieverId == FirebaseAuth.instance.currentUser!.uid
-  // //             ? 1
-  // //             : -1) *
-  // //         element.amount;
-  // //   }
-  // //   setState(() {
-  // //     isSender = total < 0;
-  // //     totalDebt = Debt(
-  // //         total,
-  // //         "31",
-  // //         "sex",
-  // //         isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid,
-  // //         !isSender ? widget.friendId : FirebaseAuth.instance.currentUser!.uid);
-  // //   });
-  // // }
-
   @override
   Widget build(BuildContext context) {
     return totalDebt == null
@@ -170,10 +150,59 @@ class _DebtListViewState extends State<DebtListView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      user == null ? "Yükleniyor" : user!.name,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            KoalUser? friend = await getUser(widget.friendId);
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: ((context) =>
+                                    ProfileScreen(user: friend))));
+                          },
+                          child: Container(
+                            width: 40,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(50)),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: imageUrl == null
+                                ? SizedBox(
+                                    height: 40,
+                                    child: ClipRRect(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(100)),
+                                        child: Container(
+                                          child: const Icon(
+                                            Icons.person,
+                                            size: 32,
+                                          ),
+                                        )),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(100)),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imageUrl!,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(
+                                        color: Color(0xffF71B4E),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                      fit: BoxFit.fill,
+                                    )),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          user == null ? "Yükleniyor" : user!.name,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [

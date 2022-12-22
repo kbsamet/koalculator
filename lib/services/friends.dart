@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/user.dart';
+import 'package:koalculator/services/notifications.dart';
 import 'package:koalculator/services/users.dart';
 
 final db = FirebaseFirestore.instance;
@@ -39,13 +40,28 @@ Future sendFriendRequest(String friendId, dynamic context) async {
         .showSnackBar(const SnackBar(content: Text("İstek Gönderildi"))),
     onError: (e) => print("Error updating document $e"),
   );
+
+  db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then(
+        (doc) => sendPushMessage(
+            "Arkadaş İsteği",
+            "${doc.data()!["name"]} size bir arkadaş isteği gönderdi",
+            friendDoc.data()!["token"]),
+        onError: (e) => print("Error updating document $e"),
+      );
 }
 
 Future sendFriendRequestByName(String friendName, dynamic context) async {
   var friendDoc = await db.collection("users").get();
   for (var element in friendDoc.docs) {
-    if (element.data()["name"] == friendName) {
+    if (element.data()["name"] == friendName &&
+        element.id != FirebaseAuth.instance.currentUser!.uid) {
       sendFriendRequest(element.id, context);
+      //send a push notification
+
+      KoalUser? thisUser =
+          await getUser(FirebaseAuth.instance.currentUser!.uid);
+      getUser(element.id).then((value) => sendPushMessage("Arkadaş İsteği",
+          "${thisUser!.name} size bir arkadaş isteği gönderdi", value!.token!));
       return;
     }
   }
@@ -110,6 +126,10 @@ Future acceptFriendRequest(String id) async {
     "sentFriendInvites":
         FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
   }, SetOptions(merge: true));
+
+  KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
+  getUser(id).then((value) => sendPushMessage("Arkadaşlık Onayı",
+      "${thisUser!.name} arkadaşlık isteğinizi kabul etti", value!.token!));
 }
 
 Future denyFriendRequest(String id) async {

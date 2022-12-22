@@ -14,7 +14,9 @@ Future<UserCredential> createUser(String email, String password) async {
 Future<KoalUser?> getUser(id) async {
   var res = await db.collection("users").doc(id).get();
   if (res.data() == null) return null;
-  return KoalUser.fromJson(res.data()!);
+  KoalUser user = KoalUser.fromJson(res.data()!);
+  user.id = id;
+  return user;
 }
 
 Future<List<KoalUser>?> getUsers(List<dynamic> users) async {

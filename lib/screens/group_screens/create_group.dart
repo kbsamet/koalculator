@@ -134,7 +134,7 @@ class _CreateGroupState extends State<CreateGroup> {
                 color: Color(0xffF71B4E)),
           ),
         ),
-        body: Column(
+        body: ListView(
           children: [
             Container(
               margin: const EdgeInsets.all(30),
@@ -143,6 +143,7 @@ class _CreateGroupState extends State<CreateGroup> {
               decoration: const BoxDecoration(
                   color: Color(0xff292A33), shape: BoxShape.circle),
               child: Stack(
+                alignment: Alignment.center,
                 children: [
                   profilePic == null
                       ? Container()
@@ -156,7 +157,7 @@ class _CreateGroupState extends State<CreateGroup> {
                             fit: BoxFit.fill,
                           )),
                   Align(
-                    alignment: Alignment.bottomRight,
+                    alignment: const Alignment(0.4, 1),
                     child: InkWell(
                       onTap: () => setProfilePic(),
                       child: const Icon(
@@ -185,20 +186,23 @@ class _CreateGroupState extends State<CreateGroup> {
                     ),
                   ),
                 )),
-            Container(
-                height: 35,
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: const BoxDecoration(
-                    color: Color(0xff8A525F),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: const TextField(
-                  decoration: InputDecoration(
-                      isDense: true,
-                      hintText: "Kişilerden ara",
-                      hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                      border: InputBorder.none),
-                )),
+            const SizedBox(
+              height: 20,
+            ),
+            // Container(
+            //     height: 35,
+            //     margin: const EdgeInsets.all(20),
+            //     padding: const EdgeInsets.symmetric(horizontal: 10),
+            //     decoration: const BoxDecoration(
+            //         color: Color(0xff8A525F),
+            //         borderRadius: BorderRadius.all(Radius.circular(10))),
+            //     child: const TextField(
+            //       decoration: InputDecoration(
+            //           isDense: true,
+            //           hintText: "Kişilerden ara",
+            //           hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            //           border: InputBorder.none),
+            //     )),
             Container(
               width: double.infinity,
               height: 60,
@@ -224,16 +228,17 @@ class _CreateGroupState extends State<CreateGroup> {
               ),
             ),
             const SizedBox(
-              height: 30,
+              height: 20,
             ),
-            Flexible(
-                child: ListView(
-                    children: friends
-                        .map((e) => GroupFriendView(
-                              user: e,
-                              addUser: addOrRemoveFriend,
-                            ))
-                        .toList())),
+            SingleChildScrollView(
+              child: Column(
+                  children: friends
+                      .map((e) => GroupFriendView(
+                            user: e,
+                            addUser: addOrRemoveFriend,
+                          ))
+                      .toList()),
+            ),
             const SizedBox(
               height: 20,
             ),

@@ -28,6 +28,7 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
     if (result != null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result)));
+      return;
     }
 
     Navigator.of(context)

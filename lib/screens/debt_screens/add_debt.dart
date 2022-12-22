@@ -350,9 +350,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                       height: 10,
                     ),
                     //burası
-                    SizedBox(
-                      height: 300,
-                      child: ListView(
+                    Expanded(
+                        child: SingleChildScrollView(
+                      child: Column(
                         children: groupUsers
                             .map((e) => Column(
                                   children: [
@@ -543,7 +543,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                                 ))
                             .toList(),
                       ),
-                    ),
+                    )),
                     const SizedBox(
                       height: 20,
                     ),

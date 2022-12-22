@@ -52,7 +52,18 @@ class _AddedFriendState extends State<AddedFriend> {
                     border: Border.all(color: Colors.black),
                   ),
                   child: imageUrl == null
-                      ? Container()
+                      ? SizedBox(
+                          height: 50,
+                          child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(100)),
+                              child: Container(
+                                child: const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                ),
+                              )),
+                        )
                       : ClipRRect(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(100)),

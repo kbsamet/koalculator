@@ -17,6 +17,7 @@ class FriendDebtHistory extends StatefulWidget {
 class _FriendDebtHistoryState extends State<FriendDebtHistory> {
   List<Debt> debts = [];
   bool isLoading = false;
+  bool isFetching = false;
 
   @override
   void initState() {
@@ -26,12 +27,13 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
 
   void initDebts() async {
     setState(() {
-      isLoading = true;
+      isFetching = true;
     });
-    List<Debt> debts_ = await getPastDebtsByFriendId(widget.id);
+    List<Debt> debts_ = await getPaginatedPastDebtsByFriendId(
+        widget.id, debts.length, debts.length + 15);
     setState(() {
-      debts = debts_;
-      isLoading = false;
+      debts = debts + debts_;
+      isFetching = false;
     });
   }
 
@@ -86,10 +88,33 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
                           height: 20,
                         ),
                         Expanded(
-                          child: ListView(
-                            children: debts.reversed
-                                .map((e) => FriendDebtDetailListView(debt: e))
-                                .toList(),
+                          child: NotificationListener<ScrollEndNotification>(
+                            onNotification: (notification) {
+                              if (!isFetching &&
+                                  notification.metrics.pixels ==
+                                      notification.metrics.maxScrollExtent) {
+                                initDebts();
+                              }
+                              return true;
+                            },
+                            child: ListView.builder(
+                                itemCount: debts.length + (isFetching ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index == debts.length && isFetching) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(top: 10),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: Color(0xffF71B4E),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return FriendDebtDetailListView(
+                                      debt: debts.elementAt(index),
+                                    );
+                                  }
+                                }),
                           ),
                         ),
                       ],
