@@ -8,11 +8,18 @@ import 'package:koalculator/components/utils/keep_alive.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/friends.dart';
 import 'package:koalculator/services/users.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/friends/added_friend.dart';
 
 class FriendsScreen extends StatefulWidget {
-  const FriendsScreen({Key? key}) : super(key: key);
+  final int notifications;
+  final VoidCallback onNotificationChange;
+  const FriendsScreen({
+    Key? key,
+    required this.notifications,
+    required this.onNotificationChange,
+  }) : super(key: key);
 
   @override
   State<FriendsScreen> createState() => _FriendsScreenState();
@@ -27,6 +34,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   bool isContactsLoading = false;
   bool isFriendsLoading = false;
   bool isInvitationsLoading = false;
+
+  bool resetNotifications = false;
 
   TextEditingController nickNameController = TextEditingController();
 
@@ -164,7 +173,70 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     preferredSize: tabBar.preferredSize,
                     child: Material(
                       color: const Color(0xff303139),
-                      child: tabBar,
+                      child: TabBar(
+                          onTap: (value) async {
+                            if (value == 2) {
+                              var prefs = await SharedPreferences.getInstance();
+                              prefs.setInt("friendNotifications", 0);
+                              setState(() {
+                                resetNotifications = true;
+                              });
+
+                              widget.onNotificationChange();
+                            }
+                          },
+                          indicatorColor: const Color(0xffF71B4E),
+                          labelColor: const Color(0xffFF6D8F),
+                          unselectedLabelColor: const Color(0xffAFAFAF),
+                          labelStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "QuickSand",
+                              fontSize: 16),
+                          tabs: [
+                            const Tab(
+                              text: "Öneriler",
+                            ),
+                            const Tab(
+                              text: "Arkadaşlar",
+                            ),
+                            Tab(
+                              child: SizedBox(
+                                width: 70,
+                                height: 80,
+                                child: Stack(
+                                  children: [
+                                    const Positioned(
+                                        bottom: 11, child: Text("İstekler")),
+                                    widget.notifications > 0 &&
+                                            !resetNotifications
+                                        ? Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              width: 22,
+                                              height: 22,
+                                              decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Color(0xffF71B4E)),
+                                              child: Center(
+                                                child: Text(
+                                                  widget.notifications
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 17),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : Container(),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ]),
                     ),
                   )),
               body: TabBarView(children: [

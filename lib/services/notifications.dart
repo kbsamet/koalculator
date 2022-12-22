@@ -2,7 +2,12 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-void sendPushMessage(String title, String body, String token) async {
+void sendPushMessage(
+  String title,
+  String body,
+  String type,
+  String token,
+) async {
   try {
     var res = await http.post(
       Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -22,7 +27,8 @@ void sendPushMessage(String title, String body, String token) async {
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
-            'status': 'done'
+            'status': 'done',
+            'type': type,
           },
           "to": token,
         },

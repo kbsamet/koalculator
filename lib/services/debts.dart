@@ -100,6 +100,7 @@ void createDebt(Debt debt) async {
     sendPushMessage(
         "Yeni bir borç",
         "${thisUser!.name} size bir borç ekledi. ${debt.description}",
+        "debt",
         otherUser.token!);
   }
 }
@@ -270,6 +271,7 @@ Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
     sendPushMessage(
         "Borç Ödendi",
         "${thisUser!.name} size ait borcunun $amount₺ miktarını ödedi.",
+        "debt",
         otherUser.token!);
   }
   return true;

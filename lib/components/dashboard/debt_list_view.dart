@@ -261,6 +261,7 @@ class _DebtListViewState extends State<DebtListView> {
                                       sendPushMessage(
                                           "Dürtü",
                                           "${thisUser.name} sizi borcunuzu ödemeniz için dürttü.",
+                                          'debt',
                                           otherUser.token!);
 
                                       prefs.setString(

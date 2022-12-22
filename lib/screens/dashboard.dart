@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:koalculator/components/dashboard/debt_list_view.dart';
 import 'package:koalculator/components/header.dart';
 import 'package:koalculator/components/utils/keep_alive.dart';
+import 'package:koalculator/config/firebase_config.dart';
 import 'package:koalculator/models/debt.dart';
 import 'package:koalculator/models/group.dart';
 import 'package:koalculator/screens/friend_screens/friends_screen.dart';
 import 'package:koalculator/screens/profile_screens/profile_screen.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../components/dashboard/group_list_view.dart';
 import '../components/dashboard/navbar.dart';
@@ -31,12 +33,35 @@ class _DashboardState extends State<Dashboard> {
   bool isGroupsLoading = false;
   bool isDebtsLoading = false;
 
+  int friendNotifications = 0;
+  int debtNotifications = 0;
+
   @override
   void initState() {
     super.initState();
-    getGroupDetails();
-    getDebts();
+    initialize();
+  }
+
+  void initialize() async {
+    await getGroupDetails();
+    await getDebts();
+    await initFirebase();
+    getNotifications();
     init();
+  }
+
+  void getNotifications() async {
+    var prefs = await SharedPreferences.getInstance();
+    setState(() {
+      friendNotifications = prefs.getInt("friendNotifications") == null
+          ? 0
+          : prefs.getInt("friendNotifications") as int;
+      debtNotifications = prefs.getInt("debtNotifications") == null
+          ? 0
+          : prefs.getInt("debtNotifications") as int;
+    });
+
+    print(friendNotifications);
   }
 
   void resetDebts() async {
@@ -51,6 +76,25 @@ class _DashboardState extends State<Dashboard> {
     if (status.isDenied) {
       Permission.contacts.request();
     }
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage remoteMessage) async {
+      var prefs = await SharedPreferences.getInstance();
+      print(remoteMessage.data['type']);
+
+      if (remoteMessage.data['type'] == "debt") {
+        int debtNotifications = prefs.get("debtNotifications") == null
+            ? 0
+            : prefs.get("debtNotifications") as int;
+        prefs.setInt("debtNotifications", debtNotifications + 1);
+      } else if (remoteMessage.data['type'] == "friend") {
+        int friendNotifications = prefs.get("friendNotifications") == null
+            ? 0
+            : prefs.get("friendNotifications") as int;
+        prefs.setInt("friendNotifications", friendNotifications + 1);
+      }
+      print(prefs.getInt("friendNotifications"));
+    });
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       getDebts();
       getGroupDetails();
@@ -106,18 +150,36 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  final tabBar = const TabBar(
-      indicatorColor: Color(0xffF71B4E),
-      labelColor: Color(0xffFF6D8F),
-      unselectedLabelColor: Color(0xffAFAFAF),
-      labelStyle: TextStyle(
+  final tabBar = TabBar(
+      indicatorColor: const Color(0xffF71B4E),
+      labelColor: const Color(0xffFF6D8F),
+      unselectedLabelColor: const Color(0xffAFAFAF),
+      labelStyle: const TextStyle(
           fontWeight: FontWeight.bold, fontFamily: "QuickSand", fontSize: 16),
       tabs: [
-        Tab(
+        const Tab(
           text: "Gruplar",
         ),
         Tab(
-          text: "Kişiler",
+          child: SizedBox(
+            width: 60,
+            child: Stack(
+              children: [
+                const Text("Borçlar"),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    width: 13,
+                    height: 13,
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Color(0xffF71B4E)),
+                    child: const Center(),
+                  ),
+                )
+              ],
+            ),
+          ),
         )
       ]);
 
@@ -131,6 +193,9 @@ class _DashboardState extends State<Dashboard> {
             floatingActionButton: FloatingActionButton(
               //Floating action button on Scaffold
               onPressed: () async {
+                var prefs = await SharedPreferences.getInstance();
+                prefs.setInt("friendNotifications", 5);
+                getNotifications();
                 getGroupDetails();
                 getDebts();
               },
@@ -144,13 +209,44 @@ class _DashboardState extends State<Dashboard> {
             ),
             appBar: AppBar(
                 titleSpacing: 0,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.group,
-                    size: 25,
-                  ),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const FriendsScreen())),
+                leading: Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.group,
+                        size: 25,
+                      ),
+                      onPressed: () async {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => FriendsScreen(
+                                  notifications: friendNotifications,
+                                  onNotificationChange: getNotifications,
+                                )));
+                      },
+                    ),
+                    friendNotifications > 0
+                        ? Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 22,
+                              height: 22,
+                              decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffF71B4E)),
+                              child: Center(
+                                child: Text(
+                                  friendNotifications.toString(),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                  ],
                 ),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +273,61 @@ class _DashboardState extends State<Dashboard> {
                   preferredSize: tabBar.preferredSize,
                   child: Material(
                     color: const Color(0xff303139),
-                    child: tabBar,
+                    child: TabBar(
+                        onTap: (value) async {
+                          print(value);
+                          if (value == 1) {
+                            var prefs = await SharedPreferences.getInstance();
+                            prefs.setInt("debtNotifications", 0);
+                            setState(() {
+                              debtNotifications = 0;
+                            });
+                          }
+                        },
+                        indicatorColor: const Color(0xffF71B4E),
+                        labelColor: const Color(0xffFF6D8F),
+                        unselectedLabelColor: const Color(0xffAFAFAF),
+                        labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "QuickSand",
+                            fontSize: 16),
+                        tabs: [
+                          const Tab(
+                            text: "Gruplar",
+                          ),
+                          Tab(
+                            child: SizedBox(
+                              width: 70,
+                              height: 80,
+                              child: Stack(
+                                children: [
+                                  const Positioned(
+                                      bottom: 15, child: Text("Borçlar")),
+                                  debtNotifications > 0
+                                      ? Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            width: 22,
+                                            height: 22,
+                                            decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0xffF71B4E)),
+                                            child: Center(
+                                              child: Text(
+                                                debtNotifications.toString(),
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                ],
+                              ),
+                            ),
+                          )
+                        ]),
                   ),
                 )),
             body: TabBarView(children: [
@@ -224,7 +374,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 const SizedBox(
                                   height: 5,
-                                )
+                                ),
                               ],
                             );
                           }).toList()),
