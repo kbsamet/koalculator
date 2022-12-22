@@ -13,6 +13,7 @@ import 'package:koalculator/helpers/imageHelper.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/services/friends.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../services/users.dart';
 
@@ -37,7 +38,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.user == null) {
+    Permission.bluetooth.request();
+    if (widget.user == null ||
+        widget.user!.id == FirebaseAuth.instance.currentUser!.uid) {
       getCurrentUser();
     } else {
       setState(() {
@@ -75,6 +78,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void setProfilePic() async {
+    print(await Permission.photos.isGranted);
+    if (!(await Permission.photos.isGranted)) {
+      await Permission.photos.request();
+    }
+
     XFile? file = await pickImageHelper();
     if (file == null) {
       return;

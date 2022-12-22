@@ -33,16 +33,6 @@ class _GroupListViewState extends State<GroupListView> {
     setState(() {});
   }
 
-  // @override
-  // void didUpdateWidget(covariant GroupListView oldWidget) {
-  //   // TODO: implement didUpdateWidget
-  //   super.didUpdateWidget(oldWidget);
-  //   if (oldWidget.group != widget.group) {
-  //     getImage();
-  //     getUserNames();
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -91,26 +81,25 @@ class _GroupListViewState extends State<GroupListView> {
                       height: 10,
                     ),
                     Row(
-                        children: users
-                                .getRange(0, min(5, widget.group.users.length))
-                                .map((e) {
-                              int i = users.indexOf(e);
-                              return i != min(4, widget.group.users.length - 1)
-                                  ? Text(
-                                      "${e.name},",
-                                      style: const TextStyle(fontSize: 15),
-                                    )
-                                  : Text(
-                                      e.name,
-                                      style: const TextStyle(fontSize: 15),
-                                    );
-                            }).toList() +
-                            [
-                              Text(
-                                widget.group.users.length > 5 ? "..." : "",
-                                style: const TextStyle(fontSize: 15),
-                              )
-                            ]),
+                        children:
+                            users.getRange(0, min(5, users.length)).map((e) {
+                                  int i = users.indexOf(e);
+                                  return i != min(4, users.length - 1)
+                                      ? Text(
+                                          "${e.name},",
+                                          style: const TextStyle(fontSize: 15),
+                                        )
+                                      : Text(
+                                          e.name,
+                                          style: const TextStyle(fontSize: 15),
+                                        );
+                                }).toList() +
+                                [
+                                  Text(
+                                    widget.group.users.length > 5 ? "..." : "",
+                                    style: const TextStyle(fontSize: 15),
+                                  )
+                                ]),
                     const SizedBox(
                       height: 6,
                     )

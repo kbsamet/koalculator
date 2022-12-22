@@ -54,7 +54,9 @@ class BottomNavbar extends StatelessWidget {
                           Text("Grup oluşturmadan önce borç ekleyemezsiniz."),
                     ),
                   );
+                  return;
                 }
+
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const AddDebtScreen()));
               },

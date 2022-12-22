@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 class DefaultButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  const DefaultButton({Key? key, required this.onPressed, required this.text})
+  final bool isLoading;
+  const DefaultButton(
+      {Key? key,
+      required this.onPressed,
+      required this.text,
+      this.isLoading = false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isLoading ? () {} : onPressed,
       child: Container(
         height: 53,
         decoration: const BoxDecoration(
@@ -21,15 +26,21 @@ class DefaultButton extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         alignment: Alignment.center,
-        child: Text(
-          text,
-          style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              fontFamily: "QuickSand"),
-          textAlign: TextAlign.center,
-        ),
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: "QuickSand"),
+                textAlign: TextAlign.center,
+              ),
       ),
     );
   }

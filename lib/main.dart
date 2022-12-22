@@ -29,12 +29,15 @@ class MyApp extends StatelessWidget {
           FocusManager.instance.primaryFocus?.unfocus();
         }
       },
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: darkTheme,
-        darkTheme: darkTheme,
-        themeMode: ThemeMode.system,
-        home: const MainPage(),
+      child: Container(
+        color: const Color(0xff1B1C26),
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: darkTheme,
+          darkTheme: darkTheme,
+          themeMode: ThemeMode.system,
+          home: const MainPage(),
+        ),
       ),
     );
   }

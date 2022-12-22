@@ -9,9 +9,9 @@ Future initFirebase() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: false,
-    badge: false,
-    sound: false,
+    alert: true,
+    badge: true,
+    sound: true,
   );
   await FirebaseMessaging.instance.requestPermission();
   print(await FirebaseMessaging.instance.getToken());

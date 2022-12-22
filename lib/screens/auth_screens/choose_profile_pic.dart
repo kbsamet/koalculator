@@ -40,6 +40,8 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
       return;
     }
 
+    print(file);
+
     CroppedFile? cropped = await cropImageHelper(file);
     if (cropped == null) {
       return;

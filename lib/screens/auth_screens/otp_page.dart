@@ -20,6 +20,7 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
+  bool isLoading = false;
   String? verificationId;
   TextEditingController codeController = TextEditingController();
 
@@ -34,6 +35,9 @@ class _OtpPageState extends State<OtpPage> {
       phoneNumber: '+90${widget.phoneNumber}',
       verificationCompleted: (PhoneAuthCredential credential) {},
       verificationFailed: (FirebaseAuthException e) {
+        setState(() {
+          isLoading = false;
+        });
         print(e);
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.toString())));
@@ -48,12 +52,15 @@ class _OtpPageState extends State<OtpPage> {
   }
 
   void Verify() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       PhoneAuthCredential credential =
           verifyAccount(verificationId!, codeController.text);
 
       // Sign the user in (or link) with the credential
-      await signInWithCred(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
         var token = await FirebaseMessaging.instance.getToken();
@@ -74,7 +81,15 @@ class _OtpPageState extends State<OtpPage> {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Girdiğiniz şifre yanlış")));
+
+      setState(() {
+        isLoading = false;
+        print(isLoading);
+      });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -119,8 +134,11 @@ class _OtpPageState extends State<OtpPage> {
                   ),
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child:
-                          DefaultButton(onPressed: Verify, text: "Devam Et")),
+                      child: DefaultButton(
+                        onPressed: Verify,
+                        text: "Devam Et",
+                        isLoading: isLoading,
+                      )),
                   const SizedBox(
                     height: 30,
                   ),

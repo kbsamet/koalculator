@@ -92,11 +92,18 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       isGroupsLoading = true;
     });
-    List<Group> newGroups = await getGroups();
-    setState(() {
-      groups = newGroups;
-      isGroupsLoading = false;
-    });
+    try {
+      List<Group> newGroups = await getGroups();
+
+      setState(() {
+        groups = newGroups;
+        isGroupsLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isGroupsLoading = false;
+      });
+    }
   }
 
   final tabBar = const TabBar(

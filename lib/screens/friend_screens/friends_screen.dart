@@ -24,6 +24,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
   List<KoalUser> recievedRequests = [];
   List<KoalUser> friends = [];
 
+  bool isContactsLoading = false;
+  bool isFriendsLoading = false;
+  bool isInvitationsLoading = false;
+
   TextEditingController nickNameController = TextEditingController();
 
   @override
@@ -36,13 +40,20 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   void getUserFriends() async {
+    setState(() {
+      isFriendsLoading = true;
+    });
     List<KoalUser> userFriends = await getFriends();
     setState(() {
       friends = userFriends;
+      isFriendsLoading = false;
     });
   }
 
   void getRecievedRequests() async {
+    setState(() {
+      isInvitationsLoading = true;
+    });
     List<dynamic> requestIds = await getRecievedFriendRequests();
     for (var element in requestIds) {
       var res = await getUsersWithElement(element);
@@ -52,6 +63,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
         recievedRequests.add(user);
       });
     }
+    setState(() {
+      isInvitationsLoading = false;
+    });
   }
 
   void getSentFriends() async {
@@ -68,6 +82,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   void getContacts() async {
+    setState(() {
+      isContactsLoading = true;
+    });
     Map<String?, KoalUser> userPhones = {};
     var users = await getAllUsers();
     for (var element in users.docs) {
@@ -99,6 +116,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
         });
       }
     }
+    setState(() {
+      isContactsLoading = false;
+    });
   }
 
   final tabBar = const TabBar(
@@ -149,130 +169,156 @@ class _FriendsScreenState extends State<FriendsScreen> {
                   )),
               body: TabBarView(children: [
                 KeepPageAlive(
-                  child: Container(
-                    child: Column(
-                      children: <Widget>[
-                            Container(
-                              margin: const EdgeInsets.all(10),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                        height: 35,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        decoration: const BoxDecoration(
-                                            color: Color(0xff8A525F),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10))),
-                                        child: TextField(
-                                          controller: nickNameController,
-                                          decoration: const InputDecoration(
-                                              isDense: true,
-                                              hintText:
-                                                  "Kullanıcı adından ekle",
-                                              hintStyle: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                              border: InputBorder.none),
-                                        )),
+                  child: isContactsLoading
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(
+                                  color: Color(0xffF71B4E))))
+                      : Container(
+                          child: Column(
+                            children: <Widget>[
+                                  Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                              height: 35,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              decoration: const BoxDecoration(
+                                                  color: Color(0xff8A525F),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(10))),
+                                              child: TextField(
+                                                controller: nickNameController,
+                                                decoration: const InputDecoration(
+                                                    isDense: true,
+                                                    hintText:
+                                                        "Kullanıcı adından ekle",
+                                                    hintStyle: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    border: InputBorder.none),
+                                              )),
+                                        ),
+                                        const SizedBox(
+                                          width: 14,
+                                        ),
+                                        SizedBox(
+                                            height: 35,
+                                            child: DefaultButton(
+                                                onPressed: () =>
+                                                    sendFriendRequestByName(
+                                                        nickNameController.text,
+                                                        context),
+                                                text: "Ekle")),
+                                        const SizedBox(
+                                          height: 20,
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(
-                                    width: 14,
-                                  ),
-                                  SizedBox(
-                                      height: 35,
-                                      child: DefaultButton(
-                                          onPressed: () =>
-                                              sendFriendRequestByName(
-                                                  nickNameController.text,
-                                                  context),
-                                          text: "Ekle")),
-                                  const SizedBox(
-                                    height: 20,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ] +
-                          friendsInContact.entries
-                              .map((e) => FriendInContact(
-                                    user: e.value!,
-                                    contact: e.key,
-                                    reset: getContacts,
-                                  ))
-                              .toList(),
-                    ),
-                  ),
+                                ] +
+                                friendsInContact.entries
+                                    .map((e) => FriendInContact(
+                                          user: e.value!,
+                                          contact: e.key,
+                                          reset: getContacts,
+                                        ))
+                                    .toList(),
+                          ),
+                        ),
                 ),
                 KeepPageAlive(
-                    child: Container(
-                        child: Column(
-                            children: friends
-                                .map((e) => AddedFriend(
-                                      user: e,
-                                    ))
-                                .toList()))),
+                    child: isFriendsLoading
+                        ? SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                                alignment: Alignment.center,
+                                child: const CircularProgressIndicator(
+                                    color: Color(0xffF71B4E))))
+                        : Container(
+                            child: Column(
+                                children: friends
+                                    .map((e) => AddedFriend(
+                                          user: e,
+                                        ))
+                                    .toList()))),
                 KeepPageAlive(
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: const Text(
-                            "Gönderilen İstekler",
-                            style: TextStyle(
-                                color: Color(0xffF71B4E),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.start,
+                  child: isInvitationsLoading
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(
+                                  color: Color(0xffF71B4E))))
+                      : Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                child: const Text(
+                                  "Gönderilen İstekler",
+                                  style: TextStyle(
+                                      color: Color(0xffF71B4E),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              sentRequests.isEmpty
+                                  ? Container(
+                                      padding: const EdgeInsets.all(5),
+                                      child: const Text(
+                                        "Gönderilmiş arkadaş isteğin yok",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ))
+                                  : Column(
+                                      children: sentRequests
+                                          .map((e) => FriendInContact(
+                                                user: e,
+                                                isSent: true,
+                                                reset: getSentFriendRequests,
+                                              ))
+                                          .toList(),
+                                    ),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                child: const Text(
+                                  "Alınan İstekler",
+                                  style: TextStyle(
+                                      color: Color(0xffF71B4E),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              recievedRequests.isEmpty
+                                  ? Container(
+                                      padding: const EdgeInsets.all(5),
+                                      child: const Text(
+                                        "Bekleyen arkadaş isteğin yok",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ))
+                                  : Column(
+                                      children: recievedRequests
+                                          .map((e) => FriendInviteRecieved(
+                                                user: e,
+                                                reset: getRecievedRequests,
+                                              ))
+                                          .toList(),
+                                    ),
+                            ],
                           ),
                         ),
-                        sentRequests.isEmpty
-                            ? Container(
-                                padding: const EdgeInsets.all(5),
-                                child: const Text(
-                                  "Gönderilmiş arkadaş isteğin yok",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ))
-                            : Column(
-                                children: sentRequests
-                                    .map((e) => FriendInContact(
-                                          user: e,
-                                          isSent: true,
-                                          reset: getSentFriendRequests,
-                                        ))
-                                    .toList(),
-                              ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: const Text(
-                            "Alınan İstekler",
-                            style: TextStyle(
-                                color: Color(0xffF71B4E),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                        recievedRequests.isEmpty
-                            ? Container(
-                                padding: const EdgeInsets.all(5),
-                                child: const Text(
-                                  "Bekleyen arkadaş isteğin yok",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ))
-                            : Column(
-                                children: recievedRequests
-                                    .map((e) => FriendInviteRecieved(
-                                          user: e,
-                                          reset: getRecievedRequests,
-                                        ))
-                                    .toList(),
-                              ),
-                      ],
-                    ),
-                  ),
                 ),
               ])),
         ));
