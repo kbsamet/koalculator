@@ -77,7 +77,11 @@ Future<Debt> getPastDebtDetails(String id) async {
 }
 
 void createDebt(Debt debt) async {
-  var ref = await db.collection("debts").add(debt.toJson());
+  var timestamp = FieldValue.serverTimestamp();
+  var ref = await db.collection("debts").add({
+    ...debt.toJson(),
+    "createdAt": timestamp,
+  });
 
   db.collection("users").doc(debt.recieverId).set({
     "debts": {
@@ -100,8 +104,8 @@ void createDebt(Debt debt) async {
     sendPushMessage(
         "Yeni bir borç",
         "${thisUser!.name} size bir borç ekledi. ${debt.description}",
-        "debt",
         otherUser.token!);
+    addNewNotfication("debt", otherUser.id!);
   }
 }
 
@@ -187,7 +191,9 @@ Future payDebts(List<Debt> debts) async {
 
 Future payDebt(Debt debt) async {
   db.collection("debts").doc(debt.id).delete();
-  var newDebt = await db.collection("pastDebts").add(debt.toJson());
+  var newDebt = await db
+      .collection("pastDebts")
+      .add({...debt.toJson(), "createdAt": FieldValue.serverTimestamp()});
 
   await db.collection("users").doc(debt.senderId).set({
     "debts": {
@@ -214,7 +220,11 @@ Future payDebt(Debt debt) async {
 
 //create payment function that takes a payment
 Future createPayment(Payment payment) async {
-  var ref = await db.collection("payments").add(payment.toJson());
+  var timestamp = FieldValue.serverTimestamp();
+  var ref = await db.collection("payments").add({
+    ...payment.toJson(),
+    "createdAt": timestamp,
+  });
 
   db.collection("groups").doc(payment.groupId).set({
     "payments": FieldValue.arrayUnion([ref.id])
@@ -264,15 +274,18 @@ Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
       }
     }
   }
-  KoalUser? otherUser = await getUser(debts[0].recieverId);
+  KoalUser? otherUser = await getUser(
+      debts[0].recieverId == FirebaseAuth.instance.currentUser!.uid
+          ? debts[0].senderId
+          : debts[0].recieverId);
 
   if (otherUser!.token != "") {
     KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
     sendPushMessage(
         "Borç Ödendi",
         "${thisUser!.name} size ait borcunun $amount₺ miktarını ödedi.",
-        "debt",
         otherUser.token!);
+    addNewNotfication("debt", otherUser.id!);
   }
   return true;
 }

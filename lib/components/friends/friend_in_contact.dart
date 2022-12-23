@@ -129,7 +129,6 @@ class _FriendInContactState extends State<FriendInContact> {
                 onTap: () async {
                   if (isSent) return;
                   await sendFriendRequest(widget.user.id!, context);
-                  widget.reset();
                   setState(() {
                     isSent = true;
                   });

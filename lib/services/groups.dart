@@ -11,8 +11,14 @@ Future<String> createNewGroup(
   List<KoalUser> users,
 ) async {
   try {
+    var value = await db
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
     var res = await db.collection("groups").add({
       "name": name,
+      "userNames": users.map((e) => e.name).toList() + [value.data()!["name"]],
       "users": users.map((e) => e.id).toList() +
           [FirebaseAuth.instance.currentUser!.uid]
     });

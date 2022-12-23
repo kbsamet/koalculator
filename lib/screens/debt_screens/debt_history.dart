@@ -75,6 +75,7 @@ class _DebtHistoryState extends State<DebtHistory> {
                           color: Color(0xffF71B4E))))
               : debts.isEmpty
                   ? Container(
+                      alignment: Alignment.topCenter,
                       padding: const EdgeInsets.all(20),
                       child: const Header(text: "Borç Geçmişiniz yok"))
                   : ListView(

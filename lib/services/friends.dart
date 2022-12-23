@@ -45,10 +45,10 @@ Future sendFriendRequest(String friendId, dynamic context) async {
         (doc) => sendPushMessage(
             "Arkadaş İsteği",
             "${doc.data()!["name"]} size bir arkadaş isteği gönderdi",
-            "friend",
             friendDoc.data()!["token"]),
         onError: (e) => print("Error updating document $e"),
       );
+  addNewNotfication("friend", friendId);
 }
 
 Future sendFriendRequestByName(String friendName, dynamic context) async {
@@ -61,14 +61,14 @@ Future sendFriendRequestByName(String friendName, dynamic context) async {
 
       KoalUser? thisUser =
           await getUser(FirebaseAuth.instance.currentUser!.uid);
-      getUser(element.id).then((value) => sendPushMessage(
-          "Arkadaş İsteği",
-          "${thisUser!.name} size bir arkadaş isteği gönderdi",
-          "friend",
-          value!.token!));
+      getUser(element.id).then((value) => sendPushMessage("Arkadaş İsteği",
+          "${thisUser!.name} size bir arkadaş isteği gönderdi", value!.token!));
+
+      addNewNotfication("friend", element.id);
       return;
     }
   }
+
   ScaffoldMessenger.of(context)
       .showSnackBar(const SnackBar(content: Text("Bu isimde biri bulunamadı")));
 }
@@ -132,11 +132,10 @@ Future acceptFriendRequest(String id) async {
   }, SetOptions(merge: true));
 
   KoalUser? thisUser = await getUser(FirebaseAuth.instance.currentUser!.uid);
-  getUser(id).then((value) => sendPushMessage(
-      "Arkadaşlık Onayı",
-      "${thisUser!.name} arkadaşlık isteğinizi kabul etti",
-      "friend",
-      value!.token!));
+  getUser(id).then((value) {
+    sendPushMessage("Arkadaşlık Onayı",
+        "${thisUser!.name} arkadaşlık isteğinizi kabul etti", value!.token!);
+  });
 }
 
 Future denyFriendRequest(String id) async {
@@ -144,12 +143,25 @@ Future denyFriendRequest(String id) async {
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .get();
-  Map friends = res.data()!["friends"]!;
+  Map friends =
+      res.data()!["friends"]! == null ? {} : res.data()!["friends"]! as Map;
   friends.remove(id);
-  print(friends);
+
+  var friend = await db.collection("users").doc(id).get();
+
+  List sentInvites = friend.data()!["sentFriendInvites"] == null
+      ? []
+      : friend.data()!["sentFriendInvites"] as List;
+  sentInvites.remove(FirebaseAuth.instance.currentUser!.uid);
+
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update(
     {
       "friends": friends,
+    },
+  );
+  db.collection("users").doc(id).update(
+    {
+      "sentFriendInvites": sentInvites,
     },
   );
 }

@@ -107,7 +107,6 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                           onTap: () async {
                             if (responded) return;
                             await denyFriendRequest(widget.user.id!);
-                            widget.reset();
                             setState(() {
                               responded = true;
                             });
@@ -146,7 +145,6 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                           onTap: () async {
                             if (responded) false;
                             await acceptFriendRequest(widget.user.id!);
-                            widget.reset();
                             setState(() {
                               responded = true;
                             });

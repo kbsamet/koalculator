@@ -261,8 +261,8 @@ class _DebtListViewState extends State<DebtListView> {
                                       sendPushMessage(
                                           "Dürtü",
                                           "${thisUser.name} sizi borcunuzu ödemeniz için dürttü.",
-                                          'debt',
                                           otherUser.token!);
+                                      addNewNotfication("debt", otherUser.id!);
 
                                       prefs.setString(
                                           "lastRemindDate${thisUser.id}",
