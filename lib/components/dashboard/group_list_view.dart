@@ -4,9 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:koalculator/models/group.dart';
-import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/images.dart';
-import '../../services/users.dart';
 
 import '../../screens/group_screens/group_detail_screen.dart';
 
@@ -19,7 +17,6 @@ class GroupListView extends StatefulWidget {
 }
 
 class _GroupListViewState extends State<GroupListView> {
-  List<KoalUser> users = [];
   String? imageUrl;
   @override
   void initState() {
@@ -29,7 +26,6 @@ class _GroupListViewState extends State<GroupListView> {
 
   void stateInit() async {
     imageUrl = await getGroupPic(widget.group.id);
-    users = (await getUsers(widget.group.users))!;
     setState(() {});
   }
 
@@ -81,25 +77,28 @@ class _GroupListViewState extends State<GroupListView> {
                       height: 10,
                     ),
                     Row(
-                        children:
-                            users.getRange(0, min(5, users.length)).map((e) {
-                                  int i = users.indexOf(e);
-                                  return i != min(4, users.length - 1)
-                                      ? Text(
-                                          "${e.name},",
-                                          style: const TextStyle(fontSize: 15),
-                                        )
-                                      : Text(
-                                          e.name,
-                                          style: const TextStyle(fontSize: 15),
-                                        );
-                                }).toList() +
-                                [
-                                  Text(
-                                    widget.group.users.length > 5 ? "..." : "",
-                                    style: const TextStyle(fontSize: 15),
-                                  )
-                                ]),
+                        children: widget.group.userNames
+                                .getRange(
+                                    0, min(5, widget.group.userNames.length))
+                                .map((e) {
+                              int i = widget.group.userNames.indexOf(e);
+                              return i !=
+                                      min(4, widget.group.userNames.length - 1)
+                                  ? Text(
+                                      "$e,",
+                                      style: const TextStyle(fontSize: 15),
+                                    )
+                                  : Text(
+                                      e,
+                                      style: const TextStyle(fontSize: 15),
+                                    );
+                            }).toList() +
+                            [
+                              Text(
+                                widget.group.users.length > 5 ? "..." : "",
+                                style: const TextStyle(fontSize: 15),
+                              )
+                            ]),
                     const SizedBox(
                       height: 6,
                     )
