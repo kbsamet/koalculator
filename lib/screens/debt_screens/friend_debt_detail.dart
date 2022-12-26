@@ -39,11 +39,13 @@ class _FriendDebtDetailState extends State<FriendDebtDetail> {
     }
 
     Debt totalDebt_ = Debt(
-        total.abs(),
-        "",
-        total > 0 ? FirebaseAuth.instance.currentUser!.uid : widget.id,
-        total < 0 ? FirebaseAuth.instance.currentUser!.uid : widget.id,
-        "Toplam");
+      total.abs(),
+      "",
+      total > 0 ? FirebaseAuth.instance.currentUser!.uid : widget.id,
+      total < 0 ? FirebaseAuth.instance.currentUser!.uid : widget.id,
+      "Toplam",
+      total.abs(),
+    );
     setState(() {
       debts = debts_;
       totalDebt = totalDebt_;

@@ -46,14 +46,14 @@ class _AddedFriendState extends State<AddedFriend> {
             Row(
               children: [
                 Container(
-                  width: 50,
+                  width: 45,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(50)),
                     border: Border.all(color: Colors.black),
                   ),
                   child: imageUrl == null
                       ? SizedBox(
-                          height: 50,
+                          height: 45,
                           child: ClipRRect(
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(100)),

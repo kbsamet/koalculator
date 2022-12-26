@@ -34,6 +34,7 @@ class _FriendsScreenState extends State<FriendsScreen>
 
   bool isContactsLoading = false;
   bool isFriendsLoading = false;
+  bool isAddFriendLoading = false;
   bool isInvitationsLoading = false;
 
   bool _resetNotifications = false;
@@ -301,10 +302,20 @@ class _FriendsScreenState extends State<FriendsScreen>
                                     SizedBox(
                                         height: 35,
                                         child: DefaultButton(
-                                            onPressed: () =>
-                                                sendFriendRequestByName(
-                                                    nickNameController.text,
-                                                    context),
+                                            isLoading: isAddFriendLoading,
+                                            onPressed: () async {
+                                              setState(() {
+                                                isAddFriendLoading = true;
+                                              });
+                                              await sendFriendRequestByName(
+                                                  nickNameController.text,
+                                                  context);
+                                              await Future.delayed(
+                                                  const Duration(seconds: 2));
+                                              setState(() {
+                                                isAddFriendLoading = false;
+                                              });
+                                            },
                                             text: "Ekle")),
                                     const SizedBox(
                                       height: 20,

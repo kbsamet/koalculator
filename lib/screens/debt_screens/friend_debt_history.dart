@@ -112,6 +112,7 @@ class _FriendDebtHistoryState extends State<FriendDebtHistory> {
                                   } else {
                                     return FriendDebtDetailListView(
                                       debt: debts.elementAt(index),
+                                      isPast: true,
                                     );
                                   }
                                 }),

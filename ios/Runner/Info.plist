@@ -41,13 +41,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>profile picture</string>
+	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>This app requires contacts access to function properly.</string>
+	<string>Uyuglamanın rehberinizdeki kişilerden size arkaş önerisi yapması için rehberinize erişime izin verin.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>profile picture</string>
+	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>profile picture</string>
+	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -254,7 +254,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
-		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

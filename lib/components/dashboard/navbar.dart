@@ -3,6 +3,8 @@ import 'package:koalculator/screens/debt_screens/add_debt.dart';
 import 'package:koalculator/screens/debt_screens/debt_history.dart';
 import 'package:koalculator/screens/group_screens/create_group.dart';
 
+import '../../screens/settings_screens/settings.dart';
+
 class BottomNavbar extends StatelessWidget {
   final bool areGroupsEmpty;
   const BottomNavbar({super.key, required this.areGroupsEmpty});
@@ -107,6 +109,8 @@ class BottomNavbar extends StatelessWidget {
               ),
             ),
             InkWell(
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const Settings())),
               child: Container(
                 padding: const EdgeInsets.all(5),
                 child: Column(

@@ -17,5 +17,6 @@ dynamic calculateDebts(bool isSender, List<dynamic> debts, String friendId) {
       "31",
       "sex",
       isSender ? friendId : FirebaseAuth.instance.currentUser!.uid,
-      !isSender ? friendId : FirebaseAuth.instance.currentUser!.uid);
+      !isSender ? friendId : FirebaseAuth.instance.currentUser!.uid,
+      total);
 }

@@ -6,7 +6,9 @@ import '../../models/debt.dart';
 
 class FriendDebtDetailListView extends StatelessWidget {
   final Debt debt;
-  const FriendDebtDetailListView({Key? key, required this.debt})
+  final bool isPast;
+  const FriendDebtDetailListView(
+      {Key? key, required this.debt, this.isPast = false})
       : super(key: key);
 
   @override
@@ -50,8 +52,8 @@ class FriendDebtDetailListView extends StatelessWidget {
                     : Text(
                         debt.recieverId ==
                                 FirebaseAuth.instance.currentUser!.uid
-                            ? "+ ${debt.amount} ₺"
-                            : "- ${debt.amount} ₺",
+                            ? "+ ${isPast ? debt.originalAmount : debt.amount} ₺"
+                            : "- ${isPast ? debt.originalAmount : debt.amount} ₺",
                         style: TextStyle(
                             color: debt.recieverId ==
                                     FirebaseAuth.instance.currentUser!.uid

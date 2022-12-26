@@ -5,7 +5,8 @@ import 'package:koalculator/screens/auth_screens/otp_page.dart';
 import '../../components/default_text_input.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  final bool delete;
+  const LoginScreen({Key? key, this.delete = false}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -29,7 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => OtpPage(phoneNumber: phoneNumber)));
+        builder: (context) =>
+            OtpPage(phoneNumber: phoneNumber, delete: widget.delete)));
   }
 
   @override
@@ -73,7 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10),
                       child: DefaultButton(
-                          onPressed: submitPhone, text: "Devam Et")),
+                        onPressed: submitPhone,
+                        text: "Devam Et",
+                      )),
                   const SizedBox(
                     height: 30,
                   ),

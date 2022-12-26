@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 class Header extends StatelessWidget {
   final String text;
-  const Header({Key? key, required this.text}) : super(key: key);
+  final Color color;
+  const Header({Key? key, required this.text, this.color = Colors.white})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color),
     );
   }
 }

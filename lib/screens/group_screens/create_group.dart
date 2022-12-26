@@ -26,6 +26,7 @@ class _CreateGroupState extends State<CreateGroup> {
   User? loggedUser = FirebaseAuth.instance.currentUser;
   List<KoalUser> friends = [];
   List<KoalUser> addedFriends = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -51,19 +52,31 @@ class _CreateGroupState extends State<CreateGroup> {
   }
 
   void createGroup() async {
+    setState(() {
+      isLoading = true;
+    });
     if (addedFriends.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Gruba en az 1 kişi eklemelisin")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
     if (groupName.text.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Grup İsmi boş olamaz")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
     if (profilePic == null) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Grup fotoğrafı boş olamaz")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
     var id = (await createNewGroup(groupName.text, addedFriends));
@@ -75,6 +88,9 @@ class _CreateGroupState extends State<CreateGroup> {
         await profilePicRef.putFile(File(profilePic!.path));
       } catch (e) {
         print(e);
+        setState(() {
+          isLoading = false;
+        });
       }
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Grup başarıyla oluşturuldu")));
@@ -83,6 +99,9 @@ class _CreateGroupState extends State<CreateGroup> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Bir hata oluştu")));
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void setProfilePic() async {
@@ -245,7 +264,9 @@ class _CreateGroupState extends State<CreateGroup> {
             Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: DefaultButton(
-                    onPressed: createGroup, text: "Grup Oluştur")),
+                    isLoading: isLoading,
+                    onPressed: createGroup,
+                    text: "Grup Oluştur")),
             const SizedBox(
               height: 50,
             ),

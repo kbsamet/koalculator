@@ -64,7 +64,8 @@ Future<Group> getGroupDetails(String id) async {
 
 Future addToGroup(String groupId, KoalUser user) async {
   db.collection("groups").doc(groupId).update({
-    "users": FieldValue.arrayUnion([user.id!])
+    "users": FieldValue.arrayUnion([user.id!]),
+    "userNames": FieldValue.arrayUnion([user.name])
   });
   db.collection("users").doc(user.id).update({
     "groups": FieldValue.arrayUnion([groupId])
@@ -72,10 +73,15 @@ Future addToGroup(String groupId, KoalUser user) async {
 }
 
 Future leaveGroup(String groupId) async {
+  Group? group = await getGroupDetails(groupId);
+
   db.collection("groups").doc(groupId).update({
     "users": FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
   });
   db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
     "groups": FieldValue.arrayRemove([groupId])
   });
+  if (group.users.isEmpty) {
+    db.collection("groups").doc(groupId).delete();
+  }
 }

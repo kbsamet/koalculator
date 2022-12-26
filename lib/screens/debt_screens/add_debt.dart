@@ -171,22 +171,26 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       }
       if (toPay.entries.first.value.abs() <= toBePaid.entries.first.value) {
         Debt debt = Debt(
-            toPay.entries.first.value.abs(),
-            groups.where((element) => element.name == selectedValue).first.id!,
-            groupUsers[toBePaid.entries.first.key].id!,
-            groupUsers[toPay.entries.first.key].id!,
-            descriptionController.text);
+          toPay.entries.first.value.abs(),
+          groups.where((element) => element.name == selectedValue).first.id!,
+          groupUsers[toBePaid.entries.first.key].id!,
+          groupUsers[toPay.entries.first.key].id!,
+          descriptionController.text,
+          toPay.entries.first.value.abs(),
+        );
         createDebt(debt);
         toBePaid[toBePaid.entries.first.key] =
             toBePaid.entries.first.value - toPay.entries.first.value.abs();
         toPay.remove(toPay.entries.first.key);
       } else {
         Debt debt = Debt(
-            toBePaid.entries.first.value,
-            groups.where((element) => element.name == selectedValue).first.id!,
-            groupUsers[toBePaid.entries.first.key].id!,
-            groupUsers[toPay.entries.first.key].id!,
-            descriptionController.text);
+          toBePaid.entries.first.value,
+          groups.where((element) => element.name == selectedValue).first.id!,
+          groupUsers[toBePaid.entries.first.key].id!,
+          groupUsers[toPay.entries.first.key].id!,
+          descriptionController.text,
+          toPay.entries.first.value.abs(),
+        );
 
         createDebt(debt);
         toPay[toPay.entries.first.key] =
@@ -194,7 +198,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         toBePaid.remove(toBePaid.entries.first.key);
       }
     }
-    interstitial!.show();
+    if (interstitial != null) {
+      interstitial!.show();
+    }
 
     await Future.delayed(const Duration(seconds: 2));
 
@@ -290,12 +296,12 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                           style: const TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
                           value: selectedValue,
-                          items: groups
-                              .map((e) => DropdownMenuItem<String>(
-                                    value: e.name,
-                                    child: Text(e.name),
-                                  ))
-                              .toList(),
+                          items: groups.map((e) {
+                            return DropdownMenuItem<String>(
+                              value: e.name,
+                              child: Text(e.name),
+                            );
+                          }).toList(),
                           onChanged: (e) {
                             getGroupUsers(groups
                                 .where(

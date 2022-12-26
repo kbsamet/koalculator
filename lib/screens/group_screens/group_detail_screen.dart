@@ -10,6 +10,7 @@ import 'package:koalculator/services/payments.dart';
 import 'package:koalculator/services/users.dart';
 
 import '../../components/dashboard/debt_list_view.dart';
+import '../../components/header.dart';
 import '../../helpers/imageHelper.dart';
 import '../../models/debt.dart';
 import '../../models/group.dart';
@@ -60,26 +61,32 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     setState(() {
       isDebtsLoading = true;
     });
-    Map<dynamic, dynamic> debtIds;
-    Map<String, List<Debt>> newDebts = {};
+    try {
+      Map<dynamic, dynamic> debtIds;
+      Map<String, List<Debt>> newDebts = {};
 
-    debtIds = await getDebtsIds();
+      debtIds = await getDebtsIds();
 
-    for (var debts in debtIds.keys) {
-      if (!widget.group.users.contains(debts)) {
-        continue;
+      for (var debts in debtIds.keys) {
+        if (!widget.group.users.contains(debts)) {
+          continue;
+        }
+        newDebts.addAll({debts: []});
+        for (var element in debtIds[debts]) {
+          Debt debt = await getDebtDetails(element.toString());
+          debt.id = element;
+          newDebts[debts]!.add(debt);
+        }
       }
-      newDebts.addAll({debts: []});
-      for (var element in debtIds[debts]) {
-        Debt debt = await getDebtDetails(element.toString());
-        debt.id = element;
-        newDebts[debts]!.add(debt);
-      }
+      debts = newDebts;
+      setState(() {
+        isDebtsLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isDebtsLoading = false;
+      });
     }
-    debts = newDebts;
-    setState(() {
-      isDebtsLoading = false;
-    });
   }
 
   void getProfilePic() async {
@@ -234,22 +241,28 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                               alignment: Alignment.center,
                               child: const CircularProgressIndicator(
                                   color: Color(0xffF71B4E))))
-                      : ListView(
-                          children: debts.keys.map((key) {
-                          return Column(
-                            children: [
-                              SizedBox(
-                                child: DebtListView(
-                                    debts: debts[key],
-                                    friendId: key.toString(),
-                                    resetDebts: resetDebts),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              )
-                            ],
-                          );
-                        }).toList()),
+                      : debts.isEmpty
+                          ? Container(
+                              alignment: Alignment.topCenter,
+                              padding: const EdgeInsets.all(20),
+                              child: const Header(
+                                  text: "Bu Grupta Hiç Borcun Yok"))
+                          : ListView(
+                              children: debts.keys.map((key) {
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    child: DebtListView(
+                                        debts: debts[key],
+                                        friendId: key.toString(),
+                                        resetDebts: resetDebts),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  )
+                                ],
+                              );
+                            }).toList()),
                 ),
               ])),
         ));

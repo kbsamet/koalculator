@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:koalculator/screens/auth_screens/choose_name.dart';
+import 'package:koalculator/screens/auth_screens/login_page.dart';
 import 'package:koalculator/screens/dashboard.dart';
 import 'package:koalculator/services/users.dart';
 
@@ -13,7 +14,9 @@ final db = FirebaseFirestore.instance;
 
 class OtpPage extends StatefulWidget {
   final String phoneNumber;
-  const OtpPage({Key? key, required this.phoneNumber}) : super(key: key);
+  final bool delete;
+  const OtpPage({Key? key, required this.phoneNumber, this.delete = false})
+      : super(key: key);
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -63,6 +66,15 @@ class _OtpPageState extends State<OtpPage> {
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (FirebaseAuth.instance.currentUser != null) {
+        if (widget.delete) {
+          await FirebaseAuth.instance.currentUser!.delete();
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Hesabınız silindi.")));
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: ((context) => const LoginScreen())),
+              (route) => false);
+        }
+
         var token = await FirebaseMessaging.instance.getToken();
         db.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set(
             {"phoneNumber": widget.phoneNumber, "token": token},
@@ -70,11 +82,15 @@ class _OtpPageState extends State<OtpPage> {
 
         var user = await getAllUsersById();
         if (user.data()!["name"] == null) {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: ((context) => const ChooseNameScreen())));
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: ((context) => const ChooseNameScreen())),
+              (route) => false);
         } else {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: ((context) => const Dashboard())));
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: ((context) => const Dashboard())),
+            (route) => false,
+          );
         }
       }
     } catch (e) {
@@ -126,7 +142,7 @@ class _OtpPageState extends State<OtpPage> {
                       onlyNumber: true,
                       controller: codeController,
                       icon: Icons.password,
-                      hintText: "Tek Kullanımlık Şfire",
+                      hintText: "Tek Kullanımlık Şifre",
                     ),
                   ),
                   const SizedBox(

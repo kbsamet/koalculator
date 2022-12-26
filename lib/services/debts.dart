@@ -52,6 +52,19 @@ Future<Map> getDebtsIds() async {
   return debtIds;
 }
 
+Future<Map> getPastDebtsIds() async {
+  Map<dynamic, dynamic> debtIds = {};
+
+  var value = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+
+  debtIds = value.data()!["pastDebts"];
+
+  return debtIds;
+}
+
 Future<Map<dynamic, List<Debt>>> getDebtDetail(
     Map<dynamic, dynamic> debtIds, Map<dynamic, List<Debt>> debtData) async {
   debtIds.forEach((key, value) {
@@ -261,7 +274,7 @@ Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
     while (remainingAmount > 0) {
       if (remainingAmount >= debts[0].amount) {
         Debt debt = Debt(debts[0].amount, debts[0].groupId, debts[0].recieverId,
-            debts[0].senderId, debts[0].description);
+            debts[0].senderId, debts[0].description, debts[0].amount);
         debt.id = debts[0].id;
         await payDebt(debt);
         remainingAmount -= debts[0].amount;

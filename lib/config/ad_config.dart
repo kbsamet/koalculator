@@ -8,7 +8,7 @@ Future<InterstitialAd?> showAd() async {
   InterstitialAd? ad_;
 
   await InterstitialAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/4411468910',
+      adUnitId: 'ca-app-pub-1382789323352838/2033993204',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {

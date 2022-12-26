@@ -61,8 +61,9 @@ Future sendFriendRequestByName(String friendName, dynamic context) async {
 
       KoalUser? thisUser =
           await getUser(FirebaseAuth.instance.currentUser!.uid);
-      getUser(element.id).then((value) => sendPushMessage("Arkadaş İsteği",
-          "${thisUser!.name} size bir arkadaş isteği gönderdi", value!.token!));
+      KoalUser? friend = await getUser(element.id);
+      sendPushMessage("Arkadaş İsteği",
+          "${thisUser!.name} size bir arkadaş isteği gönderdi", friend!.token!);
 
       addNewNotfication("friend", element.id);
       return;
