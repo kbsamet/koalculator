@@ -27,9 +27,12 @@ class DefaultButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         alignment: Alignment.center,
         child: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
+            ? Container(
+                padding: const EdgeInsets.all(2),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
                 ),
               )
             : Text(

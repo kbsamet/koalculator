@@ -223,7 +223,7 @@ Future removeFriend(String id) async {
     },
   );
   var friendRes = await db.collection("users").doc(id).get();
-  Map newFriends = res.data()!["friends"]!;
+  Map newFriends = friendRes.data()!["friends"]!;
   newFriends.remove(FirebaseAuth.instance.currentUser!.uid);
   db.collection("users").doc(id).update(
     {
