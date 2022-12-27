@@ -210,27 +210,26 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                               clipBehavior: Clip.none,
                               shrinkWrap: true,
                               reverse: true,
-                              children: payments.reversed
-                                  .map(
-                                    (e) => Column(
-                                      children: [
-                                        GroupChatBubble(
-                                            group: widget.group,
-                                            senderId: e.senderId,
-                                            sender: e.sender!.name,
-                                            isSender: e.senderId ==
-                                                FirebaseAuth
-                                                    .instance.currentUser!.uid,
-                                            reciever: e.reciever!.name,
-                                            recieverId: e.recieverId,
-                                            amount: e.amount),
-                                        const SizedBox(
-                                          height: 20,
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                  .toList()),
+                              children: payments.reversed.map((e) {
+                                print(e.senderId);
+                                return Column(
+                                  children: [
+                                    GroupChatBubble(
+                                        group: widget.group,
+                                        senderId: e.senderId,
+                                        sender: e.sender!.name,
+                                        isSender: e.senderId ==
+                                            FirebaseAuth
+                                                .instance.currentUser!.uid,
+                                        reciever: e.reciever!.name,
+                                        recieverId: e.recieverId,
+                                        amount: e.amount),
+                                    const SizedBox(
+                                      height: 20,
+                                    )
+                                  ],
+                                );
+                              }).toList()),
                         ),
                       ),
                 KeepPageAlive(

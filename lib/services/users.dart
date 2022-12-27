@@ -138,15 +138,33 @@ Future deleteAccount(context) async {
     for (var group in groups.data()!["groups"]) {
       print(group);
       var groupData = await db.collection("groups").doc(group).get();
-      var userNames = groupData.data()!["userNames"] as List;
 
-      userNames.remove(groups.data()!["name"]);
-      var users = groupData.data()!["users"] as List;
-      users.remove(FirebaseAuth.instance.currentUser!.uid);
-      db
-          .collection("groups")
-          .doc(group)
-          .update({"users": users, "userNames": userNames});
+      var payments = groupData.data()!["payments"] as List?;
+      if (payments != null) {
+        for (var payment in payments) {
+          var paymentData = await db.collection("payments").doc(payment).get();
+          if (paymentData.data()!["recieverId"] ==
+                  FirebaseAuth.instance.currentUser!.uid ||
+              paymentData.data()!["senderId"] ==
+                  FirebaseAuth.instance.currentUser!.uid) {
+            db.collection("payments").doc(payment).delete();
+            db.collection("groups").doc(group).update({
+              "payments": FieldValue.arrayRemove([payment])
+            });
+          }
+        }
+      }
+
+      var userNames = groupData.data()!["userNames"] as List?;
+      if (userNames != null) {
+        userNames.remove(groups.data()!["name"]);
+        var users = groupData.data()!["users"] as List;
+        users.remove(FirebaseAuth.instance.currentUser!.uid);
+        db
+            .collection("groups")
+            .doc(group)
+            .update({"users": users, "userNames": userNames});
+      }
     }
   }
 

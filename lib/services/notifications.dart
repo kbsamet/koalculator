@@ -56,7 +56,13 @@ Future addNewNotfication(String type, String id) async {
 Future<List<int>> getNotificationsById(String id) async {
   List<int> notifications = [];
   var value = await db.collection("users").doc(id).get();
-  notifications.add(value.data()!["FriendNotifications"] ?? 0);
+
+  notifications.add((value.data()!["friends"] as Map?) == null
+      ? 0
+      : (value.data()!["friends"] as Map?)!
+          .values
+          .where((element) => element == false)
+          .length);
   notifications.add(value.data()!["DebtNotifications"] ?? 0);
   return notifications;
 }

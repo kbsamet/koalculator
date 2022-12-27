@@ -247,8 +247,9 @@ class _DebtListViewState extends State<DebtListView> {
 
                                       // check if last reminded date isn't null and if it is less than 1 day ago
                                       if (lastRemindDate != null &&
-                                          DateTime.parse(lastRemindDate)
-                                                  .difference(DateTime.now())
+                                          DateTime.now()
+                                                  .difference(DateTime.parse(
+                                                      lastRemindDate))
                                                   .inDays <
                                               1) {
                                         ScaffoldMessenger.of(context)

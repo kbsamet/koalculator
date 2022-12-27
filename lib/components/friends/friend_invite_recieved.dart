@@ -12,8 +12,13 @@ final storage = FirebaseStorage.instance.ref();
 class FriendInviteRecieved extends StatefulWidget {
   final KoalUser user;
   final VoidCallback reset;
+  final Function(KoalUser) onAccept;
+
   const FriendInviteRecieved(
-      {Key? key, required this.user, required this.reset})
+      {Key? key,
+      required this.user,
+      required this.reset,
+      required this.onAccept})
       : super(key: key);
 
   @override
@@ -145,6 +150,7 @@ class _FriendInviteRecievedState extends State<FriendInviteRecieved> {
                           onTap: () async {
                             if (responded) false;
                             await acceptFriendRequest(widget.user.id!);
+                            widget.onAccept(widget.user);
                             setState(() {
                               responded = true;
                             });

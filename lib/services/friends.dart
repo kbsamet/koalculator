@@ -48,7 +48,6 @@ Future sendFriendRequest(String friendId, dynamic context) async {
             friendDoc.data()!["token"]),
         onError: (e) => print("Error updating document $e"),
       );
-  addNewNotfication("friend", friendId);
 }
 
 Future sendFriendRequestByName(String friendName, dynamic context) async {
@@ -65,7 +64,6 @@ Future sendFriendRequestByName(String friendName, dynamic context) async {
       sendPushMessage("Arkadaş İsteği",
           "${thisUser!.name} size bir arkadaş isteği gönderdi", friend!.token!);
 
-      addNewNotfication("friend", element.id);
       return;
     }
   }
@@ -229,7 +227,7 @@ Future removeFriend(String id) async {
   newFriends.remove(FirebaseAuth.instance.currentUser!.uid);
   db.collection("users").doc(id).update(
     {
-      "friends": friends,
+      "friends": newFriends,
     },
   );
 }

@@ -63,6 +63,12 @@ class _FriendsScreenState extends State<FriendsScreen>
     getUserFriends();
   }
 
+  void onAccept(user) {
+    setState(() {
+      friends.add(user);
+    });
+  }
+
   void getUserFriends() async {
     setState(() {
       isFriendsLoading = true;
@@ -413,6 +419,7 @@ class _FriendsScreenState extends State<FriendsScreen>
                                       .map((e) => FriendInviteRecieved(
                                             user: e,
                                             reset: getRecievedRequests,
+                                            onAccept: onAccept,
                                           ))
                                       .toList(),
                                 ),
