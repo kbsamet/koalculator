@@ -302,3 +302,19 @@ Future<bool> payDebtsByAmount(List<Debt> debts, num amount, context) async {
   }
   return true;
 }
+
+Future<bool> hasSeenTutorial() async {
+  var res = await db
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  if (res.data()!["hasSeenTutorial"] == null ||
+      res.data()!["hasSeenTutorial"] == false) {
+    db
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .set({"hasSeenTutorial": true}, SetOptions(merge: true));
+    return false;
+  }
+  return true;
+}

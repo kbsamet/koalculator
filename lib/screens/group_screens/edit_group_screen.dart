@@ -59,7 +59,9 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
     if (cropped == null) {
       return;
     }
-
+    refImageHelper("groupProfilePics/${widget.group.id}").putFile(
+      File(cropped.path),
+    );
     setState(() {
       profilePic = cropped;
     });

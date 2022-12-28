@@ -6,6 +6,7 @@ import 'package:koalculator/screens/main_page.dart';
 import 'package:koalculator/theme/theme_data.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart' show ReadBuffer, WriteBuffer;
+import 'package:showcaseview/showcaseview.dart';
 
 void main() async {
   initFlutter();
@@ -30,15 +31,18 @@ class MyApp extends StatelessWidget {
         }
       },
       child: Container(
-        color: const Color(0xff1B1C26),
-        child: MaterialApp(
-          title: 'Flutter Demo',
-          theme: darkTheme,
-          darkTheme: darkTheme,
-          themeMode: ThemeMode.system,
-          home: const MainPage(),
-        ),
-      ),
+          color: const Color(0xff1B1C26),
+          child: ShowCaseWidget(
+            builder: Builder(
+              builder: (context) => MaterialApp(
+                title: 'Flutter Demo',
+                theme: darkTheme,
+                darkTheme: darkTheme,
+                themeMode: ThemeMode.system,
+                home: const MainPage(),
+              ),
+            ),
+          )),
     );
   }
 }

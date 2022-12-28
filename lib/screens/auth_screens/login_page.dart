@@ -3,6 +3,7 @@ import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/screens/auth_screens/otp_page.dart';
 
 import '../../components/default_text_input.dart';
+import "package:url_launcher/url_launcher.dart";
 
 class LoginScreen extends StatefulWidget {
   final bool delete;
@@ -14,8 +15,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController phoneController = TextEditingController();
+  bool isAccepted = false;
 
   submitPhone() {
+    if (!isAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text("Koalculator'ın Gizlilik Şartları'nı kabul etmelisiniz")));
+      return;
+    }
     String pattern = r'(^(?:[+0]9)?[0-9]{10}$)';
     String phoneNumber = phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
     RegExp regExp = RegExp(pattern);
@@ -70,7 +78,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: "Telefon Numaran",
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          activeColor: const Color(0xffDA2851),
+                          value: isAccepted,
+                          onChanged: (value) => setState(() {
+                                isAccepted = value!;
+                              })),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text("Koalculator'ın ",
+                                  style: TextStyle(color: Colors.white)),
+                              InkWell(
+                                  onTap: () {
+                                    launchUrl(Uri.parse(
+                                        "https://pages.flycricket.io/koalculator/privacy.html"));
+                                  },
+                                  child: const Text(
+                                    "Gizlilik Şartları",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )),
+                              const Text("'nı okudum "),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: const [Text("ve kabul ediyorum.")],
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
                   ),
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10),

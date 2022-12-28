@@ -43,11 +43,15 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Uyuglamanın rehberinizdeki kişilerden size arkaş önerisi yapması için rehberinize erişime izin verin.</string>
+	<string>Uygulamamızın rehberinizdeki kişilerden size arkadaş önerisi yapması için rehberinize erişime izin verin.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Uygulamamız profil resminizi veritabanımızda saklamak için fotoğraflarınıza erişime ihtiyaç duyuyor. Profil resminiz sadece uygulamamızdaki kimliğinizi tanımlamak için kullanılacak ve üçüncü kişilerle paylaşılmayacaktır.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>https</string>
+	</array>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:koalculator/components/debts/custom_showcase.dart';
+import 'package:koalculator/components/debts/paid_box.dart';
+import 'package:koalculator/components/debts/to_pay_box.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/services/groups.dart';
 import 'package:koalculator/services/users.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../../components/default_button.dart';
 import '../../components/default_text_input.dart';
@@ -20,6 +24,11 @@ class AddDebtScreen extends StatefulWidget {
 
 class _AddDebtScreenState extends State<AddDebtScreen> {
   BannerAd? banner;
+  final keyOne = GlobalKey();
+  final keyTwo = GlobalKey();
+
+  List<GlobalKey> groupKeysToPay = [];
+  List<GlobalKey> groupKeysPaid = [];
 
   List<Group> groups = [];
   List<KoalUser> groupUsers = [];
@@ -229,6 +238,8 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     List<TextEditingController> newPaidControllers = [];
     List<TextEditingController> newToBePaidControllers = [];
     List<bool> newChangedInputs = [];
+    List<GlobalKey> newGroupKeysToPay = [];
+    List<GlobalKey> newGroupKeysPaid = [];
 
     List<bool> newCheckedUsers = [];
     for (var i = 0; i < g.users.length; i++) {
@@ -241,14 +252,27 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       newToBePaidControllers.add(TextEditingController());
       newChangedInputs.add(false);
       newCheckedUsers.add(true);
+      if (i < 3) {
+        newGroupKeysToPay.add(GlobalKey());
+        newGroupKeysPaid.add(GlobalKey());
+      }
+    }
+    if (!(await hasSeenTutorial())) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ShowCaseWidget.of(context).startShowCase(
+            [keyOne, keyTwo, ...groupKeysPaid, ...groupKeysToPay]);
+      });
     }
 
+    print([keyOne, keyTwo, ...groupKeysPaid, ...groupKeysToPay]);
     setState(() {
       groupUsers = newUsers;
       paidControllers = newPaidControllers;
       toBePaidControllers = newToBePaidControllers;
       changedInputs = newChangedInputs;
       checkedUsers = newCheckedUsers;
+      groupKeysPaid = newGroupKeysPaid;
+      groupKeysToPay = newGroupKeysToPay;
     });
   }
 
@@ -270,12 +294,35 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                     builder: (context) => const Dashboard(),
                   )),
                 ),
-                title: const Text(
-                  "Borç Ekle",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                      color: Color(0xffF71B4E)),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(),
+                    const Text(
+                      "Borç Ekle",
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xffF71B4E)),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.info_outlined,
+                        size: 25,
+                        color: Color(0xffF71B4E),
+                      ),
+                      onPressed: () {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ShowCaseWidget.of(context).startShowCase([
+                            keyOne,
+                            keyTwo,
+                            ...groupKeysPaid,
+                            ...groupKeysToPay
+                          ]);
+                        });
+                      },
+                    )
+                  ],
                 ),
               ),
               body: Container(
@@ -343,26 +390,36 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                         Flexible(
                           fit: FlexFit.tight,
                           flex: 2,
-                          child: DefaultTextInput(
-                              noMargin: true,
-                              noIcon: true,
-                              hintText: "Açıklama",
-                              controller: descriptionController,
-                              icon: Icons.announcement_rounded),
+                          child: CustomShowcaseWidget(
+                            globalKey: keyOne,
+                            description:
+                                "Buraya oluşturacağınız borcun açıklamasını giriniz (örn. Pizza)",
+                            child: DefaultTextInput(
+                                noMargin: true,
+                                noIcon: true,
+                                hintText: "Açıklama",
+                                controller: descriptionController,
+                                icon: Icons.announcement_rounded),
+                          ),
                         ),
                         const SizedBox(
                           width: 10,
                         ),
                         Flexible(
                           fit: FlexFit.tight,
-                          child: DefaultTextInput(
-                              onChanged: onAmountChanged,
-                              noIcon: true,
-                              onlyNumber: true,
-                              hintText: "Miktar",
-                              noMargin: true,
-                              controller: amountController,
-                              icon: Icons.monetization_on),
+                          child: CustomShowcaseWidget(
+                            globalKey: keyTwo,
+                            description:
+                                "Buraya oluşturacağınız borcun toplam tutarını giriniz (örn 200₺)",
+                            child: DefaultTextInput(
+                                onChanged: onAmountChanged,
+                                noIcon: true,
+                                onlyNumber: true,
+                                hintText: "Miktar",
+                                noMargin: true,
+                                controller: amountController,
+                                icon: Icons.monetization_on),
+                          ),
                         ),
                       ],
                     ),
@@ -427,130 +484,28 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                                           ),
                                           Row(
                                             children: [
-                                              SizedBox(
-                                                width: 100,
-                                                child: DefaultTextInput(
-                                                  isDisabled: !checkedUsers[
-                                                      groupUsers.indexOf(e)],
-                                                  controller: paidControllers[
-                                                      groupUsers.indexOf(e)],
-                                                  icon: Icons.abc,
-                                                  noIcon: true,
-                                                  noMargin: true,
-                                                  hintText: "Ödenen",
-                                                  onlyNumber: true,
-                                                ),
-                                              ),
+                                              PaidBox(
+                                                  e: e,
+                                                  groupUsers: groupUsers,
+                                                  groupKeysPaid: groupKeysPaid,
+                                                  paidControllers:
+                                                      paidControllers,
+                                                  checkedUsers: checkedUsers),
                                               const SizedBox(
                                                 width: 5,
                                               ),
-                                              SizedBox(
-                                                width: 100,
-                                                child: DefaultTextInput(
-                                                  isDisabled: !checkedUsers[
-                                                      groupUsers.indexOf(e)],
-                                                  onChanged: (s) {
-                                                    print(checkedUsers);
-                                                    setState(() {
-                                                      changedInputs[groupUsers
-                                                          .indexOf(e)] = true;
-                                                      if (s == "") {
-                                                        changedInputs[groupUsers
-                                                                .indexOf(e)] =
-                                                            false;
-                                                      }
-                                                    });
-                                                    num changedSum = 0;
-                                                    for (var i = 0;
-                                                        i <
-                                                            changedInputs
-                                                                .length;
-                                                        i++) {
-                                                      changedSum += changedInputs[
-                                                                  i] &&
-                                                              checkedUsers[i]
-                                                          ? num.parse(
-                                                              toBePaidControllers[
-                                                                      i]
-                                                                  .text)
-                                                          : 0;
-                                                    }
-                                                    print(changedSum);
-                                                    if (changedSum >
-                                                        num.parse(
-                                                            amountController
-                                                                .text)) {
-                                                      TextEditingController
-                                                          thisController =
-                                                          toBePaidControllers[
-                                                              groupUsers
-                                                                  .indexOf(e)];
-                                                      var diff = changedSum -
-                                                          num.parse(
-                                                              thisController
-                                                                  .text);
-                                                      thisController
-                                                          .text = (num.parse(
-                                                                  amountController
-                                                                      .text) -
-                                                              diff)
-                                                          .floor()
-                                                          .toString();
-                                                    }
-                                                    TextEditingController
-                                                        thisController =
-                                                        toBePaidControllers[
-                                                            groupUsers
-                                                                .indexOf(e)];
-                                                    for (var i = 0;
-                                                        i <
-                                                            toBePaidControllers
-                                                                .length;
-                                                        i++) {
-                                                      if (toBePaidControllers[
-                                                                  i] !=
-                                                              thisController &&
-                                                          !changedInputs[i] &&
-                                                          checkedUsers[i]) {
-                                                        var numToDivide = 0;
-                                                        for (var i = 0;
-                                                            i <
-                                                                changedInputs
-                                                                    .length;
-                                                            i++) {
-                                                          if (!changedInputs[
-                                                                  i] &&
-                                                              checkedUsers[i]) {
-                                                            numToDivide++;
-                                                          }
-                                                        }
-                                                        toBePaidControllers[i]
-                                                            .text = ((num.parse(
-                                                                        amountController
-                                                                            .text) -
-                                                                    changedSum) /
-                                                                numToDivide)
-                                                            .clamp(
-                                                                0,
-                                                                num.parse(
-                                                                    amountController
-                                                                        .text))
-                                                            .floor()
-                                                            .toString();
-                                                      }
-                                                    }
-                                                  },
-                                                  controller:
-                                                      toBePaidControllers[
-                                                          groupUsers
-                                                              .indexOf(e)],
-                                                  icon: Icons.abc,
-                                                  noIcon: true,
-                                                  noMargin: true,
-                                                  hintText: "Ödenecek",
-                                                  onlyNumber: true,
-                                                ),
-                                              ),
+                                              ToPayBox(
+                                                  e: e,
+                                                  groupUsers: groupUsers,
+                                                  groupKeysToPay:
+                                                      groupKeysToPay,
+                                                  toBePaidControllers:
+                                                      toBePaidControllers,
+                                                  checkedUsers: checkedUsers,
+                                                  amountController:
+                                                      amountController,
+                                                  changedInputs: changedInputs,
+                                                  setState: setState)
                                             ],
                                           ),
                                         ],
