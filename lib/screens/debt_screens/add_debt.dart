@@ -20,7 +20,6 @@ class AddDebtScreen extends StatefulWidget {
 
 class _AddDebtScreenState extends State<AddDebtScreen> {
   BannerAd? banner;
-  InterstitialAd? interstitial;
 
   List<Group> groups = [];
   List<KoalUser> groupUsers = [];
@@ -35,29 +34,36 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
 
   TextEditingController descriptionController = TextEditingController();
 
+  bool isLoading = false;
+  InterstitialAd? interstitial;
+
   @override
   void initState() {
     super.initState();
     initGroups();
-    showInterstitialAd();
+    loadInterstitialAd();
   }
 
-  void showInterstitialAd() async {
+  void loadInterstitialAd() async {
     await InterstitialAd.load(
-        adUnitId: 'ca-app-pub-3940256099942544/4411468910',
+        adUnitId: 'ca-app-pub-1382789323352838/8224723387',
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
             print(ad);
+            setState(() {
+              interstitial = ad;
+            });
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (ad) {
                 print('$ad onAdDismissedFullScreenContent.');
                 ad.dispose();
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: ((context) => const Dashboard())),
+                    (route) => false);
               },
             );
-            // Keep a reference to the ad so you can show it later.
-            interstitial = ad;
-            setState(() {});
           },
           onAdFailedToLoad: (LoadAdError error) {
             print('InterstitialAd failed to load: $error');
@@ -99,6 +105,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   }
 
   void addDebt() async {
+    setState(() {
+      isLoading = true;
+    });
     num totalPaid = 0;
     for (var i = 0; i < paidControllers.length; i++) {
       if (checkedUsers[i]) {
@@ -198,16 +207,21 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         toBePaid.remove(toBePaid.entries.first.key);
       }
     }
+
     if (interstitial != null) {
       interstitial!.show();
+    } else {
+      await Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: ((context) => const Dashboard())),
+          (route) => false);
     }
+    print(interstitial);
 
     await Future.delayed(const Duration(seconds: 2));
 
-    await Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: ((context) => const Dashboard())),
-        (route) => false);
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   getGroupUsers(Group g) async {
@@ -554,7 +568,11 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                       height: 20,
                     ),
                     const SizedBox(height: 5),
-                    DefaultButton(onPressed: addDebt, text: "Borç Ekle")
+                    DefaultButton(
+                      onPressed: addDebt,
+                      text: "Borç Ekle",
+                      isLoading: isLoading,
+                    )
                   ],
                 ),
               ),

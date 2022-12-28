@@ -5,6 +5,7 @@ import 'package:koalculator/components/dashboard/debt_button.dart';
 import 'package:koalculator/components/default_button.dart';
 import 'package:koalculator/components/default_text_input.dart';
 import 'package:koalculator/components/empty_button.dart';
+import 'package:koalculator/config/ad_config.dart';
 import 'package:koalculator/models/user.dart';
 import 'package:koalculator/screens/debt_screens/friend_debt_detail.dart';
 import 'package:koalculator/screens/profile_screens/profile_screen.dart';
@@ -105,6 +106,8 @@ class _DebtListViewState extends State<DebtListView> {
                             widget.debts as List<Debt>,
                             double.parse(debtAmountController.text).floor(),
                             context);
+
+                        await showAd();
                         if (res) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -258,7 +261,7 @@ class _DebtListViewState extends State<DebtListView> {
                                                     "Dürtü gönderme limitine ulaştınız. Lütfen 1 gün sonra tekrar deneyin.")));
                                         return;
                                       }
-
+                                      await showAd();
                                       sendPushMessage(
                                           "Dürtü",
                                           "${thisUser.name} sizi borcunuzu ödemeniz için dürttü.",

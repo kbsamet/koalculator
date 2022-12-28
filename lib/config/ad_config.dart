@@ -8,7 +8,7 @@ Future<InterstitialAd?> showAd() async {
   InterstitialAd? ad_;
 
   await InterstitialAd.load(
-      adUnitId: 'ca-app-pub-1382789323352838/2033993204',
+      adUnitId: 'ca-app-pub-1382789323352838/8224723387',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
@@ -21,11 +21,15 @@ Future<InterstitialAd?> showAd() async {
           );
           // Keep a reference to the ad so you can show it later.
           ad_ = ad;
+          if (ad_ != null) {
+            ad_!.show();
+          }
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('InterstitialAd failed to load: $error');
         },
       ));
+
   return ad_;
 }
 
