@@ -156,8 +156,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                     const SizedBox(
                       height: 30,
                     ),
-                    SizedBox(
-                        height: 200,
+                    Expanded(
                         child: ListView(
                             children: friends
                                 .map((e) => GroupFriendView(
@@ -165,9 +164,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                                       addUser: addOrRemoveFriend,
                                     ))
                                 .toList())),
-                    const SizedBox(
-                      height: 20,
-                    ),
                   ],
                 ))));
   }

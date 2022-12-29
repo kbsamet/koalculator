@@ -104,7 +104,7 @@ class _FriendDebtDetailState extends State<FriendDebtDetail> {
                           height: 20,
                         ),
                         Column(
-                          children: debts
+                          children: debts.reversed
                               .map((e) => FriendDebtDetailListView(debt: e))
                               .toList(),
                         ),

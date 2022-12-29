@@ -128,169 +128,177 @@ class _ProfileScreenState extends State<ProfileScreen> {
             body: Container(
                 margin: const EdgeInsets.all(10),
                 width: double.infinity,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.all(30),
-                        height: 150,
-                        width: 150,
-                        decoration: const BoxDecoration(
-                            color: Color(0xff292A33), shape: BoxShape.circle),
-                        child: Stack(
-                          children: [
-                            profilePic == null
-                                ? (imageUrl == null
-                                    ? Container()
-                                    : ClipRRect(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(100)),
-                                        child: CachedNetworkImage(
-                                          imageUrl: imageUrl!,
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(
-                                            color: Color(0xffF71B4E),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error),
-                                          width: 150,
-                                          height: 150,
-                                          fit: BoxFit.fill,
-                                        )))
-                                : ClipRRect(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(100)),
-                                    child: Image.file(
-                                      File(profilePic!.path),
-                                      width: 150,
-                                      height: 150,
-                                      fit: BoxFit.fill,
-                                    )),
-                            otherUser
-                                ? Container()
-                                : Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: InkWell(
-                                      onTap: setProfilePic,
-                                      child: const Icon(
-                                        Icons.add_a_photo_outlined,
-                                        color: Color(0xffF71B4E),
-                                        size: 30,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(30),
+                          height: 150,
+                          width: 150,
+                          decoration: const BoxDecoration(
+                              color: Color(0xff292A33), shape: BoxShape.circle),
+                          child: Stack(
+                            children: [
+                              profilePic == null
+                                  ? (imageUrl == null
+                                      ? Container()
+                                      : ClipRRect(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(100)),
+                                          child: CachedNetworkImage(
+                                            imageUrl: imageUrl!,
+                                            placeholder: (context, url) =>
+                                                const CircularProgressIndicator(
+                                              color: Color(0xffF71B4E),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
+                                            width: 150,
+                                            height: 150,
+                                            fit: BoxFit.fill,
+                                          )))
+                                  : ClipRRect(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(100)),
+                                      child: Image.file(
+                                        File(profilePic!.path),
+                                        width: 150,
+                                        height: 150,
+                                        fit: BoxFit.fill,
+                                      )),
+                              otherUser
+                                  ? Container()
+                                  : Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: InkWell(
+                                        onTap: setProfilePic,
+                                        child: const Icon(
+                                          Icons.add_a_photo_outlined,
+                                          color: Color(0xffF71B4E),
+                                          size: 30,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      otherUser
-                          ? Text(
-                              user == null ? "" : user!.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 32,
-                                  color: Color.fromARGB(255, 255, 202, 214)),
-                            )
-                          : DefaultTextInput(
-                              controller: nameController,
-                              icon: Icons.person,
-                              noIcon: true,
-                              hintText: user == null ? "" : user!.name,
-                            ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      DefaultTextInput(
-                        controller: otherUser
-                            ? TextEditingController(
-                                text: user == null ? "" : user!.bio)
-                            : bioController,
-                        readOnly: otherUser,
-                        hintText: user == null ? "" : user!.bio,
-                        icon: Icons.abc,
-                        noIcon: true,
-                        maxLines: 5,
-                        height: 100,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      !otherUser
-                          ? Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: DefaultButton(
-                                      text: "Değişiklikleri Kaydet",
-                                      onPressed: () async {
-                                        bool res = await updateUser(
-                                            FirebaseAuth
-                                                .instance.currentUser!.uid,
-                                            nameController.text,
-                                            bioController.text,
-                                            nameController.text == user!.name,
-                                            context);
-                                        if (res) {
-                                          Navigator.of(context).pop();
-                                        }
-                                      }),
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: EmptyButton(
-                                      text: "Çık",
-                                      onPressed: () async {
-                                        await FirebaseAuth.instance.signOut();
-                                        Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const MainPage()));
-                                      }),
-                                ),
-                              ],
-                            )
-                          : friendStatus == null
-                              ? Container()
-                              : friendStatus == FriendStatus.accepted
-                                  ? EmptyButton(
-                                      text: "Arkadaşlıktan Çıkar",
-                                      onPressed: () {
-                                        removeFriend(user!.id!);
-                                        friendStatus = FriendStatus.notFriends;
-                                        setState(() {});
-                                      })
-                                  : friendStatus == FriendStatus.pending
-                                      ? DefaultButton(
-                                          text: "Arkadaşlık İsteğini Kabul Et",
-                                          onPressed: () {
-                                            acceptFriendRequest(user!.id!);
-                                            friendStatus =
-                                                FriendStatus.notFriends;
-                                            setState(() {});
-                                          })
-                                      : friendStatus == FriendStatus.sent
-                                          ? EmptyButton(
-                                              text:
-                                                  "Arkadaşlık İsteğini İptal Et",
-                                              onPressed: () {
-                                                cancelFriendRequest(user!.id!);
-                                                friendStatus =
-                                                    FriendStatus.notFriends;
-                                                setState(() {});
-                                              })
-                                          : DefaultButton(
-                                              text: "Arkadaşlık İsteği Gönder",
-                                              onPressed: () {
-                                                sendFriendRequest(
-                                                    user!.id!, context);
-                                                friendStatus =
-                                                    FriendStatus.sent;
-                                                setState(() {});
-                                              })
-                    ]))));
+                        otherUser
+                            ? Text(
+                                user == null ? "" : user!.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 32,
+                                    color: Color.fromARGB(255, 255, 202, 214)),
+                              )
+                            : DefaultTextInput(
+                                controller: nameController,
+                                icon: Icons.person,
+                                noIcon: true,
+                                hintText: user == null ? "" : user!.name,
+                              ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        DefaultTextInput(
+                          controller: otherUser
+                              ? TextEditingController(
+                                  text: user == null ? "" : user!.bio)
+                              : bioController,
+                          readOnly: otherUser,
+                          hintText: user == null ? "" : user!.bio,
+                          icon: Icons.abc,
+                          noIcon: true,
+                          maxLines: 5,
+                          height: 100,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        !otherUser
+                            ? Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: DefaultButton(
+                                        text: "Değişiklikleri Kaydet",
+                                        onPressed: () async {
+                                          bool res = await updateUser(
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                              nameController.text,
+                                              bioController.text,
+                                              nameController.text == user!.name,
+                                              context);
+                                          if (res) {
+                                            Navigator.of(context).pop();
+                                          }
+                                        }),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: EmptyButton(
+                                        text: "Çık",
+                                        onPressed: () async {
+                                          await FirebaseAuth.instance.signOut();
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const MainPage()));
+                                        }),
+                                  ),
+                                ],
+                              )
+                            : friendStatus == null
+                                ? Container()
+                                : friendStatus == FriendStatus.accepted
+                                    ? EmptyButton(
+                                        text: "Arkadaşlıktan Çıkar",
+                                        onPressed: () {
+                                          removeFriend(user!.id!);
+                                          friendStatus =
+                                              FriendStatus.notFriends;
+                                          setState(() {});
+                                        })
+                                    : friendStatus == FriendStatus.pending
+                                        ? DefaultButton(
+                                            text:
+                                                "Arkadaşlık İsteğini Kabul Et",
+                                            onPressed: () {
+                                              acceptFriendRequest(user!.id!);
+                                              friendStatus =
+                                                  FriendStatus.notFriends;
+                                              setState(() {});
+                                            })
+                                        : friendStatus == FriendStatus.sent
+                                            ? EmptyButton(
+                                                text:
+                                                    "Arkadaşlık İsteğini İptal Et",
+                                                onPressed: () {
+                                                  cancelFriendRequest(
+                                                      user!.id!);
+                                                  friendStatus =
+                                                      FriendStatus.notFriends;
+                                                  setState(() {});
+                                                })
+                                            : DefaultButton(
+                                                text:
+                                                    "Arkadaşlık İsteği Gönder",
+                                                onPressed: () {
+                                                  sendFriendRequest(
+                                                      user!.id!, context);
+                                                  friendStatus =
+                                                      FriendStatus.sent;
+                                                  setState(() {});
+                                                })
+                      ]),
+                ))));
   }
 }

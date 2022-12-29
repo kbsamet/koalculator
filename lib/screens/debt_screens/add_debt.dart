@@ -125,11 +125,25 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
             : num.parse(paidControllers[i].text);
       }
     }
+
+    if (amountController.text == "") {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Tutar boş bıraklımaz")));
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
     if ((totalPaid - num.parse(amountController.text)).abs() >
         groupUsers.length) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text("Toplam ödenen ${amountController.text} e eşit değil")));
+
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -146,11 +160,17 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text("Toplam ödenecek ${amountController.text} e eşit değil")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
     if (descriptionController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Açıklama boş bıraklımaz")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -327,6 +347,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
               ),
               body: Container(
                 child: ListView(
+                  physics: const BouncingScrollPhysics(),
                   children: [
                     banner != null
                         ? Container(

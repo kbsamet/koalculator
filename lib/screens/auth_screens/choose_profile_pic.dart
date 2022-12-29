@@ -69,85 +69,91 @@ class _ChooseProfilePicScreenState extends State<ChooseProfilePicScreen> {
           body: Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Koalculator",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  const Divider(
-                    color: Color(0xffF71B4E),
-                    indent: 30,
-                    endIndent: 30,
-                    thickness: 2,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text(
-                    "Profil fotoğrafı seç",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(30),
-                    height: 150,
-                    width: 150,
-                    decoration: const BoxDecoration(
-                        color: Color(0xff292A33), shape: BoxShape.circle),
-                    child: Stack(
-                      children: [
-                        profilePic == null
-                            ? Container()
-                            : ClipRRect(
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(100)),
-                                child: Image.file(
-                                  File(profilePic!.path),
-                                  width: 150,
-                                  height: 150,
-                                  fit: BoxFit.fill,
-                                )),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: InkWell(
-                            onTap: enterPic,
-                            child: const Icon(
-                              Icons.add_a_photo_outlined,
-                              color: Color(0xffF71B4E),
-                              size: 30,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Koalculator",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 36),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    const Divider(
+                      color: Color(0xffF71B4E),
+                      indent: 30,
+                      endIndent: 30,
+                      thickness: 2,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Text(
+                      "Profil fotoğrafı seç",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(30),
+                      height: 150,
+                      width: 150,
+                      decoration: const BoxDecoration(
+                          color: Color(0xff292A33), shape: BoxShape.circle),
+                      child: Stack(
+                        children: [
+                          profilePic == null
+                              ? Container()
+                              : ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(100)),
+                                  child: Image.file(
+                                    File(profilePic!.path),
+                                    width: 150,
+                                    height: 150,
+                                    fit: BoxFit.fill,
+                                  )),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: InkWell(
+                              onTap: enterPic,
+                              child: const Icon(
+                                Icons.add_a_photo_outlined,
+                                color: Color(0xffF71B4E),
+                                size: 30,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const Text(
-                    "Bir Bio gir",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  DefaultTextInput(
-                    controller: bioController,
-                    icon: Icons.abc,
-                    noIcon: true,
-                    height: 100,
-                    maxLines: 5,
-                    hintText: "Bio",
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child:
-                          DefaultButton(onPressed: enterBio, text: "Devam et"))
-                ]),
+                    const Text(
+                      "Bir Bio gir",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    DefaultTextInput(
+                      controller: bioController,
+                      icon: Icons.abc,
+                      noIcon: true,
+                      height: 100,
+                      maxLines: 5,
+                      hintText: "Bio",
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: DefaultButton(
+                            onPressed: enterBio, text: "Devam et"))
+                  ]),
+            ),
           ),
         ),
       ),

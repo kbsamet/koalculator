@@ -27,6 +27,8 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreenState extends State<FriendsScreen>
     with TickerProviderStateMixin {
+  List<Contact> userContacts = [];
+
   Map<Contact, KoalUser?> friendsInContact = {};
   List<KoalUser> sentRequests = [];
   List<KoalUser> recievedRequests = [];
@@ -136,18 +138,25 @@ class _FriendsScreenState extends State<FriendsScreen>
         }
       }
       List<Contact> contacts = await ContactsService.getContacts();
+      setState(() {
+        userContacts = contacts;
+      });
       for (var element in contacts) {
-        String phone =
-            element.phones![0].value.toString().replaceAll(RegExp(r'\D'), '');
+        try {
+          String phone =
+              element.phones![0].value.toString().replaceAll(RegExp(r'\D'), '');
+          print(phone);
+          List match = userPhones.keys
+              .where((e) => e != null && phone.contains(e))
+              .toList();
 
-        List match = userPhones.keys
-            .where((e) => e != null && phone.contains(e))
-            .toList();
-
-        if (match.isNotEmpty) {
-          setState(() {
-            friendsInContact.addAll({element: userPhones[match.first]});
-          });
+          if (match.isNotEmpty) {
+            setState(() {
+              friendsInContact.addAll({element: userPhones[match.first]});
+            });
+          }
+        } catch (e) {
+          continue;
         }
       }
       setState(() {
@@ -274,70 +283,69 @@ class _FriendsScreenState extends State<FriendsScreen>
                           alignment: Alignment.center,
                           child: const CircularProgressIndicator(
                               color: Color(0xffF71B4E))))
-                  : Container(
+                  : SingleChildScrollView(
                       child: Column(
-                        children: <Widget>[
-                              Container(
-                                margin: const EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
+                          children: <Widget>[
+                                Container(
+                                  margin: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                            height: 35,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            decoration: const BoxDecoration(
+                                                color: Color(0xff8A525F),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10))),
+                                            child: TextField(
+                                              controller: nickNameController,
+                                              decoration: const InputDecoration(
+                                                  isDense: true,
+                                                  hintText:
+                                                      "Kullanıcı adından ekle",
+                                                  hintStyle: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  border: InputBorder.none),
+                                            )),
+                                      ),
+                                      const SizedBox(
+                                        width: 14,
+                                      ),
+                                      SizedBox(
                                           height: 35,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          decoration: const BoxDecoration(
-                                              color: Color(0xff8A525F),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10))),
-                                          child: TextField(
-                                            controller: nickNameController,
-                                            decoration: const InputDecoration(
-                                                isDense: true,
-                                                hintText:
-                                                    "Kullanıcı adından ekle",
-                                                hintStyle: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                border: InputBorder.none),
-                                          )),
-                                    ),
-                                    const SizedBox(
-                                      width: 14,
-                                    ),
-                                    SizedBox(
-                                        height: 35,
-                                        child: DefaultButton(
-                                            isLoading: isAddFriendLoading,
-                                            onPressed: () async {
-                                              setState(() {
-                                                isAddFriendLoading = true;
-                                              });
-                                              await sendFriendRequestByName(
-                                                  nickNameController.text,
-                                                  context);
-                                              await Future.delayed(
-                                                  const Duration(seconds: 2));
-                                              setState(() {
-                                                isAddFriendLoading = false;
-                                              });
-                                            },
-                                            text: "Ekle")),
-                                    const SizedBox(
-                                      height: 20,
-                                    )
-                                  ],
+                                          child: DefaultButton(
+                                              isLoading: isAddFriendLoading,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  isAddFriendLoading = true;
+                                                });
+                                                await sendFriendRequestByName(
+                                                    nickNameController.text,
+                                                    context);
+                                                await Future.delayed(
+                                                    const Duration(seconds: 2));
+                                                setState(() {
+                                                  isAddFriendLoading = false;
+                                                });
+                                              },
+                                              text: "Ekle")),
+                                      const SizedBox(
+                                        height: 20,
+                                      )
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ] +
-                            friendsInContact.entries
-                                .map((e) => FriendInContact(
-                                      user: e.value!,
-                                      contact: e.key,
-                                      reset: getContacts,
-                                    ))
-                                .toList(),
-                      ),
+                              ] +
+                              friendsInContact.entries
+                                  .map((e) => FriendInContact(
+                                        user: e.value!,
+                                        contact: e.key,
+                                        reset: getContacts,
+                                      ))
+                                  .toList()),
                     ),
             ),
             KeepPageAlive(
