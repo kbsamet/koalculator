@@ -143,6 +143,7 @@ Future<List<Debt>> getDebtsByFriendId(String id) async {
   }
 }
 
+
 Future<List<Debt>> getPaginatedPastDebtsByFriendId(
     String id, int start, int end) async {
   List<Debt> debts = [];

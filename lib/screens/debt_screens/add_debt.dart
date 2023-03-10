@@ -303,6 +303,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         : Container(
             color: const Color(0xff1B1C26),
             child: Scaffold(
+              resizeToAvoidBottomInset: false,
               appBar: AppBar(
                 backgroundColor: const Color(0xff1B1C26),
                 elevation: 0,

@@ -1,4 +1,5 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:koalculator/components/utils/keys.dart';
 
 Future initMobAds() async {
   await MobileAds.instance.initialize();
@@ -8,7 +9,7 @@ Future<InterstitialAd?> showAd() async {
   InterstitialAd? ad_;
 
   await InterstitialAd.load(
-      adUnitId: 'ca-app-pub-1382789323352838/8224723387',
+      adUnitId: adKey,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
